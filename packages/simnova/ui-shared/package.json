@@ -1,0 +1,33 @@
+{
+	"name": "@simnova/ui-shared",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.tsx",
+		"./env": "./env/index.d.ts"
+	},
+	"scripts": {
+		"build": "tsgo --noEmit",
+		"storybook": "storybook dev -p 6007",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@ant-design/icons": "catalog:",
+		"@cellix/ui-core": "workspace:*",
+		"antd": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"react-oidc-context": "^3.3.0",
+		"react-router-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/react": "^19.1.11",
+		"@types/react-dom": "^19.1.6",
+		"typescript": "catalog:"
+	}
+}

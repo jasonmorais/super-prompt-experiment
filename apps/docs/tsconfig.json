@@ -1,0 +1,10 @@
+{
+	"extends": ["@cellix/config-typescript/base", "@docusaurus/tsconfig"],
+	"compilerOptions": {
+		"types": ["@docusaurus/module-type-aliases"],
+		"paths": {
+			"@site/*": ["./*"]
+		}
+	},
+	"include": ["./src", "./docusaurus.config.*", "./sidebars.*"]
+}

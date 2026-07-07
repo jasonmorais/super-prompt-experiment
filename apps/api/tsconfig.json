@@ -1,0 +1,63 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"types": [
+			"node"
+		],
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+		"exactOptionalPropertyTypes": false
+	},
+	"include": [
+		"src",
+		"globals.d.ts"
+	],
+	"references": [
+		{
+			"path": "../../packages/cellix/api-services-spec"
+		},
+		{
+			"path": "../../packages/cellix/mongoose-seedwork"
+		},
+		{
+			"path": "../../packages/simnova/application-services"
+		},
+		{
+			"path": "../../packages/simnova/context-spec"
+		},
+		{
+			"path": "../../packages/simnova/event-handler"
+		},
+		{
+			"path": "../../packages/simnova/graphql"
+		},
+		{
+			"path": "../../packages/simnova/graphql-handler"
+		},
+		{
+			"path": "../../packages/simnova/persistence"
+		},
+		{
+			"path": "../../packages/simnova/rest"
+		},
+		{
+			"path": "../../packages/simnova/service-apollo-server"
+		},
+		{
+			"path": "../../packages/simnova/service-blob-storage"
+		},
+		{
+			"path": "../../packages/simnova/service-queue-storage"
+		},
+		{
+			"path": "../../packages/simnova/service-mongoose"
+		},
+		{
+			"path": "../../packages/simnova/service-otel"
+		},
+		{
+			"path": "../../packages/simnova/service-token-validation"
+		}
+	]
+}

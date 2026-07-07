@@ -1,0 +1,23 @@
+{
+	"extends": "@cellix/config-typescript/base",
+	"compilerOptions": {
+		"noEmit": true,
+		"composite": false,
+		"jsx": "react-jsx",
+		"lib": [
+			"ES2023",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"types": [
+			"vite/client"
+		],
+		"exactOptionalPropertyTypes": false,
+		"skipLibCheck": true
+	},
+	"include": [
+		"src"
+	]
+}

@@ -1,0 +1,38 @@
+{
+	"name": "@simnova/graphql",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist",
+		"src/schema/**/*.graphql"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@cellix/graphql-codegen": "workspace:*",
+		"@cellix/graphql-core": "workspace:*",
+		"@graphql-tools/utils": "^10.9.0",
+		"@simnova/application-services": "workspace:*",
+		"graphql": "catalog:",
+		"graphql-middleware": "^6.1.35"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}
