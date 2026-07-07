@@ -13,6 +13,7 @@
 	},
 	"scripts": {
 		"build": "tsgo --build",
+		"lint": "biome lint",
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
@@ -22,6 +23,7 @@
 		"rolldown": "1.0.0-beta.55"
 	},
 	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",

@@ -1,5 +1,5 @@
 {
-	"extends": "../../../tsconfig.base.json",
+	"extends": "@cellix/config-typescript/base",
 	"compilerOptions": {
 		"noEmit": true,
 		"jsx": "react-jsx",
@@ -10,7 +10,9 @@
 		],
 		"module": "ESNext",
 		"moduleResolution": "bundler",
-		"composite": false
+		"composite": false,
+		"exactOptionalPropertyTypes": false,
+		"skipLibCheck": true
 	},
 	"include": [
 		"src",

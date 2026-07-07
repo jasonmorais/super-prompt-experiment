@@ -19,7 +19,11 @@
 	"scripts": {
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
-		"clean": "rimraf dist"
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
 	},
 	"dependencies": {
 		"@cellix/mongoose-seedwork": "workspace:*",
@@ -28,6 +32,7 @@
 		"mongoose": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"rimraf": "catalog:",
 		"typescript": "catalog:"
 	}

@@ -1,5 +1,5 @@
 {
-	"extends": "../../tsconfig.base.json",
+	"extends": "@cellix/config-typescript/base",
 	"compilerOptions": {
 		"noEmit": true,
 		"composite": false,
@@ -13,7 +13,9 @@
 		"moduleResolution": "bundler",
 		"types": [
 			"vite/client"
-		]
+		],
+		"exactOptionalPropertyTypes": false,
+		"skipLibCheck": true
 	},
 	"include": [
 		"src"

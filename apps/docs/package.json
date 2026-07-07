@@ -21,6 +21,7 @@
 		"react-dom": "^19.0.0"
 	},
 	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"@docusaurus/module-type-aliases": "^3.10.1",
 		"@docusaurus/tsconfig": "^3.10.1",
 		"@docusaurus/types": "^3.10.1",

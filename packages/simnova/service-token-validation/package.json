@@ -15,14 +15,19 @@
 	"scripts": {
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
-		"clean": "rimraf dist"
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
 	},
 	"dependencies": {
 		"jose": "^5.9.6",
 		"@cellix/api-services-spec": "workspace:*"
 	},
 	"devDependencies": {
-		"typescript": "catalog:",
-		"rimraf": "catalog:"
+		"@cellix/config-typescript": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
 	}
 }

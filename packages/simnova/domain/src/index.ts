@@ -8,4 +8,5 @@ export type { Passport } from './domain/passport-factory.ts';
  * Empty in the blank scaffold — add your bounded-context unit-of-work types
  * here as the domain grows (e.g. `Community: { Community: { CommunityUnitOfWork } }`).
  */
+// biome-ignore lint:noEmptyInterface — extension point.
 export interface DomainDataSource {}

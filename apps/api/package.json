@@ -14,7 +14,11 @@
 		"test": "vitest run --silent --reporter=dot",
 		"clean": "rimraf dist deploy",
 		"prestart": "pnpm run prepare:deploy && node scripts/ensure-local-settings.mjs",
-		"start": "func start --typescript --script-root deploy/ --port 7071"
+		"start": "func start --typescript --script-root deploy/ --port 7071",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
 	},
 	"dependencies": {
 		"@azure/functions": "catalog:",
@@ -37,8 +41,10 @@
 	},
 	"devDependencies": {
 		"@cellix/config-rolldown": "workspace:*",
+		"@cellix/config-typescript": "workspace:*",
 		"rimraf": "catalog:",
 		"rolldown": "1.0.0-beta.55",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"undici-types": "^6.21.0"
 	}
 }

@@ -4,6 +4,7 @@ import type { DomainDataSource, Passport } from '@simnova/domain';
  * Read-only (query) data sources. Empty in the blank scaffold; add read
  * repositories per bounded context here.
  */
+// biome-ignore lint:noEmptyInterface — extension point.
 export interface ReadonlyDataSource {}
 
 /** Passport-scoped read/write data sources handed to application services. */

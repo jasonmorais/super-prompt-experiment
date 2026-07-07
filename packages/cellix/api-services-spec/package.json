@@ -13,11 +13,16 @@
 		}
 	},
 	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
 		"clean": "rimraf dist"
 	},
 	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"typescript": "catalog:",
 		"rimraf": "catalog:"
 	}

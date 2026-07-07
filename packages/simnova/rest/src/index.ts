@@ -12,7 +12,9 @@ export const restHandlerCreator = (applicationServicesFactory: ApplicationServic
 	return async (request: HttpRequest, _context: InvocationContext) => {
 		const rawAuthHeader = request.headers.get('Authorization') ?? undefined;
 		const hints: PrincipalHints = {
+			// biome-ignore lint:useLiteralKeys — Azure Functions route params are index-accessed.
 			memberId: request.params['memberId'] ?? undefined,
+			// biome-ignore lint:useLiteralKeys — Azure Functions route params are index-accessed.
 			communityId: request.params['communityId'] ?? undefined,
 		};
 		await applicationServicesFactory.forRequest(rawAuthHeader, hints);

@@ -57,14 +57,19 @@
 		}
 	},
 	"scripts": {
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",
 		"test:coverage": "vitest run --coverage --silent --reporter=dot",
 		"test:watch": "vitest",
+		"lint": "biome lint",
 		"clean": "rimraf dist tsconfig.tsbuildinfo"
 	},
 	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"typescript": "catalog:",

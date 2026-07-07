@@ -14,6 +14,7 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"@storybook/addon-vitest": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
 		"typescript": "catalog:",

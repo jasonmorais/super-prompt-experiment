@@ -10,6 +10,9 @@
 		"build": "turbo run build",
 		"dev": "turbo run dev",
 		"test": "turbo run test",
+		"lint": "turbo run lint",
+		"format": "turbo run format",
+		"format:check": "turbo run format:check",
 		"gen": "graphql-codegen --config codegen.yml",
 		"clean": "turbo run clean && rimraf dist node_modules **/coverage",
 		"start": "turbo run build && turbo run start",
@@ -19,11 +22,13 @@
 		"start-emulator:auth-server": "pnpm --filter @apps/server-oauth2-mock start"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "2.4.10",
 		"@types/node": "catalog:",
 		"@typescript/native-preview": "catalog:",
 		"@vitest/coverage-istanbul": "catalog:",
 		"concurrently": "^9.1.2",
 		"rimraf": "^6.0.1",
+		"ts-scope-trimmer-plugin": "^1.0.2",
 		"turbo": "2.9.18",
 		"typescript": "catalog:",
 		"vitest": "catalog:"

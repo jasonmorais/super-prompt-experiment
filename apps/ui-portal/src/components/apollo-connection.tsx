@@ -21,6 +21,7 @@ export const ApolloConnection: FC<ApolloConnectionProps> = ({ children }) => {
 	const client = useMemo(() => {
 		const httpLink = new HttpLink({ uri: COMMON_API_ENDPOINT ?? '/api/graphql' });
 		const authLink = setContext((_operation, prevContext) => {
+			// biome-ignore lint:useLiteralKeys — apollo context is an index signature.
 			const headers = (prevContext['headers'] as Record<string, string> | undefined) ?? {};
 			return {
 				headers: {

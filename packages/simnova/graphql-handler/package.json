@@ -16,7 +16,11 @@
 	"scripts": {
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
-		"clean": "rimraf dist"
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
 	},
 	"dependencies": {
 		"@apollo/server": "catalog:",
@@ -28,7 +32,9 @@
 		"graphql": "catalog:"
 	},
 	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"rimraf": "catalog:",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"undici-types": "^6.21.0"
 	}
 }

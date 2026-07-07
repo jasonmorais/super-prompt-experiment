@@ -16,7 +16,11 @@
 	"scripts": {
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
-		"clean": "rimraf dist"
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
 	},
 	"dependencies": {
 		"@apollo/server": "catalog:",
@@ -27,6 +31,7 @@
 		"graphql-middleware": "^6.1.35"
 	},
 	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"@types/graphql-depth-limit": "^1.1.6",
 		"rimraf": "catalog:",
 		"typescript": "catalog:"

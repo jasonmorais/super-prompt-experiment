@@ -1,0 +1,86 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+	"files": {
+		"ignoreUnknown": false,
+		"includes": [
+			"**",
+			"!**/dist",
+			"!**/build",
+			"!**/deploy",
+			"!**/target",
+			"!**/node_modules",
+			"!**/coverage",
+			"!**/.turbo",
+			"!**/*.tsbuildinfo",
+			"!**/generated.*",
+			"!**/*.generated.*",
+			"!**/graphql.schema.json"
+		]
+	},
+	"css": { "parser": { "cssModules": true } },
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"attributePosition": "multiline",
+		"lineWidth": 230
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"complexity": {
+				"noStaticOnlyClass": "error",
+				"noUselessConstructor": "error"
+			},
+			"style": {
+				"noCommonJs": "error",
+				"noNamespace": "error",
+				"noNonNullAssertion": "error",
+				"useAsConstAssertion": "error"
+			},
+			"suspicious": {
+				"noEmptyBlockStatements": "error",
+				"noExplicitAny": "error",
+				"useAwait": "error"
+			}
+		},
+		"includes": [
+			"**/src/**",
+			"**/components/**",
+			"**/tests/**",
+			"!*.config.*",
+			"!**/*.config.*",
+			"!**/node_modules/**",
+			"!**/dist/**",
+			"!**/*.d.ts",
+			"!**/package.json",
+			"!**/coverage/**",
+			"!**/generated.ts",
+			"!**/generated.tsx",
+			"!**/*.generated.ts",
+			"!**/graphql.schema.json",
+			"!**/App.css"
+		]
+	},
+	"javascript": { "formatter": { "quoteStyle": "single" }, "globals": [] },
+	"overrides": [
+		{
+			"includes": ["build-pipeline/scripts/**/*.{c|m}js", "scripts/local-dev/**/*.mjs"],
+			"linter": { "rules": { "style": { "noCommonJs": "off" } } }
+		},
+		{
+			"includes": ["packages/simnova/persistence/**/*.ts", "packages/simnova/data-sources-mongoose-models/**/*.ts"],
+			"linter": {
+				"rules": {
+					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
+				}
+			}
+		}
+	],
+	"assist": {
+		"enabled": true,
+		"actions": { "source": { "organizeImports": "on" } }
+	}
+}

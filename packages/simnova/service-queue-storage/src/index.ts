@@ -9,6 +9,7 @@ export type { QueueLoggingConfig } from '@cellix/service-queue-storage';
  * `registerQueues` from `@cellix/service-queue-storage`, then surface their
  * `sendMessageTo<Queue>` / `receiveFrom<Queue>` operations on this interface.
  */
+// biome-ignore lint:noEmptyInterface — extension point; populated as queues are registered.
 export interface QueueStorageOperations {}
 
 /**

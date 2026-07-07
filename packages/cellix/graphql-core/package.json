@@ -19,6 +19,10 @@
 		}
 	},
 	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint",
 		"build": "tsgo --build",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",
@@ -31,6 +35,7 @@
 		"graphql-scalars": "^1.24.2"
 	},
 	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",

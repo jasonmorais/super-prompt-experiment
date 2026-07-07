@@ -6,16 +6,24 @@
 		"${configDir}/**/*.spec.tsx"
 	],
 	"compilerOptions": {
-		/*
-		 * Type-checking rules are intentionally omitted — Simnova ships as a
-		 * blank slate. Add your own guardrails (e.g. "strict", "noUnusedLocals",
-		 * "noUncheckedIndexedAccess", "noImplicitReturns") here or per-package.
-		 */
+		/* Type Checking */
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"exactOptionalPropertyTypes": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strict": true,
 
 		/* Modules */
 		"allowImportingTsExtensions": true,
 		"module": "NodeNext",
 		"moduleResolution": "nodenext",
+		"noUncheckedSideEffectImports": true,
 		"rewriteRelativeImportExtensions": true,
 
 		/* Emit */
@@ -35,6 +43,13 @@
 		"incremental": true,
 
 		/* Completeness */
-		"skipLibCheck": true
+		"skipLibCheck": false,
+
+		/* Plugins */
+		"plugins": [
+			{
+				"name": "ts-scope-trimmer-plugin"
+			}
+		]
 	}
 }
