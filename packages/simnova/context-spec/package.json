@@ -1,0 +1,31 @@
+{
+	"name": "@simnova/context-spec",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@simnova/persistence": "workspace:*",
+		"@simnova/service-apollo-server": "workspace:*",
+		"@simnova/service-blob-storage": "workspace:*",
+		"@simnova/service-queue-storage": "workspace:*",
+		"@simnova/service-token-validation": "workspace:*"
+	},
+	"devDependencies": {
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

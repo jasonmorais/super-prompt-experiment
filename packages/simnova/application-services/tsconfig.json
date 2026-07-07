@@ -1,0 +1,13 @@
+{
+	"extends": "../../../tsconfig.node.json",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"references": [
+		{ "path": "../context-spec" },
+		{ "path": "../domain" }
+	]
+}

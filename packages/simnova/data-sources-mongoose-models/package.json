@@ -1,0 +1,28 @@
+{
+	"name": "@simnova/data-sources-mongoose-models",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@cellix/mongoose-seedwork": "workspace:*",
+		"mongoose": "catalog:"
+	},
+	"devDependencies": {
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

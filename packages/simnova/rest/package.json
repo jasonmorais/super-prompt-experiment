@@ -1,0 +1,28 @@
+{
+	"name": "@simnova/rest",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@azure/functions": "catalog:",
+		"@simnova/application-services": "workspace:*"
+	},
+	"devDependencies": {
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

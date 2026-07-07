@@ -1,0 +1,34 @@
+{
+	"name": "@simnova/graphql-handler",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Azure Functions HTTP integration for GraphQL",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@apollo/utils.withrequired": "^3.0.0",
+		"@azure/functions": "catalog:",
+		"@simnova/application-services": "workspace:*",
+		"@simnova/graphql": "workspace:*",
+		"@simnova/service-apollo-server": "workspace:*",
+		"graphql": "catalog:"
+	},
+	"devDependencies": {
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

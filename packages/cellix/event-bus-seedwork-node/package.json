@@ -1,0 +1,33 @@
+{
+	"name": "@cellix/event-bus-seedwork-node",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"test": "vitest run --silent --reporter=dot",
+		"test:coverage": "vitest run --coverage --silent --reporter=dot",
+		"test:watch": "vitest",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@cellix/domain-seedwork": "workspace:*",
+		"@opentelemetry/api": "^1.9.0"
+	},
+	"devDependencies": {
+		"@cellix/config-vitest": "workspace:*",
+		"@vitest/coverage-istanbul": "catalog:",
+		"typescript": "catalog:",
+		"rimraf": "catalog:"
+	}
+}

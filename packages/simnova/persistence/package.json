@@ -1,0 +1,34 @@
+{
+	"name": "@simnova/persistence",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./datasources": {
+			"types": "./dist/datasources/index.d.ts",
+			"default": "./dist/datasources/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"@cellix/mongoose-seedwork": "workspace:*",
+		"@simnova/data-sources-mongoose-models": "workspace:*",
+		"@simnova/domain": "workspace:*",
+		"mongoose": "catalog:"
+	},
+	"devDependencies": {
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

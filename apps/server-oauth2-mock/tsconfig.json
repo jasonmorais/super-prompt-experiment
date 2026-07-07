@@ -1,0 +1,10 @@
+{
+	"extends": "../../tsconfig.node.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
+		"tsBuildInfoFile": "tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"references": [{ "path": "../../packages/cellix/server-oauth2-mock-seedwork" }]
+}

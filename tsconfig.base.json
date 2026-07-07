@@ -1,0 +1,40 @@
+{
+	"exclude": [
+		"${configDir}/**/*.test.ts",
+		"${configDir}/**/*.spec.ts",
+		"${configDir}/**/*.test.tsx",
+		"${configDir}/**/*.spec.tsx"
+	],
+	"compilerOptions": {
+		/*
+		 * Type-checking rules are intentionally omitted — Simnova ships as a
+		 * blank slate. Add your own guardrails (e.g. "strict", "noUnusedLocals",
+		 * "noUncheckedIndexedAccess", "noImplicitReturns") here or per-package.
+		 */
+
+		/* Modules */
+		"allowImportingTsExtensions": true,
+		"module": "NodeNext",
+		"moduleResolution": "nodenext",
+		"rewriteRelativeImportExtensions": true,
+
+		/* Emit */
+		"declaration": true,
+		"sourceMap": true,
+
+		/* Interop Constraints */
+		"erasableSyntaxOnly": true,
+		"verbatimModuleSyntax": true,
+
+		/* Language and Environment */
+		"lib": ["ES2023"],
+		"target": "ES2022",
+
+		/* Projects */
+		"composite": true,
+		"incremental": true,
+
+		/* Completeness */
+		"skipLibCheck": true
+	}
+}

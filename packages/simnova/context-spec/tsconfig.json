@@ -1,0 +1,16 @@
+{
+	"extends": "../../../tsconfig.node.json",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"references": [
+		{ "path": "../persistence" },
+		{ "path": "../service-apollo-server" },
+		{ "path": "../service-blob-storage" },
+		{ "path": "../service-queue-storage" },
+		{ "path": "../service-token-validation" }
+	]
+}

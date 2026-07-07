@@ -1,0 +1,29 @@
+{
+	"name": "@simnova/service-mongoose",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist"
+	},
+	"dependencies": {
+		"mongoose": "catalog:",
+		"@cellix/api-services-spec": "workspace:*",
+		"@cellix/mongoose-seedwork": "workspace:*"
+	},
+	"devDependencies": {
+		"typescript": "catalog:",
+		"rimraf": "catalog:"
+	}
+}
