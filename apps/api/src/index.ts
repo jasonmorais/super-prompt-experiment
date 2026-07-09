@@ -1,22 +1,41 @@
 import './service-config/otel-starter.ts';
 
-import type { ApplicationServices } from '@simnova/application-services';
-import { buildApplicationServicesFactory } from '@simnova/application-services';
-import type { ApiContextSpec } from '@simnova/context-spec';
-import { RegisterEventHandlers } from '@simnova/event-handler';
-import type { GraphContext } from '@simnova/graphql-handler';
-import { graphHandlerCreator } from '@simnova/graphql-handler';
-import { restHandlerCreator } from '@simnova/rest';
-import { ServiceApolloServer } from '@simnova/service-apollo-server';
-import { ServiceBlobStorage } from '@simnova/service-blob-storage';
-import { ServiceMongoose } from '@simnova/service-mongoose';
-import { ServiceQueueStorage } from '@simnova/service-queue-storage';
-import { ServiceTokenValidation } from '@simnova/service-token-validation';
+import type { ApplicationServices } from '@axc/application-services';
+import { buildApplicationServicesFactory } from '@axc/application-services';
+import type { ApiContextSpec } from '@axc/context-spec';
+import { RegisterEventHandlers } from '@axc/event-handler';
+import type { GraphContext } from '@axc/graphql-handler';
+import { graphHandlerCreator } from '@axc/graphql-handler';
+import { restHandlerCreator } from '@axc/rest';
+import { ServiceApolloServer } from '@axc/service-apollo-server';
+import { ServiceBlobStorage } from '@axc/service-blob-storage';
+import { ServiceMongoose } from '@axc/service-mongoose';
+import { ServiceQueueStorage } from '@axc/service-queue-storage';
+import { ServiceTokenValidation } from '@axc/service-token-validation';
 import { Cellix } from './cellix.ts';
 import * as ApolloServerConfig from './service-config/apollo-server/index.ts';
 import * as AzureStorageConfig from './service-config/azure-storage/index.ts';
 import * as MongooseConfig from './service-config/mongoose/index.ts';
 import * as TokenValidationConfig from './service-config/token-validation/index.ts';
+
+const healthEnvironment = (): 'local' | 'test' | 'production' => {
+	if (process.env.NODE_ENV === 'test') {
+		return 'test';
+	}
+	// biome-ignore lint:useLiteralKeys -- Custom ProcessEnv keys are index-signature values.
+	if (process.env['AZURE_FUNCTIONS_ENVIRONMENT'] === 'Production' || process.env.NODE_ENV === 'production') {
+		return 'production';
+	}
+	return 'local';
+};
+
+const healthResponse = () => ({
+	status: 'ok',
+	service: 'agentCourses-api',
+	projectCode: 'axc',
+	environment: healthEnvironment(),
+	timestamp: new Date().toISOString(),
+});
 
 /**
  * Application composition root.
@@ -55,6 +74,6 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 	.registerAzureFunctionHttpHandler('graphql', { route: 'graphql/{*segments}', methods: ['GET', 'POST', 'OPTIONS'] }, (appServicesFactory, infrastructureRegistry) =>
 		graphHandlerCreator(infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer), appServicesFactory),
 	)
-	.registerAzureFunctionHttpHandler('rest', { route: 'rest/{*rest}' }, restHandlerCreator)
-	.registerAzureFunctionHttpHandler('health', { route: 'health', methods: ['GET'], authLevel: 'anonymous' }, () => () => Promise.resolve({ status: 200, jsonBody: { status: 'ok' } }))
+	.registerAzureFunctionHttpHandler('health', { route: 'health', methods: ['GET'], authLevel: 'anonymous' }, () => () => Promise.resolve({ status: 200, jsonBody: healthResponse() }))
+	.registerAzureFunctionHttpHandler('rest', { route: '{*rest}', methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'] }, restHandlerCreator)
 	.startUp();

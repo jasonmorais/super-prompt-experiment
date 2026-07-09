@@ -1,0 +1,16 @@
+type Course implements MongoBase {
+	title: String!
+	summary: String!
+	modality: String!
+	status: String!
+	tags: [String!]!
+
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+extend type Query {
+	courses: [Course!]!
+}

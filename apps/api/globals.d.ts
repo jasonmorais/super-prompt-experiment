@@ -6,7 +6,7 @@ declare namespace NodeJS {
 		AZURE_STORAGE_CONNECTION_STRING: string;
 		AZURE_STORAGE_ACCOUNT_NAME: string;
 
-		// Portal / OIDC (consumed by @simnova/service-token-validation)
+		// Portal / OIDC (consumed by @axc/service-token-validation)
 		PORTAL_OIDC_AUDIENCE: string;
 		PORTAL_OIDC_ENDPOINT: string;
 		PORTAL_OIDC_ISSUER: string;

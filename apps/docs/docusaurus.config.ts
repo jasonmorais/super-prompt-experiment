@@ -3,9 +3,9 @@ import type * as Preset from '@docusaurus/preset-classic';
 import { themes as prismThemes } from 'prism-react-renderer';
 
 const config: Config = {
-	title: 'Simnova',
+	title: 'AgentCourses',
 	tagline: 'A bare-bones application built on the Cellix framework',
-	url: 'https://simnova.localhost',
+	url: 'https://agentcourses.localhost',
 	baseUrl: '/',
 	onBrokenLinks: 'warn',
 	onBrokenMarkdownLinks: 'warn',
@@ -22,7 +22,7 @@ const config: Config = {
 	],
 	themeConfig: {
 		navbar: {
-			title: 'Simnova',
+			title: 'AgentCourses',
 			items: [{ type: 'docSidebar', sidebarId: 'docsSidebar', position: 'left', label: 'Docs' }],
 		},
 		prism: { theme: prismThemes.github, darkTheme: prismThemes.dracula },

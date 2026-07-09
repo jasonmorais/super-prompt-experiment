@@ -5,6 +5,7 @@ export interface MongoMemoryReplicaSetConfig {
 	port: number;
 	dbName: string;
 	replSetName: string;
+	ip?: string;
 	binaryVersion?: string;
 }
 
@@ -16,6 +17,7 @@ export interface MongoMemoryServerConfig {
 	port: number;
 	dbName: string;
 	replSetName: string;
+	ip?: string;
 	binaryVersion?: string;
 	collectionsToSeed?: string[];
 	seedDatabase?: (db: mongoose.Connection) => Promise<void>;
@@ -37,6 +39,7 @@ export async function startMongoMemoryReplicaSet(config: MongoMemoryReplicaSetCo
 		replSet: {
 			name: config.replSetName,
 			count: 1,
+			ip: config.ip ?? '127.0.0.1',
 			storageEngine: 'wiredTiger',
 		},
 		instanceOpts: [

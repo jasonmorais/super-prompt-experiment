@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@cellix/server-mongodb-memory-mock-seedwork": "workspace:*",
+		"@axc/domain": "workspace:*",
 		"dotenv": "^16.4.5",
 		"mongodb": "catalog:",
 		"mongoose": "catalog:"

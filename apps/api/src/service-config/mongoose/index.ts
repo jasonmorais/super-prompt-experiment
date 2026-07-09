@@ -1,6 +1,6 @@
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { Persistence } from '@simnova/persistence';
-import type { ServiceMongooseOptions } from '@simnova/service-mongoose';
+import { Persistence } from '@axc/persistence';
+import type { ServiceMongooseOptions } from '@axc/service-mongoose';
 
 const { COSMOSDB_DBNAME, COSMOSDB_CONNECTION_STRING, NODE_ENV } = process.env;
 

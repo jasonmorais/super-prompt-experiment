@@ -1,6 +1,6 @@
 # @apps/api
 
-The Azure Functions host for Simnova. It is the composition root that wires the
+The Azure Functions host for AgentCourses. It is the composition root that wires the
 application together using the Cellix bootstrap (`src/cellix.ts`):
 
 1. **Register infrastructure services** — Mongo, blob + queue storage, token

@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-/// <reference types="@simnova/ui-shared/env" />
+/// <reference types="@axc/ui-shared/env" />
 
 interface ImportMetaEnv {
 	readonly VITE_APP_UI_PORTAL_AUTHORITY?: string;

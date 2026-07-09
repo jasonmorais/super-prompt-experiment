@@ -17,8 +17,8 @@
 	"dependencies": {
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
-		"@simnova/ui-route-root": "workspace:*",
-		"@simnova/ui-shared": "workspace:*",
+		"@axc/ui-route-root": "workspace:*",
+		"@axc/ui-shared": "workspace:*",
 		"antd": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",

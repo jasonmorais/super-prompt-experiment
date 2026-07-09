@@ -2,17 +2,12 @@
 	"extends": "@cellix/config-typescript/node",
 	"compilerOptions": {
 		"outDir": "dist",
-		"types": [
-			"node"
-		],
+		"types": ["node"],
 		"rootDir": "src",
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
 		"exactOptionalPropertyTypes": false
 	},
-	"include": [
-		"src",
-		"globals.d.ts"
-	],
+	"include": ["src", "globals.d.ts"],
 	"references": [
 		{
 			"path": "../../packages/cellix/api-services-spec"
@@ -21,43 +16,43 @@
 			"path": "../../packages/cellix/mongoose-seedwork"
 		},
 		{
-			"path": "../../packages/simnova/application-services"
+			"path": "../../packages/axc/application-services"
 		},
 		{
-			"path": "../../packages/simnova/context-spec"
+			"path": "../../packages/axc/context-spec"
 		},
 		{
-			"path": "../../packages/simnova/event-handler"
+			"path": "../../packages/axc/event-handler"
 		},
 		{
-			"path": "../../packages/simnova/graphql"
+			"path": "../../packages/axc/graphql"
 		},
 		{
-			"path": "../../packages/simnova/graphql-handler"
+			"path": "../../packages/axc/graphql-handler"
 		},
 		{
-			"path": "../../packages/simnova/persistence"
+			"path": "../../packages/axc/persistence"
 		},
 		{
-			"path": "../../packages/simnova/rest"
+			"path": "../../packages/axc/rest"
 		},
 		{
-			"path": "../../packages/simnova/service-apollo-server"
+			"path": "../../packages/axc/service-apollo-server"
 		},
 		{
-			"path": "../../packages/simnova/service-blob-storage"
+			"path": "../../packages/axc/service-blob-storage"
 		},
 		{
-			"path": "../../packages/simnova/service-queue-storage"
+			"path": "../../packages/axc/service-queue-storage"
 		},
 		{
-			"path": "../../packages/simnova/service-mongoose"
+			"path": "../../packages/axc/service-mongoose"
 		},
 		{
-			"path": "../../packages/simnova/service-otel"
+			"path": "../../packages/axc/service-otel"
 		},
 		{
-			"path": "../../packages/simnova/service-token-validation"
+			"path": "../../packages/axc/service-token-validation"
 		}
 	]
 }

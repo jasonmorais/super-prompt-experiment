@@ -1,0 +1,31 @@
+{
+	"name": "@axc/ui-route-root",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.tsx"
+	},
+	"scripts": {
+		"build": "tsgo --noEmit",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@apollo/client": "^3.13.9",
+		"@ant-design/icons": "catalog:",
+		"@axc/ui-shared": "workspace:*",
+		"antd": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"react-router-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/react": "^19.1.11",
+		"@types/react-dom": "^19.1.6",
+		"typescript": "catalog:"
+	}
+}

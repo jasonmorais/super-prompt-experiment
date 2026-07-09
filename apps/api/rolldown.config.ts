@@ -19,6 +19,6 @@ export default defineConfig(async () =>
 	createCellixAzureFunctionsRolldownConfig({
 		repoRoot,
 		appPackageName: '@apps/api',
-		applicationNamespaces: ['@simnova/'],
+		applicationNamespaces: ['@axc/'],
 	}),
 );

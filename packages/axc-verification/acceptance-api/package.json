@@ -1,0 +1,14 @@
+{
+	"name": "@axc-verification/acceptance-api",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format ."
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*"
+	}
+}

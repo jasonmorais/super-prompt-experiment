@@ -1,7 +1,8 @@
 packages:
   - "apps/*"
   - "packages/cellix/*"
-  - "packages/simnova/*"
+  - "packages/axc/*"
+  - "packages/axc-verification/*"
 
 engineStrict: false
 
@@ -55,4 +56,3 @@ allowBuilds:
 
 overrides:
   happy-dom: 20.10.1
-
