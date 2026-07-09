@@ -1,0 +1,58 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"types": ["node"],
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+		"exactOptionalPropertyTypes": false
+	},
+	"include": ["src", "globals.d.ts"],
+	"references": [
+		{
+			"path": "../../packages/cellix/api-services-spec"
+		},
+		{
+			"path": "../../packages/cellix/mongoose-seedwork"
+		},
+		{
+			"path": "../../packages/axc/application-services"
+		},
+		{
+			"path": "../../packages/axc/context-spec"
+		},
+		{
+			"path": "../../packages/axc/event-handler"
+		},
+		{
+			"path": "../../packages/axc/graphql"
+		},
+		{
+			"path": "../../packages/axc/graphql-handler"
+		},
+		{
+			"path": "../../packages/axc/persistence"
+		},
+		{
+			"path": "../../packages/axc/rest"
+		},
+		{
+			"path": "../../packages/axc/service-apollo-server"
+		},
+		{
+			"path": "../../packages/axc/service-blob-storage"
+		},
+		{
+			"path": "../../packages/axc/service-queue-storage"
+		},
+		{
+			"path": "../../packages/axc/service-mongoose"
+		},
+		{
+			"path": "../../packages/axc/service-otel"
+		},
+		{
+			"path": "../../packages/axc/service-token-validation"
+		}
+	]
+}

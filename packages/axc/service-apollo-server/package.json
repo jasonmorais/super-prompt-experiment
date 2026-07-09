@@ -1,0 +1,39 @@
+{
+	"name": "@axc/service-apollo-server",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Apollo Server infrastructure service for the Cellix framework",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@cellix/api-services-spec": "workspace:*",
+		"@opentelemetry/api": "1.9.0",
+		"graphql": "catalog:",
+		"graphql-depth-limit": "^1.1.0",
+		"graphql-middleware": "^6.1.35"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/graphql-depth-limit": "^1.1.6",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

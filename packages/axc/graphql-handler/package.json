@@ -1,0 +1,40 @@
+{
+	"name": "@axc/graphql-handler",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Azure Functions HTTP integration for GraphQL",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@apollo/utils.withrequired": "^3.0.0",
+		"@azure/functions": "catalog:",
+		"@axc/application-services": "workspace:*",
+		"@axc/graphql": "workspace:*",
+		"@axc/service-apollo-server": "workspace:*",
+		"graphql": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"undici-types": "^6.21.0"
+	}
+}

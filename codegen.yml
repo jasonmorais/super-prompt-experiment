@@ -1,0 +1,88 @@
+# GraphQL code generation for AgentCourses.
+#
+# Mirrors the Cellix convention: each `*.graphql` schema file under the graphql
+# package is merged with the base Cellix SDL (including the graphql-tools scalar
+# definitions), and a typed resolver module plus a static SDL array are generated
+# into `*.generated.ts` files consumed by the schema-builder / resolver-builder.
+overwrite: true
+
+schema:
+  - "./packages/cellix/graphql-core/src/schema/**/**.graphql"
+  - "./packages/cellix/graphql-core/src/schema/core/graphql-tools-scalars.ts"
+  - "./packages/axc/graphql/src/schema/**/**.graphql"
+
+generates:
+  # TypeScript resolver types for @axc/graphql. Domain aggregates are mapped to
+  # their entity references so resolvers return domain objects directly.
+  ./packages/axc/graphql/src/schema/builder/generated.ts:
+    config:
+      contextType: "../context.ts#GraphContext"
+      useIndexSignature: true
+      useTypeImports: true
+      enumsAsTypes: true
+      immutableTypes: true
+      scalars:
+        BigInt: "any"
+        Byte: "any"
+        Currency: "any"
+        Date: "Date"
+        DateTime: "any"
+        Duration: "any"
+        EmailAddress: "string"
+        GUID: "string"
+        HSL: "any"
+        HSLA: "any"
+        HexColorCode: "any"
+        Hexadecimal: "any"
+        IBAN: "any"
+        IPv4: "any"
+        IPv6: "any"
+        ISBN: "any"
+        ISO8601Duration: "any"
+        JSON: "any"
+        JSONObject: "any"
+        JWT: "any"
+        Latitude: "any"
+        LocalDate: "any"
+        LocalEndTime: "any"
+        LocalTime: "any"
+        Long: "any"
+        Longitude: "any"
+        MAC: "any"
+        NegativeFloat: "any"
+        NegativeInt: "any"
+        NonEmptyString: "any"
+        NonNegativeFloat: "any"
+        NonNegativeInt: "any"
+        NonPositiveFloat: "any"
+        NonPositiveInt: "any"
+        ObjectID: "any"
+        PhoneNumber: "any"
+        Port: "any"
+        PositiveFloat: "any"
+        PositiveInt: "any"
+        PostalCode: "any"
+        RGB: "any"
+        RGBA: "any"
+        SafeInt: "any"
+        Time: "any"
+        Timestamp: "any"
+        URL: "any"
+        USCurrency: "any"
+        UUID: "any"
+        UnsignedFloat: "any"
+        UnsignedInt: "any"
+        UtcOffset: "any"
+        Void: "any"
+      mappers:
+        Course: "import('@axc/domain').Domain.Contexts.Course.Course.CourseEntityReference"
+    plugins:
+      - typescript
+      - typescript-resolvers
+
+  # Application SDL type defs (static array consumed by the schema-builder).
+  ./packages/axc/graphql/src/schema/builder/schema-type-defs.generated.ts:
+    plugins:
+      - "@cellix/graphql-codegen/plugins/static-type-defs":
+          sourceDir: "packages/axc/graphql/src/schema/types"
+          exportName: "axcGraphqlTypeDefs"
