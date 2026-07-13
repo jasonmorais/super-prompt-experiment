@@ -22,6 +22,14 @@ export class LearningRecordDomainAdapter extends MongooseSeedwork.MongooseDomain
 	get completedAt() { return this.doc.completedAt; } set completedAt(v) { this.doc.completedAt = v; }
 	get waivedAt() { return this.doc.waivedAt; } set waivedAt(v) { this.doc.waivedAt = v; }
 	get waiverReason() { return this.doc.waiverReason; } set waiverReason(v) { this.doc.waiverReason = v; }
-	get activityProgress(): Domain.Contexts.Delivery.LearningRecord.ActivityProgress[] { return this.doc.activityProgress; }
+	get activityProgress(): Domain.Contexts.Delivery.LearningRecord.ActivityProgress[] {
+		return this.doc.activityProgress.map((progress) => ({
+			activityKey: progress.activityKey,
+			completedAt: progress.completedAt,
+			timeSpentMinutes: progress.timeSpentMinutes,
+			assessmentScore: progress.assessmentScore,
+			attempts: progress.attempts,
+		}));
+	}
 	set activityProgress(v: Domain.Contexts.Delivery.LearningRecord.ActivityProgress[]) { this.doc.activityProgress = v; }
 }

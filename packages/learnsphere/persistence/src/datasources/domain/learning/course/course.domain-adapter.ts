@@ -25,7 +25,21 @@ export class CourseDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
 	set tags(value) { this.doc.tags = value; }
 	get skills() { return this.doc.skills; }
 	set skills(value) { this.doc.skills = value; }
-	get modules() { return this.doc.modules as Domain.Contexts.Learning.Course.CourseModule[]; }
+	get modules(): Domain.Contexts.Learning.Course.CourseModule[] {
+		return this.doc.modules.map((module) => ({
+			key: module.key,
+			title: module.title,
+			description: module.description,
+			order: module.order,
+			lessons: module.lessons.map((lesson) => ({
+				key: lesson.key,
+				title: lesson.title,
+				type: lesson.type,
+				estimatedMinutes: lesson.estimatedMinutes,
+				required: lesson.required,
+			})),
+		}));
+	}
 	set modules(value) { this.doc.modules = value; }
 	get createdBy() { return this.doc.createdBy; }
 	set createdBy(value) { this.doc.createdBy = value; }

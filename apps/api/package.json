@@ -8,7 +8,7 @@
 	"scripts": {
 		"build": "tsgo --build && tsgo --noEmit --project tsconfig.rolldown.json && rolldown -c rolldown.config.ts",
 		"predev": "pnpm run prepare:deploy && node scripts/ensure-local-settings.mjs",
-		"dev": "func start --typescript --script-root deploy/ --port 7071 --cors *",
+		"dev": "func start --typescript --script-root deploy/ --port 7071 --cors '*'",
 		"prepare:deploy": "cellix-prepare-func-deploy",
 		"watch": "tsgo --watch",
 		"test": "vitest run --silent --reporter=dot",

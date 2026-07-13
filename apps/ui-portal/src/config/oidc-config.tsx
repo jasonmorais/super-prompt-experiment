@@ -4,6 +4,8 @@ type OIDCConfig = {
 	redirect_uri: string;
 	response_type: string;
 	scope: string;
+	code_verifier: boolean;
+	nonce: boolean;
 	onSigninCallback: () => void;
 };
 
@@ -18,7 +20,11 @@ export const oidcConfig: OIDCConfig = {
 	redirect_uri: import.meta.env.VITE_APP_UI_PORTAL_REDIRECT_URI ?? 'https://learnsphere.localhost:1355/auth-redirect',
 	response_type: 'code',
 	scope: import.meta.env.VITE_APP_UI_PORTAL_SCOPES ?? 'openid',
+	code_verifier: true,
+	nonce: true,
 	onSigninCallback: (): void => {
-		globalThis.history.replaceState({}, document.title, globalThis.location.pathname);
+		const redirectTo = globalThis.sessionStorage.getItem('redirectTo') ?? '/dashboard';
+		globalThis.sessionStorage.removeItem('redirectTo');
+		globalThis.location.replace(redirectTo);
 	},
 };

@@ -20,7 +20,8 @@
 		"antd": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"react-oidc-context": "^3.3.0"
+		"react-oidc-context": "^3.3.0",
+		"react-router-dom": "catalog:"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
