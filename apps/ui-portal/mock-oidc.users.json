@@ -1,14 +1,15 @@
 [
 	{
-		"username": "test@example.com",
+		"username": "alex.morgan@example.com",
 		"sub": "00000000-0000-4000-8000-000000000001",
 		"password": "password",
 		"oidcConfigName": "user",
 		"claims": {
-			"email": "test@example.com",
-			"given_name": "Test",
-			"family_name": "User",
-			"tid": "test-tenant-id"
+			"email": "alex.morgan@example.com",
+			"given_name": "Alex",
+			"family_name": "Morgan",
+			"tid": "northstar-digital",
+			"roles": ["Learner"]
 		}
 	}
 ]

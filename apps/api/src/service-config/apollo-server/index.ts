@@ -1,5 +1,5 @@
-import { combinedSchema, permissions } from '@simnova/graphql';
-import type { ServiceApolloServerOptions } from '@simnova/service-apollo-server';
+import { combinedSchema, permissions } from '@learnsphere/graphql';
+import type { ServiceApolloServerOptions } from '@learnsphere/service-apollo-server';
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV !== 'production';

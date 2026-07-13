@@ -1,15 +1,15 @@
 {
-	"name": "simnova",
+	"name": "learnsphere",
 	"version": "1.0.0",
-	"description": "Simnova — a bare-bones application scaffold built on the Cellix framework.",
+	"description": "LearnSphere — an enterprise Learning & Development platform built on CellixJS.",
 	"type": "module",
-	"author": "Simnova",
+	"author": "LearnSphere",
 	"license": "MIT",
 	"packageManager": "pnpm@11.9.0",
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
-		"test": "turbo run test",
+		"test": "turbo run test --concurrency=4",
 		"lint": "turbo run lint",
 		"format": "turbo run format",
 		"format:check": "turbo run format:check",
@@ -22,7 +22,12 @@
 		"start-emulator:auth-server": "pnpm --filter @apps/server-oauth2-mock start"
 	},
 	"devDependencies": {
+		"@amiceli/vitest-cucumber": "^6.5.0",
 		"@biomejs/biome": "2.4.10",
+		"@cellix/graphql-codegen": "workspace:*",
+		"@graphql-codegen/cli": "^5.0.7",
+		"@graphql-codegen/typescript": "^4.1.6",
+		"@graphql-codegen/typescript-resolvers": "^4.5.2",
 		"@types/node": "catalog:",
 		"@typescript/native-preview": "catalog:",
 		"@vitest/coverage-istanbul": "catalog:",

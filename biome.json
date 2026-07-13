@@ -71,7 +71,7 @@
 			"linter": { "rules": { "style": { "noCommonJs": "off" } } }
 		},
 		{
-			"includes": ["packages/simnova/persistence/**/*.ts", "packages/simnova/data-sources-mongoose-models/**/*.ts"],
+			"includes": ["packages/learnsphere/persistence/**/*.ts", "packages/learnsphere/data-sources-mongoose-models/**/*.ts"],
 			"linter": {
 				"rules": {
 					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }

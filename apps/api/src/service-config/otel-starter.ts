@@ -1,4 +1,4 @@
-import { ServiceOtel } from '@simnova/service-otel';
+import { ServiceOtel } from '@learnsphere/service-otel';
 
 const Otel = new ServiceOtel({
 	// biome-ignore lint:useLiteralKeys — process.env is an index signature.

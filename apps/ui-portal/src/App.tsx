@@ -1,10 +1,10 @@
-import { Root } from '@simnova/ui-route-root';
+import { Root } from '@learnsphere/ui-route-root';
 import { Route, Routes } from 'react-router-dom';
 import { ApolloConnection } from './components/apollo-connection.tsx';
 
 /**
- * The portal's route table. The blank scaffold renders the root landing page
- * for every path — add your feature routes here.
+ * The learner portal route table. Authoring and administration experiences can
+ * be mounted alongside the dashboard as their bounded contexts grow.
  */
 export default function App() {
 	return (

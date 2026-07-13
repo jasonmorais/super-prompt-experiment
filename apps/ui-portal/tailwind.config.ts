@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 export default {
-	content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html', '../../packages/simnova/ui-*/src/**/*.{js,jsx,ts,tsx}'],
+	content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html', '../../packages/learnsphere/ui-*/src/**/*.{js,jsx,ts,tsx}'],
 	theme: {
 		extend: {},
 	},

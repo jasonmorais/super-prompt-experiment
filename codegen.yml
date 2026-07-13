@@ -1,18 +1,30 @@
-# GraphQL code generation for Simnova.
+# GraphQL code generation for LearnSphere.
 #
 # Mirrors the Cellix convention: each `*.graphql` schema file under the graphql
 # package is merged with the base Cellix SDL, and typed resolver manifests plus
 # a static SDL array are generated into `*.generated.ts` files that are consumed
 # by the schema-builder / resolver-builder at runtime.
 #
-# The blank scaffold ships with a single `health` query so the pipeline has
-# something to generate; add application `.graphql` files to grow the schema.
+# Application SDL files are the source for generated resolver contracts.
 schema:
   - "packages/cellix/graphql-core/src/schema/**/*.graphql"
-  - "packages/simnova/graphql/src/schema/**/*.graphql"
+  - "packages/cellix/graphql-core/src/schema/core/graphql-tools-scalars.ts"
+  - "packages/learnsphere/graphql/src/schema/**/*.graphql"
 
 generates:
-  packages/simnova/graphql/src/schema/builder/generated.ts:
+  packages/learnsphere/graphql/src/schema/builder/generated.ts:
+    config:
+      contextType: "../context.ts#GraphContext"
+      useIndexSignature: true
+      useTypeImports: true
+      enumsAsTypes: true
+      immutableTypes: true
+      scalars:
+        Date: Date
+        DateTime: Date
+        ObjectID: string
+        JSON: any
+        JSONObject: any
     plugins:
       - typescript
       - typescript-resolvers

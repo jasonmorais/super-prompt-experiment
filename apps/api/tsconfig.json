@@ -21,43 +21,43 @@
 			"path": "../../packages/cellix/mongoose-seedwork"
 		},
 		{
-			"path": "../../packages/simnova/application-services"
+			"path": "../../packages/learnsphere/application-services"
 		},
 		{
-			"path": "../../packages/simnova/context-spec"
+			"path": "../../packages/learnsphere/context-spec"
 		},
 		{
-			"path": "../../packages/simnova/event-handler"
+			"path": "../../packages/learnsphere/event-handler"
 		},
 		{
-			"path": "../../packages/simnova/graphql"
+			"path": "../../packages/learnsphere/graphql"
 		},
 		{
-			"path": "../../packages/simnova/graphql-handler"
+			"path": "../../packages/learnsphere/graphql-handler"
 		},
 		{
-			"path": "../../packages/simnova/persistence"
+			"path": "../../packages/learnsphere/persistence"
 		},
 		{
-			"path": "../../packages/simnova/rest"
+			"path": "../../packages/learnsphere/rest"
 		},
 		{
-			"path": "../../packages/simnova/service-apollo-server"
+			"path": "../../packages/learnsphere/service-apollo-server"
 		},
 		{
-			"path": "../../packages/simnova/service-blob-storage"
+			"path": "../../packages/learnsphere/service-blob-storage"
 		},
 		{
-			"path": "../../packages/simnova/service-queue-storage"
+			"path": "../../packages/learnsphere/service-queue-storage"
 		},
 		{
-			"path": "../../packages/simnova/service-mongoose"
+			"path": "../../packages/learnsphere/service-mongoose"
 		},
 		{
-			"path": "../../packages/simnova/service-otel"
+			"path": "../../packages/learnsphere/service-otel"
 		},
 		{
-			"path": "../../packages/simnova/service-token-validation"
+			"path": "../../packages/learnsphere/service-token-validation"
 		}
 	]
 }

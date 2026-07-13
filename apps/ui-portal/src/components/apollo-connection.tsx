@@ -10,7 +10,7 @@ export interface ApolloConnectionProps {
 }
 
 /**
- * Connects the portal to the Simnova GraphQL API. Injects the OIDC access token
+ * Connects the portal to the LearnSphere GraphQL API. Injects the OIDC access token
  * as a bearer header on every request. This is the single place to extend the
  * Apollo link chain (batching, REST sources, custom headers) as the app grows.
  */

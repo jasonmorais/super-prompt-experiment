@@ -1,14 +1,9 @@
-# @apps/ui
+# LearnSphere learner portal
 
-The single blank UI portal for Simnova — a Vite + React application shell.
+The Vite and React portal provides the learner-facing LearnSphere experience. It includes OIDC authentication, Apollo connectivity, responsive navigation, active-course progress, scheduled learning, achievements, certificates, streaks, and professional growth goals.
 
-It wires the framework essentials every portal needs:
+```bash
+pnpm --filter @apps/ui-portal dev
+```
 
-- **antd** `ConfigProvider` for theming
-- **react-router-dom** `BrowserRouter` for routing
-- **react-oidc-context** `AuthProvider` for authentication (against
-  `@apps/server-oauth2-mock` in local development)
-- an **Apollo** client connected to the Simnova GraphQL API
-
-The landing page (`@simnova/ui-route-root`) is intentionally blank. Build your
-features by adding routes here and components to `packages/simnova/ui-*`.
+Feature views belong in focused `@learnsphere/ui-*` packages; this app remains the routing, authentication, and client composition boundary.

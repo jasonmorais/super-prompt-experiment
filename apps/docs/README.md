@@ -1,6 +1,6 @@
 # @apps/docs
 
-The Simnova documentation site, built with [Docusaurus](https://docusaurus.io/).
+The LearnSphere documentation site, built with [Docusaurus](https://docusaurus.io/).
 
 ```bash
 pnpm --filter @apps/docs start

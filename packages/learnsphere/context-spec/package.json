@@ -1,0 +1,36 @@
+{
+	"name": "@learnsphere/context-spec",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@learnsphere/persistence": "workspace:*",
+		"@learnsphere/service-apollo-server": "workspace:*",
+		"@learnsphere/service-blob-storage": "workspace:*",
+		"@learnsphere/service-queue-storage": "workspace:*",
+		"@learnsphere/service-token-validation": "workspace:*"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:"
+	}
+}

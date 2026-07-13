@@ -13,9 +13,9 @@ type OIDCConfig = {
  * (`@apps/server-oauth2-mock`) for development.
  */
 export const oidcConfig: OIDCConfig = {
-	authority: import.meta.env.VITE_APP_UI_PORTAL_AUTHORITY ?? 'https://mock-auth.simnova.localhost:1355/portal',
+	authority: import.meta.env.VITE_APP_UI_PORTAL_AUTHORITY ?? 'https://mock-auth.learnsphere.localhost:1355/portal',
 	client_id: import.meta.env.VITE_APP_UI_PORTAL_CLIENTID ?? 'mock-client',
-	redirect_uri: import.meta.env.VITE_APP_UI_PORTAL_REDIRECT_URI ?? 'https://simnova.localhost:1355/auth-redirect',
+	redirect_uri: import.meta.env.VITE_APP_UI_PORTAL_REDIRECT_URI ?? 'https://learnsphere.localhost:1355/auth-redirect',
 	response_type: 'code',
 	scope: import.meta.env.VITE_APP_UI_PORTAL_SCOPES ?? 'openid',
 	onSigninCallback: (): void => {
