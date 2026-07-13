@@ -80,6 +80,13 @@ generates:
       - typescript
       - typescript-resolvers
 
+  # Cellix core base type defs (static array consumed by buildCellixSchema).
+  ./packages/cellix/graphql-core/src/schema/base-type-defs.generated.ts:
+    plugins:
+      - "@cellix/graphql-codegen/plugins/static-type-defs":
+          sourceDir: "packages/cellix/graphql-core/src/schema"
+          exportName: "baseCellixTypeDefs"
+
   # Application SDL type defs (static array consumed by the schema-builder).
   ./packages/axc/graphql/src/schema/builder/schema-type-defs.generated.ts:
     plugins:
