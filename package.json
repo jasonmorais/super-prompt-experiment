@@ -7,8 +7,11 @@
 	"license": "MIT",
 	"packageManager": "pnpm@11.9.0",
 	"scripts": {
+		"prebuild": "pnpm gen",
 		"build": "turbo run build",
+		"predev": "pnpm gen",
 		"dev": "turbo run dev",
+		"pretest": "pnpm gen",
 		"test": "turbo run test",
 		"verify": "turbo run lint build test format:check --filter=@apps/api --filter=@apps/docs --filter=@apps/ui-portal --filter=@axc/* --filter=@axc-verification/*",
 		"lint": "turbo run lint",
