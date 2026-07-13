@@ -2,6 +2,7 @@ import type { Domain } from '@axc/domain';
 import type { DataSources } from '@axc/persistence';
 import { type CourseQueryAllCommand, queryAll } from './query-all.ts';
 import { type CourseQueryByIdCommand, queryById } from './query-by-id.ts';
+import { searchCatalog } from './search-catalog.ts';
 
 export type { CourseQueryAllCommand, CourseQueryByIdCommand };
 
@@ -13,11 +14,13 @@ export type { CourseQueryAllCommand, CourseQueryByIdCommand };
 export interface CourseApplicationService {
 	queryAll: (command?: CourseQueryAllCommand) => Promise<Domain.Contexts.Course.Course.CourseEntityReference[]>;
 	queryById: (command: CourseQueryByIdCommand) => Promise<Domain.Contexts.Course.Course.CourseEntityReference | null>;
+	searchCatalog: (query: Domain.Contexts.Course.Course.CourseCatalogQuery) => Promise<Domain.Contexts.Course.Course.CourseCatalogSearchResult>;
 }
 
 export const Course = (dataSources: DataSources): CourseApplicationService => {
 	return {
 		queryAll: queryAll(dataSources),
 		queryById: queryById(dataSources),
+		searchCatalog: searchCatalog(),
 	};
 };

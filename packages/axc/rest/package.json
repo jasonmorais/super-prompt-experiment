@@ -23,7 +23,8 @@
 	},
 	"dependencies": {
 		"@azure/functions": "catalog:",
-		"@axc/application-services": "workspace:*"
+		"@axc/application-services": "workspace:*",
+		"@axc/domain": "workspace:*"
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
