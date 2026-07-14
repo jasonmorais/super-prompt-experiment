@@ -18,6 +18,7 @@ export interface LearningRecord extends MongooseSeedwork.Base {
 	courseId: string;
 	courseTitle: string;
 	courseCategory: string;
+	requiresCompletionScreenshot: boolean;
 	requiredActivityKeys: string[];
 	source: 'SELF_ENROLLED' | 'MANAGER_ASSIGNED' | 'PROGRAM_ASSIGNED' | 'COMPLIANCE_ASSIGNED';
 	status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE' | 'WAIVED';
@@ -29,6 +30,7 @@ export interface LearningRecord extends MongooseSeedwork.Base {
 	waivedAt: Date | null;
 	waiverReason: string | null;
 	activityProgress: ActivityProgress[];
+	completionScreenshot: string | null;
 }
 
 const ActivityProgressSchema = new Schema<ActivityProgress>({
@@ -49,6 +51,7 @@ const LearningRecordSchema = new Schema<LearningRecord, Model<LearningRecord>, L
 	courseId: { type: String, required: true, index: true },
 	courseTitle: { type: String, required: true, maxlength: 180 },
 	courseCategory: { type: String, required: true, maxlength: 100 },
+	requiresCompletionScreenshot: { type: Boolean, required: true, default: false },
 	requiredActivityKeys: { type: [String], required: true },
 	source: { type: String, required: true, enum: ['SELF_ENROLLED', 'MANAGER_ASSIGNED', 'PROGRAM_ASSIGNED', 'COMPLIANCE_ASSIGNED'] },
 	status: { type: String, required: true, enum: ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'WAIVED'], index: true },
@@ -60,6 +63,7 @@ const LearningRecordSchema = new Schema<LearningRecord, Model<LearningRecord>, L
 	waivedAt: { type: Date, default: null },
 	waiverReason: { type: String, default: null, maxlength: 1000 },
 	activityProgress: { type: [ActivityProgressSchema], default: [] },
+	completionScreenshot: { type: String, default: null, maxlength: 8000000 },
 }, { timestamps: true, versionKey: 'version' })
 	.index({ organizationId: 1, learnerId: 1, courseId: 1 }, { unique: true })
 	.index({ organizationId: 1, learnerId: 1, status: 1, dueAt: 1 })

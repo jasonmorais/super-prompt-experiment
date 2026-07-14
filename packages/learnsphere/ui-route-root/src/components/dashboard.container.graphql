@@ -5,6 +5,7 @@ query LearnerDashboard($organizationId: String!) {
 		courseTitle
 		courseCategory
 		source
+		assignedBy
 		status
 		progressPercent
 		completedActivityCount

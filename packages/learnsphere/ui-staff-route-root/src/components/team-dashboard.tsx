@@ -1,11 +1,17 @@
 import { BookOutlined, CheckCircleOutlined, ClockCircleOutlined, PlusOutlined, TeamOutlined } from '@ant-design/icons';
-import { Alert, Avatar, Button, Card, Col, DatePicker, Form, Modal, Progress, Row, Select, Space, Statistic, Table, Tag, Typography } from 'antd';
+import { Alert, Avatar, Button, Card, Col, DatePicker, Form, Image, Modal, Progress, Row, Select, Space, Statistic, Table, Tag, Typography } from 'antd';
 import * as React from 'react';
 import type { EnrollmentSource, StaffTeamOverviewQuery } from '../generated.tsx';
 
 const { Title, Paragraph, Text } = Typography;
 type RecordView = StaffTeamOverviewQuery['teamLearning'][number];
 type CourseView = StaffTeamOverviewQuery['courses'][number];
+
+const sourceLabel = (source: RecordView['source']): string =>
+	source
+		.replaceAll('_', ' ')
+		.toLowerCase()
+		.replace(/^./, (letter) => letter.toUpperCase());
 interface LearnerRow {
 	key: string;
 	learnerId: string;
@@ -31,7 +37,7 @@ export interface TeamDashboardProps {
 	loading: boolean;
 	error?: string;
 	assignmentLoading: boolean;
-	onAssign: (values: AssignmentValues, learner: LearnerRow) => void;
+	onAssign: (values: AssignmentValues, learner: LearnerRow) => Promise<void>;
 }
 
 export const TeamDashboard = ({ records, courses, loading, error, assignmentLoading, onAssign }: TeamDashboardProps) => {
@@ -236,9 +242,11 @@ export const TeamDashboard = ({ records, courses, loading, error, assignmentLoad
 								</div>
 							),
 						},
-						{ title: 'Source', render: (_, row) => row.source.replaceAll('_', ' ').toLowerCase() },
+						{ title: 'Source', render: (_, row) => sourceLabel(row.source) },
+						{ title: 'Assigned by', render: (_, row) => row.assignedBy ?? '—' },
 						{ title: 'Due', render: (_, row) => (row.dueAt ? new Date(row.dueAt).toLocaleDateString() : 'Self-paced') },
 						{ title: 'Status', render: (_, row) => <Tag color={row.status === 'COMPLETED' ? 'green' : row.isOverdue ? 'red' : 'blue'}>{row.isOverdue ? 'OVERDUE' : row.status.replaceAll('_', ' ')}</Tag> },
+						{ title: 'Evidence', render: (_, row) => row.completionScreenshot ? <Image width={44} height={44} preview={{ mask: 'View' }} src={row.completionScreenshot} style={{ objectFit: 'cover', borderRadius: 6 }} /> : row.requiresCompletionScreenshot ? <Tag color="orange">Required</Tag> : <Text type="secondary">Optional</Text> },
 						{ title: 'Progress', render: (_, row) => `${row.progressPercent}%` },
 					]}
 				/>
@@ -251,13 +259,20 @@ export const TeamDashboard = ({ records, courses, loading, error, assignmentLoad
 				confirmLoading={assignmentLoading}
 				okText="Create assignment"
 			>
+				<Alert
+					type="info"
+					showIcon
+					message="What happens next"
+					description="This creates a learning record for the selected learner. It will appear in their My learning dashboard with the assignment source and due date."
+					style={{ marginBottom: 20 }}
+				/>
 				<Form
 					form={form}
 					layout="vertical"
-					onFinish={(values) => {
+					onFinish={async (values) => {
 						const learner = learners.find((candidate) => candidate.learnerId === values.learnerId);
 						if (learner) {
-							onAssign(values, learner);
+							await onAssign(values, learner);
 							setAssignmentOpen(false);
 							form.resetFields();
 						}

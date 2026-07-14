@@ -9,6 +9,8 @@ query StaffCourseManagement($organizationId: String!) {
 		status
 		tags
 		skills
+		discoverability
+		requiresCompletionScreenshot
 		lessonCount
 		estimatedMinutes
 		updatedAt
@@ -81,5 +83,19 @@ mutation StaffPublishCourse($id: ObjectID!) {
 			status
 			publishedAt
 		}
+	}
+}
+
+mutation StaffUpdateCourse($input: CourseUpdateInput!) {
+	courseUpdate(input: $input) {
+		status { success errorMessage }
+		course { id title status updatedAt }
+	}
+}
+
+mutation StaffDeleteCourse($id: ObjectID!) {
+	courseDelete(id: $id) {
+		status { success errorMessage }
+		course { id status }
 	}
 }

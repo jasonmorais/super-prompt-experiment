@@ -28,6 +28,8 @@ export interface Course extends MongooseSeedwork.Base {
 	category: string;
 	tags: string[];
 	skills: string[];
+	discoverability: 'CATALOG' | 'ASSIGNED_ONLY';
+	requiresCompletionScreenshot: boolean;
 	modules: CourseModule[];
 	createdBy: string;
 	publishedAt: Date | null;
@@ -66,8 +68,10 @@ const CourseSchema = new Schema<Course, Model<Course>, Course>(
 		status: { type: String, required: true, enum: ['DRAFT', 'IN_REVIEW', 'PUBLISHED', 'ARCHIVED'], default: 'DRAFT', index: true },
 		level: { type: String, required: true, enum: ['FOUNDATIONAL', 'INTERMEDIATE', 'ADVANCED'] },
 		category: { type: String, required: true, maxlength: 100, index: true },
-		tags: { type: [String], default: [] },
-		skills: { type: [String], default: [] },
+	tags: { type: [String], default: [] },
+	skills: { type: [String], default: [] },
+	discoverability: { type: String, required: true, enum: ['CATALOG', 'ASSIGNED_ONLY'], default: 'CATALOG', index: true },
+	requiresCompletionScreenshot: { type: Boolean, required: true, default: false },
 		modules: { type: [CourseModuleSchema], default: [] },
 		createdBy: { type: String, required: true, maxlength: 150 },
 		publishedAt: { type: Date, default: null },

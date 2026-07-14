@@ -20,7 +20,7 @@ export interface LearnSphereIdentity {
 	roles: string[];
 }
 
-export const STAFF_ACCESS_ROLES = ['Manager', 'LearningAdmin'] as const;
+export const STAFF_ACCESS_ROLES = ['Manager', 'LearningAdmin', 'ManagerLearningAdmin'] as const;
 
 const claimString = (profile: LearnSphereProfile | undefined, key: keyof LearnSphereProfile): string => {
 	const value = profile?.[key];

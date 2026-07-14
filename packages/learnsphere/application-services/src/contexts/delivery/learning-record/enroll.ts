@@ -17,6 +17,7 @@ export const enroll = async (dataSources: DataSources, command: EnrollCommand): 
 	const course = await dataSources.readonlyDataSource.Learning.Course.CourseReadRepo.getById(command.courseId);
 	if (!course) throw new Error(`Course ${command.courseId} was not found`);
 	if (course.status !== 'PUBLISHED') throw new Error('Only published courses can be assigned or enrolled');
+	if (course.discoverability === 'ASSIGNED_ONLY' && command.source === 'SELF_ENROLLED') throw new Error('This course is available by assignment only');
 	const requiredActivityKeys: string[] = course.modules.flatMap((module) => module.lessons.filter((lesson) => lesson.required).map((lesson) => lesson.key));
 	let result: Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference | undefined;
 	await dataSources.domainDataSource.Delivery.LearningRecord.LearningRecordUnitOfWork.withScopedTransaction(async (repo) => {
@@ -29,7 +30,9 @@ export const enroll = async (dataSources: DataSources, command: EnrollCommand): 
 			courseId: course.id,
 			courseTitle: course.title,
 			courseCategory: course.category,
+			requiresCompletionScreenshot: course.requiresCompletionScreenshot,
 			requiredActivityKeys,
+			completionScreenshot: null,
 			source: command.source,
 			assignedBy: command.assignedBy,
 			dueAt: command.dueAt,

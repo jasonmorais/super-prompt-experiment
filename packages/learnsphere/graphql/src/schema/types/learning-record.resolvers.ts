@@ -55,6 +55,7 @@ const learningRecord: Resolvers = {
 					activityKey: args.input.activityKey,
 					timeSpentMinutes: args.input.timeSpentMinutes,
 					...(args.input.assessmentScore !== null && args.input.assessmentScore !== undefined ? { assessmentScore: args.input.assessmentScore } : {}),
+					...(args.input.completionScreenshot ? { completionScreenshot: args.input.completionScreenshot } : {}),
 				}),
 			);
 		},

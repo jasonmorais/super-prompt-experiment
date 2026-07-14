@@ -11,11 +11,14 @@ query StaffTeamOverview($organizationId: String!, $teamName: String) {
 		source
 		status
 		assignedAt
+		assignedBy
 		dueAt
 		completedAt
 		progressPercent
 		completedActivityCount
 		isOverdue
+		requiresCompletionScreenshot
+		completionScreenshot
 		activityProgress {
 			timeSpentMinutes
 			assessmentScore

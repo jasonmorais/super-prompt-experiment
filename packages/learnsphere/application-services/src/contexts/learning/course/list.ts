@@ -6,6 +6,7 @@ export interface CourseListCommand {
 	status?: Domain.Contexts.Learning.Course.CourseStatus;
 	search?: string;
 	limit?: number;
+	learnerId?: string;
 }
 
 export const list = (dataSources: DataSources) => (command: CourseListCommand) => dataSources.readonlyDataSource.Learning.Course.CourseReadRepo.list(command);

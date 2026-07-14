@@ -23,6 +23,7 @@ export interface LearningRecordProps extends DomainEntityProps {
 	courseId: string;
 	courseTitle: string;
 	courseCategory: string;
+	requiresCompletionScreenshot: boolean;
 	requiredActivityKeys: string[];
 	source: EnrollmentSource;
 	status: LearningRecordStatus;
@@ -34,6 +35,7 @@ export interface LearningRecordProps extends DomainEntityProps {
 	waivedAt: Date | null;
 	waiverReason: string | null;
 	activityProgress: ActivityProgress[];
+	completionScreenshot: string | null;
 	createdAt: Date;
 	updatedAt: Date;
 	schemaVersion: string;
@@ -65,6 +67,7 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		props.courseId = input.courseId;
 		props.courseTitle = input.courseTitle.trim();
 		props.courseCategory = input.courseCategory.trim();
+		props.requiresCompletionScreenshot = input.requiresCompletionScreenshot;
 		props.requiredActivityKeys = [...new Set(input.requiredActivityKeys)];
 		props.source = input.source;
 		props.assignedBy = input.assignedBy;
@@ -76,6 +79,7 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		props.waivedAt = null;
 		props.waiverReason = null;
 		props.activityProgress = [];
+		props.completionScreenshot = null;
 		return record;
 	}
 
@@ -105,6 +109,9 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 	}
 	get courseCategory() {
 		return this.props.courseCategory;
+	}
+	get requiresCompletionScreenshot() {
+		return this.props.requiresCompletionScreenshot;
 	}
 	get requiredActivityKeys() {
 		return [...this.props.requiredActivityKeys];
@@ -139,6 +146,9 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 	get activityProgress() {
 		return this.props.activityProgress.map((progress) => ({ ...progress }));
 	}
+	get completionScreenshot() {
+		return this.props.completionScreenshot;
+	}
 	get createdAt() {
 		return this.props.createdAt;
 	}
@@ -158,25 +168,37 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		return Boolean(this.props.dueAt && this.props.dueAt.getTime() < Date.now() && !['COMPLETED', 'WAIVED'].includes(this.props.status));
 	}
 
-	recordActivity(activityKey: string, timeSpentMinutes: number, assessmentScore?: number): void {
+	recordActivity(activityKey: string, timeSpentMinutes: number, assessmentScore?: number, completionScreenshot?: string): void {
 		if (!this.visa.determineIf((permissions) => permissions.canRecordProgress)) throw new PermissionError('You may only record progress for your own learning');
 		if (this.props.status === 'COMPLETED' || this.props.status === 'WAIVED') throw new Error('Completed or waived learning cannot be changed');
 		if (!this.props.requiredActivityKeys.includes(activityKey)) throw new Error(`Activity ${activityKey} is not part of this enrollment`);
 		if (timeSpentMinutes < 0 || timeSpentMinutes > 1440) throw new Error('Time spent must be between 0 and 1440 minutes');
 		if (assessmentScore !== undefined && (assessmentScore < 0 || assessmentScore > 100)) throw new Error('Assessment score must be between 0 and 100');
-		const existing = this.props.activityProgress.find((progress) => progress.activityKey === activityKey);
+		if (completionScreenshot !== undefined && (completionScreenshot.length < 20 || completionScreenshot.length > 8_000_000 || !completionScreenshot.startsWith('data:image/'))) throw new Error('Completion evidence must be a valid image smaller than 6 MB');
+		const currentProgress = this.props.activityProgress;
+		const existingIndex = currentProgress.findIndex((progress) => progress.activityKey === activityKey);
+		const existing = existingIndex >= 0 ? currentProgress[existingIndex] : undefined;
 		if (existing) {
-			existing.completedAt = new Date();
-			existing.timeSpentMinutes += timeSpentMinutes;
-			existing.assessmentScore = assessmentScore ?? existing.assessmentScore;
-			existing.attempts += 1;
+			this.props.activityProgress = currentProgress.map((progress, index) =>
+				index === existingIndex
+					? {
+							...progress,
+							completedAt: new Date(),
+							timeSpentMinutes: progress.timeSpentMinutes + timeSpentMinutes,
+							assessmentScore: assessmentScore ?? progress.assessmentScore,
+							attempts: progress.attempts + 1,
+						}
+					: progress,
+			);
 		} else {
-			this.props.activityProgress.push({ activityKey, completedAt: new Date(), timeSpentMinutes, assessmentScore: assessmentScore ?? null, attempts: 1 });
+			this.props.activityProgress = [...currentProgress, { activityKey, completedAt: new Date(), timeSpentMinutes, assessmentScore: assessmentScore ?? null, attempts: 1 }];
 		}
 		this.props.startedAt ??= new Date();
 		if (this.completedActivityCount === this.props.requiredActivityKeys.length) {
+			if (this.props.requiresCompletionScreenshot && !completionScreenshot && !this.props.completionScreenshot) throw new Error('A completion screenshot is required for this learning');
 			this.props.status = 'COMPLETED';
 			this.props.completedAt = new Date();
+			if (completionScreenshot) this.props.completionScreenshot = completionScreenshot;
 		} else {
 			this.props.status = 'IN_PROGRESS';
 		}

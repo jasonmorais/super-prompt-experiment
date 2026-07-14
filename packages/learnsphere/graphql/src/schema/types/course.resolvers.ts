@@ -19,14 +19,22 @@ const mutation = async <T>(work: Promise<T>, field: 'course') => {
 
 const course: Resolvers = {
 	Query: {
-		courseById: (_parent, args, context) => context.applicationServices.Learning.Course.queryById({ id: args.id }),
-		courses: (_parent, args, context) =>
-			context.applicationServices.Learning.Course.list({
+		courseById: (_parent, args, context) => {
+			const user = requireUser(context);
+			const roles = context.applicationServices.verifiedUser?.verifiedJwt?.roles ?? [];
+			return context.applicationServices.Learning.Course.queryById({ id: args.id, ...(context.applicationServices.verifiedUser?.verifiedJwt?.tid ? { organizationId: context.applicationServices.verifiedUser.verifiedJwt.tid } : {}), ...(roles.some((role) => ['LearningAdmin', 'Manager', 'Instructor'].includes(role)) ? {} : { learnerId: user }) });
+		},
+		courses: (_parent, args, context) => {
+			const user = requireUser(context);
+			const roles = context.applicationServices.verifiedUser?.verifiedJwt?.roles ?? [];
+			return context.applicationServices.Learning.Course.list({
 				organizationId: args.organizationId,
+				...(roles.some((role) => ['LearningAdmin', 'Manager', 'Instructor'].includes(role)) ? {} : { learnerId: user }),
 				...(args.status ? { status: args.status as Domain.Contexts.Learning.Course.CourseStatus } : {}),
 				...(args.search ? { search: args.search } : {}),
 				...(args.limit !== null && args.limit !== undefined ? { limit: args.limit } : {}),
-			}),
+			});
+		},
 	},
 	Mutation: {
 		courseCreate: (_parent, args, context) => {
@@ -40,6 +48,8 @@ const course: Resolvers = {
 				category: args.input.category,
 				...(args.input.tags ? { tags: [...args.input.tags] } : {}),
 				...(args.input.skills ? { skills: [...args.input.skills] } : {}),
+				discoverability: (args.input.discoverability ?? 'CATALOG') as Domain.Contexts.Learning.Course.CourseDiscoverability,
+				requiresCompletionScreenshot: args.input.requiresCompletionScreenshot ?? false,
 			};
 			return mutation(context.applicationServices.Learning.Course.create(input), 'course');
 		},
@@ -57,6 +67,14 @@ const course: Resolvers = {
 		coursePublish: (_parent, args, context) => {
 			requireUser(context);
 			return mutation(context.applicationServices.Learning.Course.publish({ id: args.id }), 'course');
+		},
+		courseUpdate: (_parent, args, context) => {
+			requireUser(context);
+			return mutation(context.applicationServices.Learning.Course.update({ id: args.input.id, title: args.input.title, summary: args.input.summary, description: args.input.description, level: args.input.level as Domain.Contexts.Learning.Course.CourseLevel, category: args.input.category, tags: [...(args.input.tags ?? [])], skills: [...(args.input.skills ?? [])], discoverability: args.input.discoverability as Domain.Contexts.Learning.Course.CourseDiscoverability, requiresCompletionScreenshot: args.input.requiresCompletionScreenshot }), 'course');
+		},
+		courseDelete: (_parent, args, context) => {
+			requireUser(context);
+			return mutation(context.applicationServices.Learning.Course.delete({ id: args.id }), 'course');
 		},
 	},
 };

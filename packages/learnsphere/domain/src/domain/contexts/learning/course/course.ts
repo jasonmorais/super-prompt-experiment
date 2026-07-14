@@ -6,6 +6,7 @@ import type { Passport } from '../../../passport-factory.ts';
 export type CourseStatus = 'DRAFT' | 'IN_REVIEW' | 'PUBLISHED' | 'ARCHIVED';
 export type CourseLevel = 'FOUNDATIONAL' | 'INTERMEDIATE' | 'ADVANCED';
 export type LessonType = 'ARTICLE' | 'VIDEO' | 'QUIZ' | 'PROJECT' | 'RESOURCE';
+export type CourseDiscoverability = 'CATALOG' | 'ASSIGNED_ONLY';
 
 export interface Lesson {
 	key: string;
@@ -34,6 +35,8 @@ export interface CourseProps extends DomainEntityProps {
 	category: string;
 	tags: string[];
 	skills: string[];
+	discoverability: CourseDiscoverability;
+	requiresCompletionScreenshot: boolean;
 	modules: CourseModule[];
 	createdBy: string;
 	publishedAt: Date | null;
@@ -57,7 +60,7 @@ const requiredText = (value: string, field: string, maxLength: number): string =
 export class Course<Props extends CourseProps = CourseProps> extends AggregateRoot<Props, Passport> implements CourseEntityReference {
 	private isNew = false;
 
-	static getNewInstance<Props extends CourseProps>(props: Props, input: Pick<CourseProps, 'organizationId' | 'title' | 'summary' | 'description' | 'level' | 'category' | 'createdBy'>, passport: Passport): Course<Props> {
+	static getNewInstance<Props extends CourseProps>(props: Props, input: Pick<CourseProps, 'organizationId' | 'title' | 'summary' | 'description' | 'level' | 'category' | 'createdBy' | 'discoverability' | 'requiresCompletionScreenshot'>, passport: Passport): Course<Props> {
 		const course = new Course(props, passport);
 		if (!passport.learning.forCourse(course).determineIf((permissions) => permissions.canCreateCourses)) throw new PermissionError('You do not have permission to create courses');
 		course.isNew = true;
@@ -71,6 +74,8 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		course.props.status = 'DRAFT';
 		course.props.tags = [];
 		course.props.skills = [];
+		course.props.discoverability = input.discoverability;
+		course.props.requiresCompletionScreenshot = input.requiresCompletionScreenshot;
 		course.props.modules = [];
 		course.props.publishedAt = null;
 		course.isNew = false;
@@ -134,6 +139,20 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 	get skills() {
 		return [...this.props.skills];
 	}
+	get discoverability() {
+		return this.props.discoverability;
+	}
+	set discoverability(value: CourseDiscoverability) {
+		this.requireManagement();
+		this.props.discoverability = value;
+	}
+	get requiresCompletionScreenshot() {
+		return this.props.requiresCompletionScreenshot;
+	}
+	set requiresCompletionScreenshot(value: boolean) {
+		this.requireManagement();
+		this.props.requiresCompletionScreenshot = value;
+	}
 	get modules() {
 		return this.props.modules.map((module) => ({ ...module, lessons: module.lessons.map((lesson) => ({ ...lesson })) }));
 	}
@@ -168,6 +187,19 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		this.props.skills = [...new Set(skills.map((skill) => skill.trim()).filter(Boolean))].slice(0, 20);
 	}
 
+	updateDetails(input: { title: string; summary: string; description: string; level: CourseLevel; category: string; tags: string[]; skills: string[]; discoverability: CourseDiscoverability; requiresCompletionScreenshot: boolean }): void {
+		this.requireManagement();
+		if (this.props.status === 'ARCHIVED') throw new Error('Archived courses cannot be edited');
+		this.title = input.title;
+		this.summary = input.summary;
+		this.description = input.description;
+		this.level = input.level;
+		this.category = input.category;
+		this.setTaxonomy(input.tags, input.skills);
+		this.discoverability = input.discoverability;
+		this.requiresCompletionScreenshot = input.requiresCompletionScreenshot;
+	}
+
 	addModule(module: Omit<CourseModule, 'order'>): void {
 		this.requireManagement();
 		if (this.props.status === 'PUBLISHED' || this.props.status === 'ARCHIVED') throw new Error('Published or archived courses cannot be structurally edited');
@@ -196,5 +228,11 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		if (this.props.status !== 'IN_REVIEW') throw new Error('Only courses in review can be published');
 		this.props.status = 'PUBLISHED';
 		this.props.publishedAt = new Date();
+	}
+
+	delete(): void {
+		if (!this.visa.determineIf((permissions) => permissions.canDeleteCourses)) throw new PermissionError('You do not have permission to delete courses');
+		if (this.props.status !== 'DRAFT') throw new Error('Only draft courses can be deleted');
+		this.requestDelete();
 	}
 }

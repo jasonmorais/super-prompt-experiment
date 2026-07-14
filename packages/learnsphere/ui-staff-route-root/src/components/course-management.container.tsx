@@ -10,13 +10,15 @@ import {
 	StaffCourseManagementDocument,
 	type StaffCourseManagementQuery,
 	StaffCreateCourseDocument,
+	StaffDeleteCourseDocument,
 	StaffPublishCourseDocument,
 	StaffSubmitCourseDocument,
+	StaffUpdateCourseDocument,
 } from '../generated.tsx';
 import { CourseManagement } from './course-management.tsx';
 
 type Course = StaffCourseManagementQuery['courses'][number];
-type CourseValues = { title: string; summary: string; description: string; category: string; level: CourseLevel; tags?: string[]; skills?: string[] };
+type CourseValues = { title: string; summary: string; description: string; category: string; level: CourseLevel; tags?: string[]; skills?: string[]; discoverability: 'CATALOG' | 'ASSIGNED_ONLY'; requiresCompletionScreenshot: boolean };
 type ModuleValues = { moduleTitle: string; moduleDescription: string; lessonTitle: string; lessonType: LessonType; lessonContent: string; estimatedMinutes: number; required: boolean };
 const slug = (value: string) =>
 	value
@@ -34,6 +36,8 @@ export const CourseManagementContainer = () => {
 	const [addModule, adding] = useMutation(StaffAddCourseModuleDocument);
 	const [submitCourse, submitting] = useMutation(StaffSubmitCourseDocument);
 	const [publishCourse, publishing] = useMutation(StaffPublishCourseDocument);
+	const [updateCourse, updating] = useMutation(StaffUpdateCourseDocument);
+	const [deleteCourse, deleting] = useMutation(StaffDeleteCourseDocument);
 	const create = async (values: CourseValues) => {
 		const result = await createCourse({ variables: { input: { organizationId, ...values, tags: values.tags ?? [], skills: values.skills ?? [] } } });
 		const status = result.data?.courseCreate.status;
@@ -42,6 +46,26 @@ export const CourseManagementContainer = () => {
 			return;
 		}
 		message.success('Draft course created.');
+		await refetch();
+	};
+	const edit = async (id: string, values: CourseValues) => {
+		const result = await updateCourse({ variables: { input: { id, ...values, tags: values.tags ?? [], skills: values.skills ?? [], discoverability: values.discoverability, requiresCompletionScreenshot: values.requiresCompletionScreenshot } } });
+		const status = result.data?.courseUpdate.status;
+		if (!status?.success) {
+			message.error(status?.errorMessage ?? 'Course could not be updated');
+			return;
+		}
+		message.success('Course details updated.');
+		await refetch();
+	};
+	const remove = async (id: string) => {
+		const result = await deleteCourse({ variables: { id } });
+		const status = result.data?.courseDelete.status;
+		if (!status?.success) {
+			message.error(status?.errorMessage ?? 'Course could not be deleted');
+			return;
+		}
+		message.success('Draft course deleted.');
 		await refetch();
 	};
 	const addContent = async (course: Course, values: ModuleValues) => {
@@ -94,7 +118,11 @@ export const CourseManagementContainer = () => {
 			adding={adding.loading}
 			submitting={submitting.loading}
 			publishing={publishing.loading}
+			updating={updating.loading}
+			deleting={deleting.loading}
 			onCreate={(values) => void create(values)}
+			onEdit={(course, values) => void edit(course.id, values)}
+			onDelete={(course) => void remove(course.id)}
 			onAddContent={(course, values) => void addContent(course, values)}
 			onTransition={(course) => void transition(course)}
 		/>

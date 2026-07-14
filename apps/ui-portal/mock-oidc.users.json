@@ -8,7 +8,8 @@
 			"email": "alex.morgan@example.com",
 			"given_name": "Alex",
 			"family_name": "Morgan",
-			"tid": "northstar-digital",
+			"tid": "simnova",
+			"organization_name": "SimNova",
 			"roles": ["Learner"]
 		}
 	}

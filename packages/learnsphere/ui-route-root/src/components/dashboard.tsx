@@ -5,6 +5,14 @@ import type { LearnerDashboardQuery } from '../generated.tsx';
 const { Title, Text, Paragraph } = Typography;
 type LearningRecord = LearnerDashboardQuery['myLearning'][number];
 
+const sourceLabel = (source: LearningRecord['source']): string =>
+	source === 'SELF_ENROLLED'
+		? 'Self-enrolled'
+		: source
+				.replaceAll('_', ' ')
+				.toLowerCase()
+				.replace(/^./, (letter) => letter.toUpperCase());
+
 const cardStyle = { border: '1px solid #e5eae6', boxShadow: '0 8px 28px rgba(24,55,48,.05)', borderRadius: 18 } as const;
 
 const LearningCard = ({ record, color, onOpen }: { record: LearningRecord; color: string; onOpen: () => void }) => (
@@ -19,6 +27,7 @@ const LearningCard = ({ record, color, onOpen }: { record: LearningRecord; color
 			>
 				{record.courseCategory}
 			</Tag>
+			{record.source !== 'SELF_ENROLLED' && <Tag bordered={false} color="orange">Assigned to me</Tag>}
 			<BookOutlined style={{ position: 'absolute', right: 20, bottom: 15, fontSize: 42, color: 'rgba(16,47,42,.25)' }} />
 		</div>
 		<div style={{ padding: 20 }}>
@@ -38,6 +47,7 @@ const LearningCard = ({ record, color, onOpen }: { record: LearningRecord; color
 				<span>{record.completedActivityCount} activities completed</span>
 				<span>{record.dueAt ? `Due ${new Date(record.dueAt).toLocaleDateString()}` : 'Self-paced'}</span>
 			</div>
+			{record.source !== 'SELF_ENROLLED' && <Text type="secondary" style={{ display: 'block', marginTop: 10, fontSize: 12 }}>Assigned by {record.assignedBy ?? 'your organization'}</Text>}
 			<Button
 				type="primary"
 				block
@@ -62,6 +72,8 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 	const activeRecords = records.filter((record) => !['COMPLETED', 'WAIVED'].includes(record.status));
 	const completedRecords = records.filter((record) => record.status === 'COMPLETED');
 	const assignedRecords = records.filter((record) => record.source !== 'SELF_ENROLLED');
+	const assignedActiveRecords = assignedRecords.filter((record) => !['COMPLETED', 'WAIVED'].includes(record.status));
+	const selfActiveRecords = activeRecords.filter((record) => record.source === 'SELF_ENROLLED');
 	const learningMinutes = records.flatMap((record) => record.activityProgress).reduce((total, progress) => total + progress.timeSpentMinutes, 0);
 	const palette = ['linear-gradient(135deg,#afd9cf,#d8eee5)', 'linear-gradient(135deg,#e8cfb3,#f5e6d3)', 'linear-gradient(135deg,#c9c3e8,#e8e5f5)'];
 
@@ -202,13 +214,14 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 				level={3}
 				style={{ margin: '0 0 16px', color: '#173b33' }}
 			>
-				Continue learning
+				Assigned to me
 			</Title>
+			<Paragraph type="secondary" style={{ marginTop: -8, marginBottom: 16 }}>These courses were assigned by your organization and are the work expected from you.</Paragraph>
 			<Row
 				gutter={[20, 20]}
 				style={{ marginBottom: 38 }}
 			>
-				{activeRecords.slice(0, 3).map((record, index) => (
+				{assignedActiveRecords.map((record, index) => (
 					<Col
 						key={record.id}
 						xs={24}
@@ -222,13 +235,18 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 						/>
 					</Col>
 				))}
-				{!loading && activeRecords.length === 0 && (
+				{!loading && assignedActiveRecords.length === 0 && (
 					<Col span={24}>
 						<Card>
-							<Text type="secondary">No active learning. Browse the catalog to add a published course.</Text>
+							<Text type="secondary">Nothing has been assigned to you right now.</Text>
 						</Card>
 					</Col>
 				)}
+			</Row>
+			<Title level={3} style={{ margin: '0 0 16px', color: '#173b33' }}>Continue learning</Title>
+			<Row gutter={[20, 20]} style={{ marginBottom: 38 }}>
+				{selfActiveRecords.slice(0, 3).map((record, index) => <Col key={record.id} xs={24} md={12} xl={8}><LearningCard record={record} color={palette[index] ?? palette[0] ?? ''} onOpen={() => onOpenCourse(record.courseId)} /></Col>)}
+				{!loading && selfActiveRecords.length === 0 && <Col span={24}><Card><Text type="secondary">No self-enrolled learning in progress.</Text></Card></Col>}
 			</Row>
 			<Card
 				loading={loading}
@@ -253,7 +271,8 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 								type="secondary"
 								style={{ fontSize: 12 }}
 							>
-								{record.source.replaceAll('_', ' ').toLowerCase()} · assigned {new Date(record.assignedAt).toLocaleDateString()}
+								{sourceLabel(record.source)} · assigned {new Date(record.assignedAt).toLocaleDateString()}
+								{record.assignedBy ? ` · by ${record.assignedBy}` : ''}
 							</Text>
 						</div>
 						<Tag color={record.status === 'COMPLETED' ? 'green' : record.status === 'OVERDUE' ? 'red' : 'blue'}>{record.status.replaceAll('_', ' ')}</Tag>

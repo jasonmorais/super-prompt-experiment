@@ -6,6 +6,7 @@ import { Learning, type LearningContextApplicationService } from './contexts/lea
 
 export type { AssignLearningCommand } from './contexts/delivery/learning-record/assign.ts';
 export type { CourseCreateCommand } from './contexts/learning/course/create.ts';
+export type { CourseUpdateCommand } from './contexts/learning/course/update.ts';
 export type { CourseModuleCommand } from './contexts/learning/course/add-module.ts';
 
 export interface VerifiedJwt {
@@ -42,7 +43,7 @@ const getIdentity = (verifiedJwt: VerifiedJwt | undefined): VerifiedJwt => verif
 const getPassport = (verifiedJwt: VerifiedJwt | undefined): Domain.Passport => {
 	if (!verifiedJwt) return Domain.PassportFactory.forGuest();
 	const roles = verifiedJwt.roles ?? [];
-	if (roles.includes('LearningAdmin')) return Domain.PassportFactory.forSystem();
+	if (roles.includes('LearningAdmin') || roles.includes('ManagerLearningAdmin')) return Domain.PassportFactory.forSystem();
 	if (roles.includes('Manager')) return Domain.PassportFactory.forManager();
 	if (roles.includes('Instructor')) return Domain.PassportFactory.forInstructor();
 	return Domain.PassportFactory.forLearner(verifiedJwt.sub);

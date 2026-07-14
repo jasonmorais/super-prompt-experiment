@@ -8,10 +8,13 @@ extend type Mutation {
 	courseAddModule(input: CourseAddModuleInput!): CourseMutationResult!
 	courseSubmitForReview(id: ObjectID!): CourseMutationResult!
 	coursePublish(id: ObjectID!): CourseMutationResult!
+	courseUpdate(input: CourseUpdateInput!): CourseMutationResult!
+	courseDelete(id: ObjectID!): CourseMutationResult!
 }
 
 enum CourseStatus { DRAFT IN_REVIEW PUBLISHED ARCHIVED }
 enum CourseLevel { FOUNDATIONAL INTERMEDIATE ADVANCED }
+enum CourseDiscoverability { CATALOG ASSIGNED_ONLY }
 enum LessonType { ARTICLE VIDEO QUIZ PROJECT RESOURCE }
 
 type Course implements MongoBase {
@@ -28,6 +31,8 @@ type Course implements MongoBase {
 	category: String!
 	tags: [String!]!
 	skills: [String!]!
+	discoverability: CourseDiscoverability!
+	requiresCompletionScreenshot: Boolean!
 	modules: [CourseModule!]!
 	lessonCount: Int!
 	estimatedMinutes: Int!
@@ -61,6 +66,21 @@ input CourseCreateInput {
 	category: String!
 	tags: [String!]
 	skills: [String!]
+	discoverability: CourseDiscoverability
+	requiresCompletionScreenshot: Boolean
+}
+
+input CourseUpdateInput {
+	id: ObjectID!
+	title: String!
+	summary: String!
+	description: String!
+	level: CourseLevel!
+	category: String!
+	tags: [String!]
+	skills: [String!]
+	discoverability: CourseDiscoverability!
+	requiresCompletionScreenshot: Boolean!
 }
 
 input CourseAddModuleInput { courseId: ObjectID! module: CourseModuleInput! }

@@ -62,6 +62,12 @@ export class LearningRecordDomainAdapter extends MongooseSeedwork.MongooseDomain
 	set courseCategory(v) {
 		this.doc.courseCategory = v;
 	}
+	get requiresCompletionScreenshot() {
+		return this.doc.requiresCompletionScreenshot;
+	}
+	set requiresCompletionScreenshot(v) {
+		this.doc.requiresCompletionScreenshot = v;
+	}
 	get requiredActivityKeys() {
 		return this.doc.requiredActivityKeys;
 	}
@@ -133,5 +139,11 @@ export class LearningRecordDomainAdapter extends MongooseSeedwork.MongooseDomain
 	}
 	set activityProgress(v: Domain.Contexts.Delivery.LearningRecord.ActivityProgress[]) {
 		this.doc.activityProgress = v;
+	}
+	get completionScreenshot() {
+		return this.doc.completionScreenshot;
+	}
+	set completionScreenshot(v) {
+		this.doc.completionScreenshot = v;
 	}
 }

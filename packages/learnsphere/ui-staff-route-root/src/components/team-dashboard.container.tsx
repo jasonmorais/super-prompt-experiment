@@ -33,7 +33,7 @@ export const TeamDashboardContainer = () => {
 			message.error(result.data?.assignLearning.status.errorMessage ?? 'Assignment could not be created');
 			return;
 		}
-		message.success(`Learning assigned to ${learner.name}`);
+		message.success(`Learning assigned to ${learner.name}. It will now appear in their My learning dashboard.`);
 		await refetch();
 	};
 	const dashboard = (
@@ -42,7 +42,7 @@ export const TeamDashboardContainer = () => {
 			courses={data?.courses ?? []}
 			loading={false}
 			assignmentLoading={assignment.loading}
-			onAssign={(values, learner) => void assign(values, learner)}
+			onAssign={assign}
 		/>
 	);
 	return (

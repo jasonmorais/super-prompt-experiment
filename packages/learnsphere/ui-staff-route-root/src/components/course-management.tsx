@@ -1,11 +1,11 @@
-import { CheckCircleOutlined, EditOutlined, PlusOutlined, RocketOutlined, SendOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, DeleteOutlined, EditOutlined, PlusOutlined, RocketOutlined, SendOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Form, Input, InputNumber, Modal, Row, Select, Space, Statistic, Table, Tag, Typography } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CourseLevel, LessonType, StaffCourseManagementQuery } from '../generated.tsx';
 
 const { Title, Paragraph, Text } = Typography;
 type Course = StaffCourseManagementQuery['courses'][number];
-type CourseValues = { title: string; summary: string; description: string; category: string; level: CourseLevel; tags?: string[]; skills?: string[] };
+type CourseValues = { title: string; summary: string; description: string; category: string; level: CourseLevel; tags?: string[]; skills?: string[]; discoverability: 'CATALOG' | 'ASSIGNED_ONLY'; requiresCompletionScreenshot: boolean };
 type ModuleValues = { moduleTitle: string; moduleDescription: string; lessonTitle: string; lessonType: LessonType; lessonContent: string; estimatedMinutes: number; required: boolean };
 const statusColor = (status: string) => (status === 'PUBLISHED' ? 'green' : status === 'IN_REVIEW' ? 'gold' : status === 'ARCHIVED' ? 'default' : 'blue');
 
@@ -17,16 +17,26 @@ export interface CourseManagementProps {
 	adding: boolean;
 	submitting: boolean;
 	publishing: boolean;
+	updating: boolean;
+	deleting: boolean;
 	onCreate: (values: CourseValues) => void;
+	onEdit: (course: Course, values: CourseValues) => void;
+	onDelete: (course: Course) => void;
 	onAddContent: (course: Course, values: ModuleValues) => void;
 	onTransition: (course: Course) => void;
 }
 
-export const CourseManagement = ({ courses, loading, error, creating, adding, submitting, publishing, onCreate, onAddContent, onTransition }: CourseManagementProps) => {
+export const CourseManagement = ({ courses, loading, error, creating, adding, submitting, publishing, updating, deleting, onCreate, onEdit, onDelete, onAddContent, onTransition }: CourseManagementProps) => {
 	const [createOpen, setCreateOpen] = useState(false);
+	const [editingCourse, setEditingCourse] = useState<Course>();
 	const [contentCourse, setContentCourse] = useState<Course>();
 	const [createForm] = Form.useForm<CourseValues>();
 	const [moduleForm] = Form.useForm<ModuleValues>();
+	useEffect(() => {
+		if (editingCourse) {
+			createForm.setFieldsValue({ title: editingCourse.title, summary: editingCourse.summary, description: editingCourse.description, category: editingCourse.category, level: editingCourse.level, tags: editingCourse.tags, skills: editingCourse.skills, discoverability: editingCourse.discoverability, requiresCompletionScreenshot: editingCourse.requiresCompletionScreenshot });
+		}
+	}, [createForm, editingCourse]);
 	return (
 		<>
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 20, marginBottom: 28 }}>
@@ -44,7 +54,7 @@ export const CourseManagement = ({ courses, loading, error, creating, adding, su
 					type="primary"
 					icon={<PlusOutlined />}
 					size="large"
-					onClick={() => setCreateOpen(true)}
+				onClick={() => { createForm.resetFields(); createForm.setFieldsValue({ level: 'FOUNDATIONAL', discoverability: 'CATALOG', requiresCompletionScreenshot: false }); setCreateOpen(true); }}
 				>
 					Create course
 				</Button>
@@ -163,11 +173,12 @@ export const CourseManagement = ({ courses, loading, error, creating, adding, su
 								<div>
 									<div style={{ fontWeight: 700 }}>{course.title}</div>
 									<Text type="secondary">
-										{course.category} · {course.level.toLowerCase()}
+										{course.category} · {course.level.toLowerCase()} · {course.discoverability === 'ASSIGNED_ONLY' ? 'assigned only' : 'catalog'}
 									</Text>
 								</div>
 							),
 						},
+						{ title: 'Tags', render: (_, course) => <Space wrap>{course.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)}{course.tags.length === 0 && <Text type="secondary">None</Text>}</Space> },
 						{ title: 'Status', render: (_, course) => <Tag color={statusColor(course.status)}>{course.status.replaceAll('_', ' ')}</Tag> },
 						{ title: 'Content', render: (_, course) => `${course.lessonCount} activities · ${course.estimatedMinutes} min` },
 						{ title: 'Updated', render: (_, course) => new Date(course.updatedAt).toLocaleDateString() },
@@ -183,6 +194,12 @@ export const CourseManagement = ({ courses, loading, error, creating, adding, su
 										>
 											Add content
 										</Button>
+									)}
+									{course.status !== 'PUBLISHED' && course.status !== 'ARCHIVED' && (
+										<Button icon={<EditOutlined />} onClick={() => setEditingCourse(course)}>Edit details</Button>
+									)}
+									{course.status === 'DRAFT' && (
+										<Button danger icon={<DeleteOutlined />} loading={deleting} onClick={() => Modal.confirm({ title: 'Delete this draft?', content: 'This permanently removes the draft course and its content.', okText: 'Delete draft', okButtonProps: { danger: true }, onOk: () => onDelete(course) })}>Delete</Button>
 									)}
 									{course.status === 'DRAFT' && (
 										<Button
@@ -211,23 +228,25 @@ export const CourseManagement = ({ courses, loading, error, creating, adding, su
 				/>
 			</Card>
 			<Modal
-				title="Create a draft course"
-				open={createOpen}
-				onCancel={() => setCreateOpen(false)}
+				title={editingCourse ? `Edit course · ${editingCourse.title}` : 'Create a draft course'}
+				open={createOpen || Boolean(editingCourse)}
+				onCancel={() => { setCreateOpen(false); setEditingCourse(undefined); createForm.resetFields(); }}
 				onOk={() => createForm.submit()}
-				confirmLoading={creating}
-				width={720}
-				okText="Create draft"
+				confirmLoading={editingCourse ? updating : creating}
+				width={760}
+				okText={editingCourse ? 'Save changes' : 'Create draft'}
 			>
 				<Form
 					form={createForm}
 					layout="vertical"
-					onFinish={(values) => {
-						onCreate(values);
-						setCreateOpen(false);
-						createForm.resetFields();
-					}}
-					initialValues={{ level: 'FOUNDATIONAL' }}
+									onFinish={(values) => {
+										if (editingCourse) onEdit(editingCourse, values);
+										else onCreate(values);
+										setCreateOpen(false);
+										setEditingCourse(undefined);
+										createForm.resetFields();
+									}}
+									initialValues={{ level: 'FOUNDATIONAL', discoverability: 'CATALOG', requiresCompletionScreenshot: false }}
 				>
 					<Row gutter={16}>
 						<Col span={16}>
@@ -300,6 +319,19 @@ export const CourseManagement = ({ courses, loading, error, creating, adding, su
 							placeholder="Add catalog tags"
 						/>
 					</Form.Item>
+					<Row gutter={16}>
+						<Col span={12}>
+							<Form.Item name="discoverability" label="Learner visibility" rules={[{ required: true }]}>
+								<Select options={[{ value: 'CATALOG', label: 'Visible in Discover' }, { value: 'ASSIGNED_ONLY', label: 'Assigned learners only' }]} />
+							</Form.Item>
+						</Col>
+						<Col span={12}>
+							<Form.Item name="requiresCompletionScreenshot" label="Completion evidence">
+								<Select options={[{ value: false, label: 'Screenshot optional' }, { value: true, label: 'Require learner screenshot' }]} />
+							</Form.Item>
+						</Col>
+					</Row>
+					<Alert type="info" showIcon message="Course tags help learners find relevant training. Assigned-only courses stay out of Discover until a staff member assigns them." />
 				</Form>
 			</Modal>
 			<Modal

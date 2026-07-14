@@ -34,6 +34,7 @@ const noContentPermissions: CourseDomainPermissions = {
 	canCreateCourses: false,
 	canManageLearningContent: false,
 	canPublishCourses: false,
+	canDeleteCourses: false,
 };
 
 export const PassportFactory = {
@@ -50,7 +51,7 @@ export const PassportFactory = {
 	forSystem: (): Passport =>
 		buildPassport(
 			false,
-			{ canCreateCourses: true, canManageLearningContent: true, canPublishCourses: true },
+			{ canCreateCourses: true, canManageLearningContent: true, canPublishCourses: true, canDeleteCourses: true },
 			{ canSelfEnroll: true, canAssignLearning: true, canViewTeamLearning: true, canRecordProgress: true, canWaiveAssignments: true },
 		),
 } as const;

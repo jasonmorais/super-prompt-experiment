@@ -10,6 +10,8 @@ export interface CourseCreateCommand {
 	category: string;
 	tags?: string[];
 	skills?: string[];
+	discoverability?: Domain.Contexts.Learning.Course.CourseDiscoverability;
+	requiresCompletionScreenshot?: boolean;
 }
 
 export const create =
@@ -17,7 +19,7 @@ export const create =
 	async (command: CourseCreateCommand): Promise<Domain.Contexts.Learning.Course.CourseEntityReference> => {
 		let result: Domain.Contexts.Learning.Course.CourseEntityReference | undefined;
 		await dataSources.domainDataSource.Learning.Course.CourseUnitOfWork.withScopedTransaction(async (repo) => {
-			const course = await repo.getNewInstance({ ...command, createdBy });
+			const course = await repo.getNewInstance({ ...command, createdBy, discoverability: command.discoverability ?? 'CATALOG', requiresCompletionScreenshot: command.requiresCompletionScreenshot ?? false });
 			course.setTaxonomy(command.tags ?? [], command.skills ?? []);
 			result = await repo.save(course);
 		});

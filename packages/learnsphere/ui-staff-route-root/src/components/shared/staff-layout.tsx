@@ -7,6 +7,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const { Sider, Header, Content } = Layout;
 
+const roleLabel = (role: string): string => {
+	if (role === 'ManagerLearningAdmin') return 'Learning administrator';
+	if (role === 'LearningAdmin') return 'Learning administrator';
+	return role.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (letter) => letter.toUpperCase());
+};
+
 export const StaffLayout = ({ children }: { children: ReactNode }) => {
 	const auth = useAuth();
 	const navigate = useNavigate();
@@ -43,14 +49,17 @@ export const StaffLayout = ({ children }: { children: ReactNode }) => {
 					style={{ background: 'transparent', border: 0 }}
 				/>
 				<div style={{ position: 'absolute', bottom: 24, left: 18, right: 18, background: '#22304a', borderRadius: 14, padding: 14, color: '#cbd4e1' }}>
-					<TeamOutlined /> Manager access
+					<div style={{ fontWeight: 650 }}>
+						<TeamOutlined /> Staff permissions
+					</div>
+					<small style={{ display: 'block', marginTop: 6, color: '#aebbd0' }}>Create courses, assign learning, and review team progress.</small>
 					<div style={{ marginTop: 7 }}>
 						{roles.map((role) => (
 							<Tag
 								key={role}
 								bordered={false}
 							>
-								{role}
+								{roleLabel(role)}
 							</Tag>
 						))}
 					</div>

@@ -63,6 +63,6 @@ The root development command starts the learner portal (`:3000`), docs (`:3001`)
 - Learner: `alex.morgan@example.com` / `password`
 - Manager: `maya.chen@example.com` / `password`
 
-The seed represents Northstar Digital learners across Product Experience and Data & Insights, published course content, mixed completion states, time evidence, due dates, and overdue work so both portals have meaningful connected data immediately.
+The seed represents SimNova learners across Product Experience and Data & Insights, published course content, mixed completion states, time evidence, due dates, and overdue work so both portals have meaningful connected data immediately.
 
 See the [domain model](apps/docs/docs/domain-model.md) for current boundaries and planned extension points.

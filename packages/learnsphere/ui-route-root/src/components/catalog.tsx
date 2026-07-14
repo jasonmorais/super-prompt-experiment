@@ -58,6 +58,7 @@ export const Catalog = ({ courses, enrollments, loading, onEnroll, onOpenCourse,
 									wrap
 									style={{ marginBottom: 20 }}
 								>
+									{course.tags.map((tag) => <Tag color="geekblue" key={tag}>#{tag}</Tag>)}
 									{course.skills.map((skill) => (
 										<Tag key={skill}>{skill}</Tag>
 									))}

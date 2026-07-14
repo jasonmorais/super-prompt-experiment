@@ -6,6 +6,8 @@ query LearnerCatalog($organizationId: String!) {
 		category
 		level
 		skills
+		tags
+		discoverability
 		lessonCount
 		estimatedMinutes
 	}
@@ -13,6 +15,7 @@ query LearnerCatalog($organizationId: String!) {
 		id
 		courseId
 		status
+		assignedBy
 	}
 }
 

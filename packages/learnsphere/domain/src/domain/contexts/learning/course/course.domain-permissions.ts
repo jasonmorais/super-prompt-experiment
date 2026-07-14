@@ -3,4 +3,5 @@ export interface CourseDomainPermissions {
 	canCreateCourses: boolean;
 	canManageLearningContent: boolean;
 	canPublishCourses: boolean;
+	canDeleteCourses: boolean;
 }

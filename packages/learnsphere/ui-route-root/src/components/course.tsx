@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined, BookOutlined, CheckCircleFilled, CheckOutlined, ClockCircleOutlined, FileTextOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, BookOutlined, CheckCircleFilled, CheckOutlined, ClockCircleOutlined, FileTextOutlined, PlayCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Divider, Progress, Row, Space, Tag, Typography } from 'antd';
 import type { CourseExperienceQuery } from '../generated.tsx';
 
@@ -17,10 +17,13 @@ export interface CourseProps {
 	mutationLoading: boolean;
 	onBack: () => void;
 	onSelectLesson: (lessonKey: string) => void;
+	completionScreenshotRequired: boolean;
+	completionScreenshotSelected: boolean;
+	onSelectScreenshot: (file: File | undefined) => void;
 	onComplete: () => void;
 }
 
-export const Course = ({ course, record, selectedLesson, completedKeys, mutationLoading, onBack, onSelectLesson, onComplete }: CourseProps) => (
+export const Course = ({ course, record, selectedLesson, completedKeys, mutationLoading, completionScreenshotRequired, completionScreenshotSelected, onSelectScreenshot, onBack, onSelectLesson, onComplete }: CourseProps) => (
 	<>
 		<Button
 			type="text"
@@ -179,21 +182,28 @@ export const Course = ({ course, record, selectedLesson, completedKeys, mutation
 								}
 							/>
 						) : (
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
+							<div>
+								{completionScreenshotRequired && (
+									<Alert type="warning" showIcon message="A screenshot is required to complete this course" description="Attach an image showing your completed work before marking the final required activity complete." style={{ marginBottom: 18 }} />
+								)}
+								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
 								<div>
 									<Text strong>Ready to continue?</Text>
 									<br />
 									<Text type="secondary">Completion adds {selectedLesson.estimatedMinutes} minutes to your learning record.</Text>
 								</div>
+								{completionScreenshotRequired && <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid #d9e3df', borderRadius: 8, padding: '8px 12px', cursor: 'pointer' }}><UploadOutlined /> {completionScreenshotSelected ? 'Screenshot attached' : 'Attach screenshot'}<input type="file" accept="image/*" onChange={(event) => onSelectScreenshot(event.target.files?.[0])} style={{ display: 'none' }} /></label>}
 								<Button
 									type="primary"
 									size="large"
 									loading={mutationLoading}
+									disabled={completionScreenshotRequired && !completionScreenshotSelected}
 									onClick={onComplete}
 									style={{ background: '#176c5b' }}
 								>
 									Mark activity complete
 								</Button>
+								</div>
 							</div>
 						)}
 					</Card>

@@ -9,6 +9,8 @@ export interface NewCourseInput {
 	level: CourseLevel;
 	category: string;
 	createdBy: string;
+	discoverability: CourseProps['discoverability'];
+	requiresCompletionScreenshot: boolean;
 }
 
 export interface CourseRepository<Props extends CourseProps = CourseProps> extends Repository<Course<Props>> {
