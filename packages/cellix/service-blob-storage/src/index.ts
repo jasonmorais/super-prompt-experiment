@@ -11,6 +11,7 @@ export type {
 	ServiceBlobStorageOptions,
 	ServiceClientBlobStorageOptions,
 	UploadTextBlobRequest,
+	UploadDataBlobRequest,
 } from './interfaces.ts';
 /**
  * Managed-identity-backed framework blob-storage service for server-side blob operations.

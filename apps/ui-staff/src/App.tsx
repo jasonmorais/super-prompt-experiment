@@ -1,6 +1,6 @@
 import { RequireAuth } from '@cellix/ui-core';
 import { hasStaffAccess, readLearnSphereIdentity } from '@learnsphere/ui-shared';
-import { CourseManagement, StaffLogin, TeamDashboard } from '@learnsphere/ui-staff-route-root';
+import { CourseManagement, StaffLogin, TeamDashboard, TeamOperations } from '@learnsphere/ui-staff-route-root';
 import { Spin } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -69,6 +69,7 @@ export default function App() {
 						</Protected>
 					}
 				/>
+				<Route path="/staff/operations" element={<Protected><TeamOperations /></Protected>} />
 				<Route
 					path="*"
 					element={

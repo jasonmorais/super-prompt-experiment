@@ -31,7 +31,7 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
-		.registerInfrastructureService(new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName ?? '' }))
+		.registerInfrastructureService(new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName, ...(AzureStorageConfig.connectionString ? { connectionString: AzureStorageConfig.connectionString } : {}) }))
 		.registerInfrastructureService(new ServiceQueueStorage())
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
@@ -52,7 +52,7 @@ Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((se
 	})
 	.initializeApplicationServices((context) => buildApplicationServicesFactory(context))
 	.registerAzureFunctionHttpHandler('graphql', { route: 'graphql/{*segments}', methods: ['GET', 'POST', 'OPTIONS'] }, (appServicesFactory, infrastructureRegistry) =>
-		graphHandlerCreator(infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer), appServicesFactory),
+		graphHandlerCreator(infrastructureRegistry.getInfrastructureService<ServiceApolloServer<GraphContext>>(ServiceApolloServer), appServicesFactory, infrastructureRegistry.getInfrastructureService<ServiceBlobStorage>(ServiceBlobStorage)),
 	)
 	.registerAzureFunctionHttpHandler('rest', { route: 'rest/{*rest}' }, restHandlerCreator)
 	.registerAzureFunctionHttpHandler('health', { route: 'health', methods: ['GET'], authLevel: 'anonymous' }, () => () => Promise.resolve({ status: 200, jsonBody: { status: 'ok' } }))

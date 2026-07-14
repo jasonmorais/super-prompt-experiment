@@ -68,6 +68,13 @@ export interface UploadTextBlobRequest extends BlobAddress {
 	tags?: Record<string, string>;
 }
 
+export interface UploadDataBlobRequest extends BlobAddress {
+	data: Uint8Array;
+	httpHeaders?: BlobHTTPHeaders;
+	metadata?: Record<string, string>;
+	tags?: Record<string, string>;
+}
+
 /**
  * Request contract for listing blobs from a container.
  *
@@ -246,6 +253,8 @@ export interface BlobStorage {
 	 * completed write operation.
 	 */
 	uploadText(request: UploadTextBlobRequest): Promise<BlobUploadCommonResponse>;
+	/** Uploads binary content to a blob. */
+	uploadData(request: UploadDataBlobRequest): Promise<BlobUploadCommonResponse>;
 
 	/**
 	 * Deletes a blob at the given address.
@@ -365,6 +374,8 @@ export interface ClientBlobStorage extends BlobStorage {
  */
 export interface ServiceBlobStorageOptions {
 	accountName: string | undefined;
+	/** Optional connection string, primarily for local Azurite development. */
+	connectionString?: string;
 	credential?: TokenCredential;
 }
 

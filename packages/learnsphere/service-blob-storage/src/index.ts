@@ -7,5 +7,6 @@ export type {
 	ServiceBlobStorageOptions,
 	ServiceClientBlobStorageOptions,
 	UploadTextBlobRequest,
+	UploadDataBlobRequest,
 } from '@cellix/service-blob-storage';
 export { ServiceBlobStorage, ServiceClientBlobStorage } from '@cellix/service-blob-storage';

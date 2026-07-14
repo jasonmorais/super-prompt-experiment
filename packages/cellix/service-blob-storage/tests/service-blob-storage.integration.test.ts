@@ -125,7 +125,8 @@ async function startAzuriteBlobServer(): Promise<AzuriteBlobServer> {
 	let processHandle: ChildProcessWithoutNullStreams;
 	let spawnError: unknown;
 
-	const azuriteBinaryPath = join(findRepoRoot(), 'node_modules', '.bin', 'azurite-blob');
+	const packageBinaryPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'node_modules', '.bin', 'azurite-blob');
+	const azuriteBinaryPath = existsSync(packageBinaryPath) ? packageBinaryPath : join(findRepoRoot(), 'node_modules', '.bin', 'azurite-blob');
 
 	try {
 		processHandle = spawn(azuriteBinaryPath, ['--silent', '--skipApiVersionCheck', '--blobPort', String(port), '--location', location], {

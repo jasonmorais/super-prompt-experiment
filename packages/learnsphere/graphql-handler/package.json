@@ -29,6 +29,7 @@
 		"@learnsphere/application-services": "workspace:*",
 		"@learnsphere/graphql": "workspace:*",
 		"@learnsphere/service-apollo-server": "workspace:*",
+		"@learnsphere/service-blob-storage": "workspace:*",
 		"graphql": "catalog:"
 	},
 	"devDependencies": {

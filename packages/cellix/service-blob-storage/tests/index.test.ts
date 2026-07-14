@@ -73,9 +73,11 @@ describe('@cellix/service-blob-storage public contract', () => {
 	const blockBlobClient = {
 		url: 'https://blob.example.test/container/blob.txt',
 		upload: uploadMock,
+		uploadData: uploadMock,
 	};
 	const containerClient = {
 		url: 'https://blob.example.test/container',
+		createIfNotExists: vi.fn(),
 		getBlockBlobClient: vi.fn(() => blockBlobClient),
 		deleteBlob: deleteBlobMock,
 		listBlobsFlat: listBlobsFlatMock,
@@ -133,6 +135,17 @@ describe('@cellix/service-blob-storage public contract', () => {
 				metadata: { source: 'test' },
 				tags: { tenant: 'ocom' },
 			});
+		});
+
+		it('uploads binary data to a blob', async () => {
+			const service = new ServiceBlobStorage({ accountName });
+			await service.startUp();
+
+			const data = new Uint8Array([1, 2, 3]);
+			await service.uploadData({ containerName: 'member-assets', blobName: 'files/example.bin', data, httpHeaders: { blobContentType: 'application/octet-stream' } });
+
+			expect(containerClient.getBlockBlobClient).toHaveBeenCalledWith('files/example.bin');
+			expect(uploadMock).toHaveBeenCalledWith(data, { blobHTTPHeaders: { blobContentType: 'application/octet-stream' } });
 		});
 
 		it('lists blob names and absolute URLs for an optional prefix', async () => {

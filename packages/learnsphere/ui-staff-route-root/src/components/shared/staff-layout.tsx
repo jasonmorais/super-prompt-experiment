@@ -1,4 +1,4 @@
-import { BookOutlined, DashboardOutlined, LogoutOutlined, TeamOutlined } from '@ant-design/icons';
+import { BookOutlined, DashboardOutlined, LogoutOutlined, ThunderboltOutlined, TeamOutlined } from '@ant-design/icons';
 import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Avatar, Button, Layout, Menu, Space, Tag, Typography } from 'antd';
 import type { ReactNode } from 'react';
@@ -40,11 +40,12 @@ export const StaffLayout = ({ children }: { children: ReactNode }) => {
 				<Menu
 					theme="dark"
 					mode="inline"
-					selectedKeys={[location.pathname.includes('/courses') ? 'courses' : 'team']}
-					onClick={({ key }) => navigate(key === 'courses' ? '/staff/courses' : '/staff')}
+					selectedKeys={[location.pathname.includes('/courses') ? 'courses' : location.pathname.includes('/operations') ? 'operations' : 'team']}
+					onClick={({ key }) => navigate(key === 'courses' ? '/staff/courses' : key === 'operations' ? '/staff/operations' : '/staff')}
 					items={[
 						{ key: 'team', icon: <DashboardOutlined />, label: 'Team overview' },
 						{ key: 'courses', icon: <BookOutlined />, label: 'Course management' },
+						{ key: 'operations', icon: <ThunderboltOutlined />, label: 'Team operations' },
 					]}
 					style={{ background: 'transparent', border: 0 }}
 				/>

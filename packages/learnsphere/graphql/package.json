@@ -29,6 +29,7 @@
 		"@graphql-tools/utils": "^10.9.0",
 		"@learnsphere/application-services": "workspace:*",
 		"@learnsphere/domain": "workspace:*",
+		"@learnsphere/service-blob-storage": "workspace:*",
 		"graphql": "catalog:",
 		"graphql-middleware": "^6.1.35"
 	},

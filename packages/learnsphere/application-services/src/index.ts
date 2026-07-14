@@ -3,6 +3,7 @@ import { Domain } from '@learnsphere/domain';
 import type { DataSources } from '@learnsphere/persistence';
 import { Delivery, type DeliveryContextApplicationService } from './contexts/delivery/index.ts';
 import { Learning, type LearningContextApplicationService } from './contexts/learning/index.ts';
+import { Operations, type OperationsContextApplicationService } from './contexts/operations/index.ts';
 
 export type { AssignLearningCommand } from './contexts/delivery/learning-record/assign.ts';
 export type { CourseCreateCommand } from './contexts/learning/course/create.ts';
@@ -30,6 +31,7 @@ export interface ApplicationServices {
 	get verifiedUser(): VerifiedUser | null;
 	Learning: LearningContextApplicationService;
 	Delivery: DeliveryContextApplicationService;
+	Operations: OperationsContextApplicationService;
 }
 
 export interface AppServicesHost<S> {
@@ -43,7 +45,8 @@ const getIdentity = (verifiedJwt: VerifiedJwt | undefined): VerifiedJwt => verif
 const getPassport = (verifiedJwt: VerifiedJwt | undefined): Domain.Passport => {
 	if (!verifiedJwt) return Domain.PassportFactory.forGuest();
 	const roles = verifiedJwt.roles ?? [];
-	if (roles.includes('LearningAdmin') || roles.includes('ManagerLearningAdmin')) return Domain.PassportFactory.forSystem();
+	if (roles.includes('ManagerLearningAdmin') || (roles.includes('Manager') && roles.includes('LearningAdmin'))) return Domain.PassportFactory.forManagerLearningAdmin();
+	if (roles.includes('LearningAdmin')) return Domain.PassportFactory.forLearningAdmin();
 	if (roles.includes('Manager')) return Domain.PassportFactory.forManager();
 	if (roles.includes('Instructor')) return Domain.PassportFactory.forInstructor();
 	return Domain.PassportFactory.forLearner(verifiedJwt.sub);
@@ -66,6 +69,7 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			},
 			Learning: Learning(dataSources, identity.sub),
 			Delivery: Delivery(dataSources, passport, identity),
+			Operations: Operations(dataSources, passport, { sub: identity.sub, ...(identity.email ? { email: identity.email } : {}) }),
 		};
 	},
 });

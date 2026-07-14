@@ -1,7 +1,8 @@
 import { DefaultAzureCredential, type TokenCredential } from '@azure/identity';
 import { BlobServiceClient, type BlobUploadCommonResponse } from '@azure/storage-blob';
 import type { ServiceBase } from '@cellix/api-services-spec';
-import type { BlobAddress, BlobListItem, BlobStorage, ListBlobsRequest, ServiceBlobStorageOptions, UploadTextBlobRequest } from './interfaces.ts';
+import { isLocalBlobConnectionString } from './connection-string.ts';
+import type { BlobAddress, BlobListItem, BlobStorage, ListBlobsRequest, ServiceBlobStorageOptions, UploadDataBlobRequest, UploadTextBlobRequest } from './interfaces.ts';
 
 function validateOptions(options: ServiceBlobStorageOptions): void {
 	if (!options.accountName?.trim()) {
@@ -21,7 +22,12 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	public async startUp(): Promise<BlobStorage> {
 		await Promise.resolve();
 
-		const { accountName, credential } = this.options;
+		const { accountName, connectionString, credential } = this.options;
+		if (connectionString && isLocalBlobConnectionString(connectionString)) {
+			this.blobServiceClientInternal = BlobServiceClient.fromConnectionString(connectionString);
+			console.info(`[ServiceBlobStorage] started (Azurite). account=${accountName}`);
+			return this;
+		}
 		const credentialToUse: TokenCredential = credential ?? new DefaultAzureCredential();
 		const url = `https://${accountName}.blob.core.windows.net`;
 
@@ -40,7 +46,9 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 	}
 
 	public async uploadText(request: UploadTextBlobRequest): Promise<BlobUploadCommonResponse> {
-		const blockBlobClient = this.getContainerClient(request.containerName).getBlockBlobClient(request.blobName);
+		const containerClient = this.getContainerClient(request.containerName);
+		await containerClient.createIfNotExists();
+		const blockBlobClient = containerClient.getBlockBlobClient(request.blobName);
 		const uploadOptions = {
 			...(request.httpHeaders ? { blobHTTPHeaders: request.httpHeaders } : {}),
 			...(request.metadata ? { metadata: request.metadata } : {}),
@@ -48,6 +56,17 @@ export class ServiceBlobStorage implements ServiceBase<BlobStorage>, BlobStorage
 		};
 		return await blockBlobClient.upload(request.text, Buffer.byteLength(request.text), {
 			...uploadOptions,
+		});
+	}
+
+	public async uploadData(request: UploadDataBlobRequest): Promise<BlobUploadCommonResponse> {
+		const containerClient = this.getContainerClient(request.containerName);
+		await containerClient.createIfNotExists();
+		const blockBlobClient = containerClient.getBlockBlobClient(request.blobName);
+		return await blockBlobClient.uploadData(request.data, {
+			...(request.httpHeaders ? { blobHTTPHeaders: request.httpHeaders } : {}),
+			...(request.metadata ? { metadata: request.metadata } : {}),
+			...(request.tags ? { tags: request.tags } : {}),
 		});
 	}
 

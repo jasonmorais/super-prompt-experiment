@@ -1,0 +1,39 @@
+query MyTeamOperations($organizationId: String!) {
+	myTeamOperations(organizationId: $organizationId) {
+		id
+		title
+		description
+		category
+		priority
+		status
+		assigneeId
+		assigneeDisplayName
+		teamName
+		createdBy
+		assignedAt
+		dueAt
+		submittedAt
+		completionNote
+		completionEvidence
+		confirmedAt
+		confirmedBy
+		isOverdue
+		statusHistory { status changedAt changedBy note }
+		thread { comments { id body authorId authorName createdAt } attachments { id fileName contentType size blobName uploadedBy uploadedAt } }
+	}
+}
+
+mutation CommentTeamOperation($input: TeamOperationCommentInput!) {
+	teamOperationComment(input: $input) { status { success errorMessage } teamOperation { id } }
+}
+
+mutation AttachTeamOperation($input: TeamOperationAttachInput!) {
+	teamOperationAttach(input: $input) { status { success errorMessage } teamOperation { id } }
+}
+
+mutation SubmitTeamOperation($input: TeamOperationSubmitInput!) {
+	teamOperationSubmit(input: $input) {
+		status { success errorMessage }
+		teamOperation { id status submittedAt completionNote }
+	}
+}

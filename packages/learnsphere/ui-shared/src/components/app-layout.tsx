@@ -1,4 +1,4 @@
-import { BookOutlined, CompassOutlined, HomeFilled, LogoutOutlined } from '@ant-design/icons';
+import { BookOutlined, CompassOutlined, HomeFilled, LogoutOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { Avatar, Button, Layout, Menu, Space, Typography } from 'antd';
 import type { ReactNode } from 'react';
 import { useAuth } from 'react-oidc-context';
@@ -19,7 +19,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 	const organizationName = identity.organizationName;
 	const displayName = `${identity.givenName} ${identity.familyName}`.trim() || identity.email || 'Learner';
 	const initials = `${identity.givenName[0] ?? ''}${identity.familyName[0] ?? ''}` || displayName.slice(0, 2).toUpperCase();
-	const selectedKey = location.pathname.startsWith('/catalog') ? 'catalog' : 'dashboard';
+	const selectedKey = location.pathname.startsWith('/catalog') ? 'catalog' : location.pathname.startsWith('/operations') ? 'operations' : 'dashboard';
 
 	const logout = () => {
 		void auth.removeUser();
@@ -41,10 +41,11 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 				<Menu
 					mode="inline"
 					selectedKeys={[selectedKey]}
-					onClick={({ key }) => navigate(key === 'catalog' ? '/catalog' : '/dashboard')}
+						onClick={({ key }) => navigate(key === 'catalog' ? '/catalog' : key === 'operations' ? '/operations' : '/dashboard')}
 					items={[
 						{ key: 'dashboard', icon: <HomeFilled />, label: 'My learning' },
 						{ key: 'catalog', icon: <CompassOutlined />, label: 'Discover' },
+						{ key: 'operations', icon: <ThunderboltOutlined />, label: 'Team operations' },
 					]}
 					style={{ background: 'transparent', color: '#c5d5d1', border: 0 }}
 					theme="dark"

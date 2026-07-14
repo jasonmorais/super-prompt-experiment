@@ -2,6 +2,7 @@ import type { HttpHandler } from '@azure/functions';
 import type { ApplicationServicesFactory, PrincipalHints } from '@learnsphere/application-services';
 import type { GraphContext } from '@learnsphere/graphql';
 import type { ServiceApolloServer } from '@learnsphere/service-apollo-server';
+import type { ServiceBlobStorage } from '@learnsphere/service-blob-storage';
 import { type AzureFunctionsMiddlewareOptions, createHandler, type WithRequired } from './azure-functions.ts';
 
 /**
@@ -11,7 +12,7 @@ import { type AzureFunctionsMiddlewareOptions, createHandler, type WithRequired 
  * @param applicationServicesFactory - Factory for request-scoped application services.
  * @returns An Azure Functions HTTP handler.
  */
-export const graphHandlerCreator = (apolloServerService: ServiceApolloServer<GraphContext>, applicationServicesFactory: ApplicationServicesFactory): HttpHandler => {
+export const graphHandlerCreator = (apolloServerService: ServiceApolloServer<GraphContext>, applicationServicesFactory: ApplicationServicesFactory, blobStorageService: ServiceBlobStorage): HttpHandler => {
 	const functionOptions: WithRequired<AzureFunctionsMiddlewareOptions<GraphContext>, 'context'> = {
 		context: async ({ req }) => {
 			const authHeader = req.headers.get('Authorization') ?? undefined;
@@ -23,6 +24,7 @@ export const graphHandlerCreator = (apolloServerService: ServiceApolloServer<Gra
 			};
 			return {
 				applicationServices: await applicationServicesFactory.forRequest(authHeader, hints),
+				blobStorageService,
 			};
 		},
 	};

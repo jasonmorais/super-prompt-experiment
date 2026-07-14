@@ -6,6 +6,8 @@
  * local development and CI.
  */
 
-const { AZURE_STORAGE_ACCOUNT_NAME: accountName, AZURE_STORAGE_CONNECTION_STRING: connectionString } = process.env;
+// biome-ignore lint/complexity/useLiteralKeys: Azure Functions exposes this legacy mixed-case setting name.
+const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING ?? process.env['AzureWebJobsStorage'];
+const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME ?? 'devstoreaccount1';
 
 export { accountName, connectionString };

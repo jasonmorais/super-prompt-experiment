@@ -28,7 +28,20 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 	}
 
 	async getById(id: string, options?: { organizationId?: string; learnerId?: string }): Promise<Domain.Contexts.Learning.Course.CourseEntityReference | null> {
-		const document = await this.models.Course.findOne({ _id: id, ...(options?.organizationId ? { organizationId: options.organizationId } : {}), ...(options?.learnerId ? { $or: [{ discoverability: 'CATALOG' }, { discoverability: 'ASSIGNED_ONLY', _id: { $in: await this.assignedCourseIds(options.organizationId, options.learnerId) } }] } : {}) }).exec();
+		const document = await this.models.Course.findOne({
+			_id: id,
+			...(options?.organizationId ? { organizationId: options.organizationId } : {}),
+			...(options?.learnerId
+				? {
+					$or: [
+						// Older local seed data predates the discoverability field and was
+						// intended to be catalog-visible.
+						{ discoverability: { $in: ['CATALOG', null] } },
+						{ discoverability: 'ASSIGNED_ONLY', _id: { $in: await this.assignedCourseIds(options.organizationId, options.learnerId) } },
+					],
+				}
+				: {}),
+		}).exec();
 		return document ? this.converter.toDomain(document, this.passport) : null;
 	}
 
@@ -36,7 +49,12 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 		const query: FilterQuery<CourseDocument> = { organizationId: options.organizationId };
 		if (options.status) query.status = options.status;
 		if (options.search?.trim()) query.$text = { $search: options.search.trim() };
-		if (options.learnerId) query.$or = [{ discoverability: 'CATALOG' }, { discoverability: 'ASSIGNED_ONLY', _id: { $in: await this.assignedCourseIds(options.organizationId, options.learnerId) } }];
+		if (options.learnerId) {
+			query.$or = [
+				{ discoverability: { $in: ['CATALOG', null] } },
+				{ discoverability: 'ASSIGNED_ONLY', _id: { $in: await this.assignedCourseIds(options.organizationId, options.learnerId) } },
+			];
+		}
 		const documents = await this.models.Course.find(query)
 			.sort({ updatedAt: -1 })
 			.limit(Math.min(options.limit ?? 30, 100))

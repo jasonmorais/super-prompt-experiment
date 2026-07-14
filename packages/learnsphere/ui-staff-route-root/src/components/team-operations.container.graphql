@@ -1,0 +1,52 @@
+query StaffTeamOperations($organizationId: String!, $teamName: String) {
+	teamOperations(organizationId: $organizationId, teamName: $teamName) {
+		id
+		title
+		description
+		category
+		priority
+		status
+		assigneeId
+		assigneeDisplayName
+		assigneeEmail
+		teamName
+		createdBy
+		assignedAt
+		dueAt
+		submittedAt
+		submittedBy
+		completionNote
+		completionEvidence
+		confirmedAt
+		confirmedBy
+		isOverdue
+		statusHistory { status changedAt changedBy note }
+		thread { comments { id body authorId authorName createdAt } attachments { id fileName contentType size blobName uploadedBy uploadedAt } }
+	}
+	teamLearning(organizationId: $organizationId, teamName: $teamName) {
+		learnerId
+		learnerDisplayName
+		learnerEmail
+		teamName
+	}
+}
+
+mutation StaffCreateTeamOperation($input: TeamOperationCreateInput!) {
+	teamOperationCreate(input: $input) { status { success errorMessage } teamOperation { id status } }
+}
+
+mutation StaffConfirmTeamOperation($input: TeamOperationConfirmInput!) {
+	teamOperationConfirm(input: $input) { status { success errorMessage } teamOperation { id status confirmedAt confirmedBy } }
+}
+
+mutation StaffCancelTeamOperation($input: TeamOperationCancelInput!) {
+	teamOperationCancel(input: $input) { status { success errorMessage } teamOperation { id status } }
+}
+
+mutation StaffCommentTeamOperation($input: TeamOperationCommentInput!) {
+	teamOperationComment(input: $input) { status { success errorMessage } teamOperation { id } }
+}
+
+mutation StaffAttachTeamOperation($input: TeamOperationAttachInput!) {
+	teamOperationAttach(input: $input) { status { success errorMessage } teamOperation { id } }
+}
