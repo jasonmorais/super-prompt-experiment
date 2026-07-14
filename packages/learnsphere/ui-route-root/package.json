@@ -16,6 +16,8 @@
 	"dependencies": {
 		"@ant-design/icons": "catalog:",
 		"@apollo/client": "^3.13.9",
+		"@cellix/ui-core": "workspace:*",
+		"@graphql-typed-document-node/core": "^3.2.0",
 		"@learnsphere/ui-shared": "workspace:*",
 		"antd": "catalog:",
 		"react": "catalog:",

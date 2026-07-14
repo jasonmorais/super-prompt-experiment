@@ -1,0 +1,16 @@
+[
+	{
+		"username": "maya.chen@example.com",
+		"sub": "10000000-0000-4000-8000-000000000001",
+		"password": "password",
+		"oidcConfigName": "user",
+		"claims": {
+			"email": "maya.chen@example.com",
+			"given_name": "Maya",
+			"family_name": "Chen",
+			"tid": "northstar-digital",
+			"organization_name": "Northstar Digital",
+			"roles": ["Manager", "LearningAdmin"]
+		}
+	}
+]

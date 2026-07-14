@@ -15,9 +15,11 @@ export const graphHandlerCreator = (apolloServerService: ServiceApolloServer<Gra
 	const functionOptions: WithRequired<AzureFunctionsMiddlewareOptions<GraphContext>, 'context'> = {
 		context: async ({ req }) => {
 			const authHeader = req.headers.get('Authorization') ?? undefined;
+			const learnerId = req.headers.get('x-learner-id');
+			const organizationId = req.headers.get('x-organization-id');
 			const hints: PrincipalHints = {
-				learnerId: req.headers.get('x-learner-id') ?? undefined,
-				organizationId: req.headers.get('x-organization-id') ?? undefined,
+				...(learnerId ? { learnerId } : {}),
+				...(organizationId ? { organizationId } : {}),
 			};
 			return {
 				applicationServices: await applicationServicesFactory.forRequest(authHeader, hints),

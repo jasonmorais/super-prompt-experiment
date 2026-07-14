@@ -25,9 +25,8 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
  *   register infrastructure services → build the context → initialize
  *   application services → register HTTP handlers → start up.
  *
- * The blank scaffold wires the standard infrastructure (Mongo, blob + queue
- * storage, token validation, Apollo) and exposes `graphql`, `rest`, and a
- * `health` endpoint. Add your own services and handlers as the app grows.
+	* LearnSphere wires Mongo, blob and queue storage, multi-portal token
+	* validation, Apollo, and the GraphQL, REST, and health HTTP boundaries here.
  */
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry

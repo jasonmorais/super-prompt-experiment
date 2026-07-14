@@ -12,6 +12,34 @@ schema:
   - "packages/learnsphere/graphql/src/schema/**/*.graphql"
 
 generates:
+  packages/learnsphere/ui-route-root/src/generated.tsx:
+    documents:
+      - 'packages/learnsphere/ui-route-root/src/**/*.container.graphql'
+    config:
+      withHooks: false
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
+  packages/learnsphere/ui-staff-route-root/src/generated.tsx:
+    documents:
+      - 'packages/learnsphere/ui-staff-route-root/src/**/*.container.graphql'
+    config:
+      withHooks: false
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
   packages/learnsphere/graphql/src/schema/builder/generated.ts:
     config:
       contextType: "../context.ts#GraphContext"
@@ -28,3 +56,16 @@ generates:
     plugins:
       - typescript
       - typescript-resolvers
+
+  packages/learnsphere/graphql/src/schema/builder/schema-type-defs.generated.ts:
+    plugins:
+      - '@cellix/graphql-codegen/plugins/static-type-defs':
+          sourceDir: 'packages/learnsphere/graphql/src/schema/types'
+          exportName: 'learnsphereGraphqlTypeDefs'
+
+  packages/learnsphere/graphql/src/schema/builder/resolver-manifest.generated.ts:
+    plugins:
+      - '@cellix/graphql-codegen/plugins/resolver-manifest':
+          typesDir: 'packages/learnsphere/graphql/src/schema/types'
+          resolversExportName: 'learnsphereGraphqlResolvers'
+          permissionsExportName: 'learnsphereGraphqlPermissions'

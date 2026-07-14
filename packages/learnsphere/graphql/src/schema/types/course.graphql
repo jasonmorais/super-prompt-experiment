@@ -47,6 +47,7 @@ type Lesson {
 	key: String!
 	title: String!
 	type: LessonType!
+	content: String!
 	estimatedMinutes: Int!
 	required: Boolean!
 }
@@ -64,7 +65,7 @@ input CourseCreateInput {
 
 input CourseAddModuleInput { courseId: ObjectID! module: CourseModuleInput! }
 input CourseModuleInput { key: String! title: String! description: String! lessons: [LessonInput!]! }
-input LessonInput { key: String! title: String! type: LessonType! estimatedMinutes: Int! required: Boolean! }
+input LessonInput { key: String! title: String! type: LessonType! content: String! estimatedMinutes: Int! required: Boolean! }
 
 type CourseMutationResult {
 	status: MutationStatus!

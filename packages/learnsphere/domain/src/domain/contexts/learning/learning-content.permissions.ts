@@ -1,5 +1,1 @@
-export interface LearningContentPermissions {
-	canCreateCourses: boolean;
-	canManageLearningContent: boolean;
-	canPublishCourses: boolean;
-}
+export type { CourseDomainPermissions as LearningContentPermissions } from './course/course.domain-permissions.ts';

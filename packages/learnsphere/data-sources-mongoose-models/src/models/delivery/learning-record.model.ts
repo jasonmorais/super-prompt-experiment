@@ -12,6 +12,9 @@ export interface ActivityProgress {
 export interface LearningRecord extends MongooseSeedwork.Base {
 	organizationId: string;
 	learnerId: string;
+	learnerDisplayName: string;
+	learnerEmail: string;
+	teamName: string;
 	courseId: string;
 	courseTitle: string;
 	courseCategory: string;
@@ -40,6 +43,9 @@ const LearningRecordSchema = new Schema<LearningRecord, Model<LearningRecord>, L
 	schemaVersion: { type: String, default: '1.0.0' },
 	organizationId: { type: String, required: true, index: true },
 	learnerId: { type: String, required: true, index: true },
+	learnerDisplayName: { type: String, required: true, maxlength: 180 },
+	learnerEmail: { type: String, required: true, maxlength: 254 },
+	teamName: { type: String, required: true, maxlength: 120, index: true },
 	courseId: { type: String, required: true, index: true },
 	courseTitle: { type: String, required: true, maxlength: 180 },
 	courseCategory: { type: String, required: true, maxlength: 100 },
@@ -56,7 +62,8 @@ const LearningRecordSchema = new Schema<LearningRecord, Model<LearningRecord>, L
 	activityProgress: { type: [ActivityProgressSchema], default: [] },
 }, { timestamps: true, versionKey: 'version' })
 	.index({ organizationId: 1, learnerId: 1, courseId: 1 }, { unique: true })
-	.index({ organizationId: 1, learnerId: 1, status: 1, dueAt: 1 });
+	.index({ organizationId: 1, learnerId: 1, status: 1, dueAt: 1 })
+	.index({ organizationId: 1, teamName: 1, status: 1 });
 
 export const LearningRecordModelName = 'LearningRecord';
 export const LearningRecordModelFactory = MongooseSeedwork.modelFactory<LearningRecord>(LearningRecordModelName, LearningRecordSchema);

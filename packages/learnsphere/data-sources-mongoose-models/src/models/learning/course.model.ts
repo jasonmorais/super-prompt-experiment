@@ -5,6 +5,7 @@ export interface Lesson {
 	key: string;
 	title: string;
 	type: 'ARTICLE' | 'VIDEO' | 'QUIZ' | 'PROJECT' | 'RESOURCE';
+	content: string;
 	estimatedMinutes: number;
 	required: boolean;
 }
@@ -37,6 +38,7 @@ const LessonSchema = new Schema<Lesson>(
 		key: { type: String, required: true, maxlength: 80 },
 		title: { type: String, required: true, maxlength: 180 },
 		type: { type: String, required: true, enum: ['ARTICLE', 'VIDEO', 'QUIZ', 'PROJECT', 'RESOURCE'] },
+		content: { type: String, required: true, maxlength: 50000 },
 		estimatedMinutes: { type: Number, required: true, min: 1, max: 1440 },
 		required: { type: Boolean, required: true, default: true },
 	},

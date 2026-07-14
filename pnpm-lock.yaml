@@ -122,9 +122,15 @@ importers:
       '@graphql-codegen/cli':
         specifier: ^5.0.7
         version: 5.0.7(@types/node@22.20.0)(graphql@16.14.2)(supports-color@8.1.1)(typescript@6.0.3)
+      '@graphql-codegen/typed-document-node':
+        specifier: ^5.1.2
+        version: 5.1.2(graphql@16.14.2)
       '@graphql-codegen/typescript':
         specifier: ^4.1.6
         version: 4.1.6(graphql@16.14.2)
+      '@graphql-codegen/typescript-operations':
+        specifier: ^4.6.1
+        version: 4.6.1(graphql@16.14.2)
       '@graphql-codegen/typescript-resolvers':
         specifier: ^4.5.2
         version: 4.5.2(graphql@16.14.2)
@@ -397,6 +403,55 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0)
+
+  apps/ui-staff:
+    dependencies:
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.1(@types/react@19.2.17)(graphql-ws@6.1.0(graphql@16.14.2)(ws@8.21.0))(graphql@16.14.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@cellix/ui-core':
+        specifier: workspace:*
+        version: link:../../packages/cellix/ui-core
+      '@learnsphere/ui-shared':
+        specifier: workspace:*
+        version: link:../../packages/learnsphere/ui-shared
+      '@learnsphere/ui-staff-route-root':
+        specifier: workspace:*
+        version: link:../../packages/learnsphere/ui-staff-route-root
+      antd:
+        specifier: 'catalog:'
+        version: 6.3.5(luxon@3.7.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
+      react-router-dom:
+        specifier: 'catalog:'
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/cellix/config-typescript
+      '@types/react':
+        specifier: ^19.1.8
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.1.6
+        version: 19.2.3(@types/react@19.2.17)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.3(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vite:
+        specifier: 'catalog:'
+        version: 8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0)
 
   packages/cellix/api-services-spec:
     devDependencies:
@@ -1005,12 +1060,18 @@ importers:
       '@cellix/graphql-core':
         specifier: workspace:*
         version: link:../../cellix/graphql-core
+      '@graphql-tools/merge':
+        specifier: ^9.1.1
+        version: 9.2.0(graphql@16.14.2)
       '@graphql-tools/utils':
         specifier: ^10.9.0
         version: 10.11.0(graphql@16.14.2)
       '@learnsphere/application-services':
         specifier: workspace:*
         version: link:../application-services
+      '@learnsphere/domain':
+        specifier: workspace:*
+        version: link:../domain
       graphql:
         specifier: 'catalog:'
         version: 16.14.2
@@ -1252,6 +1313,12 @@ importers:
       '@apollo/client':
         specifier: ^3.13.9
         version: 3.14.1(@types/react@19.2.17)(graphql-ws@6.1.0(graphql@16.14.2)(ws@8.21.0))(graphql@16.14.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@cellix/ui-core':
+        specifier: workspace:*
+        version: link:../../cellix/ui-core
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.14.2)
       '@learnsphere/ui-shared':
         specifier: workspace:*
         version: link:../ui-shared
@@ -1292,6 +1359,52 @@ importers:
       '@cellix/ui-core':
         specifier: workspace:*
         version: link:../../cellix/ui-core
+      antd:
+        specifier: 'catalog:'
+        version: 6.3.5(luxon@3.7.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
+      react-oidc-context:
+        specifier: ^3.3.0
+        version: 3.3.1(oidc-client-ts@3.5.0)(react@19.2.7)
+      react-router-dom:
+        specifier: 'catalog:'
+        version: 7.15.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@types/react':
+        specifier: ^19.1.11
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.1.6
+        version: 19.2.3(@types/react@19.2.17)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+
+  packages/learnsphere/ui-staff-route-root:
+    dependencies:
+      '@ant-design/icons':
+        specifier: 'catalog:'
+        version: 6.3.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@apollo/client':
+        specifier: ^3.13.9
+        version: 3.14.1(@types/react@19.2.17)(graphql-ws@6.1.0(graphql@16.14.2)(ws@8.21.0))(graphql@16.14.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@cellix/ui-core':
+        specifier: workspace:*
+        version: link:../../cellix/ui-core
+      '@graphql-typed-document-node/core':
+        specifier: ^3.2.0
+        version: 3.2.0(graphql@16.14.2)
+      '@learnsphere/ui-shared':
+        specifier: workspace:*
+        version: link:../ui-shared
       antd:
         specifier: 'catalog:'
         version: 6.3.5(luxon@3.7.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -13654,7 +13767,7 @@ snapshots:
 
   '@graphql-tools/batch-execute@10.0.9(graphql@16.14.2)':
     dependencies:
-      '@graphql-tools/utils': 11.1.1(graphql@16.14.2)
+      '@graphql-tools/utils': 11.2.0(graphql@16.14.2)
       '@whatwg-node/promise-helpers': 1.3.2
       dataloader: 2.2.3
       graphql: 16.14.2
@@ -13705,7 +13818,7 @@ snapshots:
       '@graphql-tools/batch-execute': 10.0.9(graphql@16.14.2)
       '@graphql-tools/executor': 1.5.5(graphql@16.14.2)
       '@graphql-tools/schema': 10.0.34(graphql@16.14.2)
-      '@graphql-tools/utils': 11.1.1(graphql@16.14.2)
+      '@graphql-tools/utils': 11.2.0(graphql@16.14.2)
       '@repeaterjs/repeater': 3.1.0
       '@whatwg-node/promise-helpers': 1.3.2
       dataloader: 2.2.3
@@ -13743,7 +13856,7 @@ snapshots:
   '@graphql-tools/executor-common@1.0.6(graphql@16.14.2)':
     dependencies:
       '@envelop/core': 5.5.1
-      '@graphql-tools/utils': 11.1.1(graphql@16.14.2)
+      '@graphql-tools/utils': 11.2.0(graphql@16.14.2)
       graphql: 16.14.2
 
   '@graphql-tools/executor-graphql-ws@2.0.7(graphql@16.14.2)':
@@ -13765,7 +13878,7 @@ snapshots:
   '@graphql-tools/executor-graphql-ws@3.1.5(graphql@16.14.2)':
     dependencies:
       '@graphql-tools/executor-common': 1.0.6(graphql@16.14.2)
-      '@graphql-tools/utils': 11.1.1(graphql@16.14.2)
+      '@graphql-tools/utils': 11.2.0(graphql@16.14.2)
       '@whatwg-node/disposablestack': 0.0.6
       graphql: 16.14.2
       graphql-ws: 6.1.0(graphql@16.14.2)(ws@8.21.0)
@@ -13797,7 +13910,7 @@ snapshots:
     dependencies:
       '@graphql-hive/signal': 2.0.0
       '@graphql-tools/executor-common': 1.0.6(graphql@16.14.2)
-      '@graphql-tools/utils': 11.1.1(graphql@16.14.2)
+      '@graphql-tools/utils': 11.2.0(graphql@16.14.2)
       '@repeaterjs/repeater': 3.1.0
       '@whatwg-node/disposablestack': 0.0.6
       '@whatwg-node/fetch': 0.10.13
@@ -14067,7 +14180,7 @@ snapshots:
     dependencies:
       '@graphql-tools/delegate': 12.0.18(graphql@16.14.2)
       '@graphql-tools/schema': 10.0.34(graphql@16.14.2)
-      '@graphql-tools/utils': 11.1.1(graphql@16.14.2)
+      '@graphql-tools/utils': 11.2.0(graphql@16.14.2)
       '@whatwg-node/promise-helpers': 1.3.2
       graphql: 16.14.2
       tslib: 2.8.1
@@ -15866,6 +15979,11 @@ snapshots:
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@1.21.7)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0)
+
+  '@vitejs/plugin-react@6.0.3(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))':
+    dependencies:
+      '@rolldown/pluginutils': 1.0.1
+      vite: 8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0)
 
   '@vitest/browser-playwright@4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))(vitest@4.1.8)':
     dependencies:
@@ -17886,9 +18004,9 @@ snapshots:
       '@graphql-tools/graphql-file-loader': 8.1.16(graphql@16.14.2)
       '@graphql-tools/json-file-loader': 8.0.30(graphql@16.14.2)
       '@graphql-tools/load': 8.1.13(graphql@16.14.2)
-      '@graphql-tools/merge': 9.1.10(graphql@16.14.2)
+      '@graphql-tools/merge': 9.2.0(graphql@16.14.2)
       '@graphql-tools/url-loader': 9.1.4(@types/node@22.20.0)(graphql@16.14.2)
-      '@graphql-tools/utils': 11.1.1(graphql@16.14.2)
+      '@graphql-tools/utils': 11.2.0(graphql@16.14.2)
       cosmiconfig: 8.3.6(typescript@6.0.3)
       graphql: 16.14.2
       jiti: 2.7.0

@@ -18,6 +18,7 @@
 		"start": "turbo run build && turbo run start",
 		"start:api": "pnpm --filter @apps/api start",
 		"start:ui-portal": "pnpm --filter @apps/ui-portal start",
+		"start:ui-staff": "pnpm --filter @apps/ui-staff start",
 		"start-emulator:mongo-memory-server": "pnpm --filter @apps/server-mongodb-memory-mock start",
 		"start-emulator:auth-server": "pnpm --filter @apps/server-oauth2-mock start"
 	},
@@ -27,6 +28,8 @@
 		"@cellix/graphql-codegen": "workspace:*",
 		"@graphql-codegen/cli": "^5.0.7",
 		"@graphql-codegen/typescript": "^4.1.6",
+		"@graphql-codegen/typed-document-node": "^5.1.2",
+		"@graphql-codegen/typescript-operations": "^4.6.1",
 		"@graphql-codegen/typescript-resolvers": "^4.5.2",
 		"@types/node": "catalog:",
 		"@typescript/native-preview": "catalog:",

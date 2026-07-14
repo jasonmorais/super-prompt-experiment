@@ -1,0 +1,34 @@
+{
+	"name": "@apps/ui-staff",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "tsgo -p tsconfig.json && vite build",
+		"dev": "vite",
+		"start": "vite preview --port 3002",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@apollo/client": "^3.13.9",
+		"@cellix/ui-core": "workspace:*",
+		"@learnsphere/ui-shared": "workspace:*",
+		"@learnsphere/ui-staff-route-root": "workspace:*",
+		"antd": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"react-oidc-context": "^3.3.0",
+		"react-router-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/react": "^19.1.8",
+		"@types/react-dom": "^19.1.6",
+		"@vitejs/plugin-react": "^6.0.1",
+		"typescript": "catalog:",
+		"vite": "catalog:"
+	}
+}

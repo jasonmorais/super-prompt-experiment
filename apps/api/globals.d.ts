@@ -11,6 +11,10 @@ declare namespace NodeJS {
 		PORTAL_OIDC_ENDPOINT: string;
 		PORTAL_OIDC_ISSUER: string;
 		PORTAL_OIDC_IGNORE_ISSUER: string; // 'true' | 'false' stored as string in env
+		STAFF_OIDC_AUDIENCE: string;
+		STAFF_OIDC_ENDPOINT: string;
+		STAFF_OIDC_ISSUER: string;
+		STAFF_OIDC_IGNORE_ISSUER: string;
 
 		// Application Insights
 		APPLICATIONINSIGHTS_CONNECTION_STRING: string;

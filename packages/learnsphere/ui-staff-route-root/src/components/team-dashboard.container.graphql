@@ -1,0 +1,45 @@
+query StaffTeamOverview($organizationId: String!, $teamName: String) {
+	teamLearning(organizationId: $organizationId, teamName: $teamName) {
+		id
+		learnerId
+		learnerDisplayName
+		learnerEmail
+		teamName
+		courseId
+		courseTitle
+		courseCategory
+		source
+		status
+		assignedAt
+		dueAt
+		completedAt
+		progressPercent
+		completedActivityCount
+		isOverdue
+		activityProgress {
+			timeSpentMinutes
+			assessmentScore
+		}
+	}
+	courses(organizationId: $organizationId, status: PUBLISHED, limit: 100) {
+		id
+		title
+		category
+		lessonCount
+	}
+}
+
+mutation StaffAssignLearning($input: AssignLearningInput!) {
+	assignLearning(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		learningRecord {
+			id
+			learnerId
+			courseId
+			status
+		}
+	}
+}

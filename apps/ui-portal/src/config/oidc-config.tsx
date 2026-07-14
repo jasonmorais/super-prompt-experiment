@@ -15,9 +15,9 @@ type OIDCConfig = {
  * (`@apps/server-oauth2-mock`) for development.
  */
 export const oidcConfig: OIDCConfig = {
-	authority: import.meta.env.VITE_APP_UI_PORTAL_AUTHORITY ?? 'https://mock-auth.learnsphere.localhost:1355/portal',
+	authority: import.meta.env.VITE_APP_UI_PORTAL_AUTHORITY ?? 'http://127.0.0.1:1355/portal-user',
 	client_id: import.meta.env.VITE_APP_UI_PORTAL_CLIENTID ?? 'mock-client',
-	redirect_uri: import.meta.env.VITE_APP_UI_PORTAL_REDIRECT_URI ?? 'https://learnsphere.localhost:1355/auth-redirect',
+	redirect_uri: import.meta.env.VITE_APP_UI_PORTAL_REDIRECT_URI ?? 'http://localhost:3000/auth-redirect',
 	response_type: 'code',
 	scope: import.meta.env.VITE_APP_UI_PORTAL_SCOPES ?? 'openid',
 	code_verifier: true,

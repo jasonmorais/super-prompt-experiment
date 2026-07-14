@@ -1,0 +1,85 @@
+query StaffCourseManagement($organizationId: String!) {
+	courses(organizationId: $organizationId, limit: 100) {
+		id
+		title
+		summary
+		description
+		category
+		level
+		status
+		tags
+		skills
+		lessonCount
+		estimatedMinutes
+		updatedAt
+		modules {
+			key
+			title
+			description
+			order
+			lessons {
+				key
+				title
+				type
+				content
+				estimatedMinutes
+				required
+			}
+		}
+	}
+}
+
+mutation StaffCreateCourse($input: CourseCreateInput!) {
+	courseCreate(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		course {
+			id
+			title
+			status
+		}
+	}
+}
+
+mutation StaffAddCourseModule($input: CourseAddModuleInput!) {
+	courseAddModule(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		course {
+			id
+			lessonCount
+			estimatedMinutes
+		}
+	}
+}
+
+mutation StaffSubmitCourse($id: ObjectID!) {
+	courseSubmitForReview(id: $id) {
+		status {
+			success
+			errorMessage
+		}
+		course {
+			id
+			status
+		}
+	}
+}
+
+mutation StaffPublishCourse($id: ObjectID!) {
+	coursePublish(id: $id) {
+		status {
+			success
+			errorMessage
+		}
+		course {
+			id
+			status
+			publishedAt
+		}
+	}
+}

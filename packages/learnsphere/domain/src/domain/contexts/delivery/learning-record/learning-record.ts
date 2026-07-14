@@ -17,6 +17,9 @@ export interface ActivityProgress {
 export interface LearningRecordProps extends DomainEntityProps {
 	organizationId: string;
 	learnerId: string;
+	learnerDisplayName: string;
+	learnerEmail: string;
+	teamName: string;
 	courseId: string;
 	courseTitle: string;
 	courseCategory: string;
@@ -43,12 +46,22 @@ export interface LearningRecordEntityReference extends Readonly<LearningRecordPr
 }
 
 export class LearningRecord<Props extends LearningRecordProps = LearningRecordProps> extends AggregateRoot<Props, Passport> implements LearningRecordEntityReference {
-	static getNewInstance<Props extends LearningRecordProps>(props: Props, input: Omit<LearningRecordProps, keyof DomainEntityProps | 'status' | 'assignedAt' | 'startedAt' | 'completedAt' | 'waivedAt' | 'waiverReason' | 'activityProgress' | 'createdAt' | 'updatedAt' | 'schemaVersion'>, passport: Passport) {
+	static getNewInstance<Props extends LearningRecordProps>(
+		props: Props,
+		input: Omit<LearningRecordProps, keyof DomainEntityProps | 'status' | 'assignedAt' | 'startedAt' | 'completedAt' | 'waivedAt' | 'waiverReason' | 'activityProgress' | 'createdAt' | 'updatedAt' | 'schemaVersion'>,
+		passport: Passport,
+	) {
 		const record = new LearningRecord(props, passport);
-		if (!input.organizationId.trim() || !input.learnerId.trim() || !input.courseId.trim()) throw new Error('Organization, learner, and course are required');
+		const canEnroll = input.source === 'SELF_ENROLLED' ? record.visa.determineIf((permissions) => permissions.canSelfEnroll) : record.visa.determineIf((permissions) => permissions.canAssignLearning);
+		if (!canEnroll) throw new PermissionError('You do not have permission to create this learning assignment');
+		if (!input.organizationId.trim() || !input.learnerId.trim() || !input.learnerDisplayName.trim() || !input.learnerEmail.trim() || !input.teamName.trim() || !input.courseId.trim())
+			throw new Error('Organization, learner identity, team, and course are required');
 		if (input.requiredActivityKeys.length === 0) throw new Error('Published learning must contain required activities');
 		props.organizationId = input.organizationId;
 		props.learnerId = input.learnerId;
+		props.learnerDisplayName = input.learnerDisplayName.trim();
+		props.learnerEmail = input.learnerEmail.trim().toLowerCase();
+		props.teamName = input.teamName.trim();
 		props.courseId = input.courseId;
 		props.courseTitle = input.courseTitle.trim();
 		props.courseCategory = input.courseCategory.trim();
@@ -66,29 +79,84 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		return record;
 	}
 
-	private get visa() { return this.passport.delivery.forLearningRecord(this); }
-	get organizationId() { return this.props.organizationId; }
-	get learnerId() { return this.props.learnerId; }
-	get courseId() { return this.props.courseId; }
-	get courseTitle() { return this.props.courseTitle; }
-	get courseCategory() { return this.props.courseCategory; }
-	get requiredActivityKeys() { return [...this.props.requiredActivityKeys]; }
-	get source() { return this.props.source; }
-	get status(): LearningRecordStatus { return this.isOverdue && this.props.status !== 'COMPLETED' && this.props.status !== 'WAIVED' ? 'OVERDUE' : this.props.status; }
-	get assignedBy() { return this.props.assignedBy; }
-	get assignedAt() { return this.props.assignedAt; }
-	get dueAt() { return this.props.dueAt; }
-	get startedAt() { return this.props.startedAt; }
-	get completedAt() { return this.props.completedAt; }
-	get waivedAt() { return this.props.waivedAt; }
-	get waiverReason() { return this.props.waiverReason; }
-	get activityProgress() { return this.props.activityProgress.map((progress) => ({ ...progress })); }
-	get createdAt() { return this.props.createdAt; }
-	get updatedAt() { return this.props.updatedAt; }
-	get schemaVersion() { return this.props.schemaVersion; }
-	get completedActivityCount() { return this.props.requiredActivityKeys.filter((key) => this.props.activityProgress.some((progress) => progress.activityKey === key)).length; }
-	get progressPercent() { return Math.round((this.completedActivityCount / this.props.requiredActivityKeys.length) * 100); }
-	get isOverdue() { return Boolean(this.props.dueAt && this.props.dueAt.getTime() < Date.now() && !['COMPLETED', 'WAIVED'].includes(this.props.status)); }
+	private get visa() {
+		return this.passport.delivery.forLearningRecord(this);
+	}
+	get organizationId() {
+		return this.props.organizationId;
+	}
+	get learnerId() {
+		return this.props.learnerId;
+	}
+	get learnerDisplayName() {
+		return this.props.learnerDisplayName;
+	}
+	get learnerEmail() {
+		return this.props.learnerEmail;
+	}
+	get teamName() {
+		return this.props.teamName;
+	}
+	get courseId() {
+		return this.props.courseId;
+	}
+	get courseTitle() {
+		return this.props.courseTitle;
+	}
+	get courseCategory() {
+		return this.props.courseCategory;
+	}
+	get requiredActivityKeys() {
+		return [...this.props.requiredActivityKeys];
+	}
+	get source() {
+		return this.props.source;
+	}
+	get status(): LearningRecordStatus {
+		return this.isOverdue && this.props.status !== 'COMPLETED' && this.props.status !== 'WAIVED' ? 'OVERDUE' : this.props.status;
+	}
+	get assignedBy() {
+		return this.props.assignedBy;
+	}
+	get assignedAt() {
+		return this.props.assignedAt;
+	}
+	get dueAt() {
+		return this.props.dueAt;
+	}
+	get startedAt() {
+		return this.props.startedAt;
+	}
+	get completedAt() {
+		return this.props.completedAt;
+	}
+	get waivedAt() {
+		return this.props.waivedAt;
+	}
+	get waiverReason() {
+		return this.props.waiverReason;
+	}
+	get activityProgress() {
+		return this.props.activityProgress.map((progress) => ({ ...progress }));
+	}
+	get createdAt() {
+		return this.props.createdAt;
+	}
+	get updatedAt() {
+		return this.props.updatedAt;
+	}
+	get schemaVersion() {
+		return this.props.schemaVersion;
+	}
+	get completedActivityCount() {
+		return this.props.requiredActivityKeys.filter((key) => this.props.activityProgress.some((progress) => progress.activityKey === key)).length;
+	}
+	get progressPercent() {
+		return Math.round((this.completedActivityCount / this.props.requiredActivityKeys.length) * 100);
+	}
+	get isOverdue() {
+		return Boolean(this.props.dueAt && this.props.dueAt.getTime() < Date.now() && !['COMPLETED', 'WAIVED'].includes(this.props.status));
+	}
 
 	recordActivity(activityKey: string, timeSpentMinutes: number, assessmentScore?: number): void {
 		if (!this.visa.determineIf((permissions) => permissions.canRecordProgress)) throw new PermissionError('You may only record progress for your own learning');

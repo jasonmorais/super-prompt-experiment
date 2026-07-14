@@ -1,0 +1,18 @@
+query LearnerDashboard($organizationId: String!) {
+	myLearning(organizationId: $organizationId) {
+		id
+		courseId
+		courseTitle
+		courseCategory
+		source
+		status
+		progressPercent
+		completedActivityCount
+		assignedAt
+		dueAt
+		completedAt
+		activityProgress {
+			timeSpentMinutes
+		}
+	}
+}

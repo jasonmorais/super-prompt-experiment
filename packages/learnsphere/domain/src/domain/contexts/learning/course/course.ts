@@ -11,6 +11,7 @@ export interface Lesson {
 	key: string;
 	title: string;
 	type: LessonType;
+	content: string;
 	estimatedMinutes: number;
 	required: boolean;
 }
@@ -58,6 +59,7 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 
 	static getNewInstance<Props extends CourseProps>(props: Props, input: Pick<CourseProps, 'organizationId' | 'title' | 'summary' | 'description' | 'level' | 'category' | 'createdBy'>, passport: Passport): Course<Props> {
 		const course = new Course(props, passport);
+		if (!passport.learning.forCourse(course).determineIf((permissions) => permissions.canCreateCourses)) throw new PermissionError('You do not have permission to create courses');
 		course.isNew = true;
 		course.organizationId = input.organizationId;
 		course.title = input.title;
@@ -75,35 +77,90 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		return course;
 	}
 
-	private get visa() { return this.passport.learning.forCourse(this); }
+	private get visa() {
+		return this.passport.learning.forCourse(this);
+	}
 	private requireManagement(): void {
 		if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageLearningContent)) throw new PermissionError('You do not have permission to manage this course');
 	}
 
-	get organizationId() { return this.props.organizationId; }
-	private set organizationId(value: string) { this.props.organizationId = requiredText(value, 'Organization', 100); }
-	get title() { return this.props.title; }
-	set title(value: string) { this.requireManagement(); this.props.title = requiredText(value, 'Title', 180); }
-	get summary() { return this.props.summary; }
-	set summary(value: string) { this.requireManagement(); this.props.summary = requiredText(value, 'Summary', 300); }
-	get description() { return this.props.description; }
-	set description(value: string) { this.requireManagement(); this.props.description = requiredText(value, 'Description', 10000); }
-	get status() { return this.props.status; }
-	get level() { return this.props.level; }
-	set level(value: CourseLevel) { this.requireManagement(); this.props.level = value; }
-	get category() { return this.props.category; }
-	set category(value: string) { this.requireManagement(); this.props.category = requiredText(value, 'Category', 100); }
-	get tags() { return [...this.props.tags]; }
-	get skills() { return [...this.props.skills]; }
-	get modules() { return this.props.modules.map((module) => ({ ...module, lessons: module.lessons.map((lesson) => ({ ...lesson })) })); }
-	get createdBy() { return this.props.createdBy; }
-	private set createdBy(value: string) { this.props.createdBy = requiredText(value, 'Creator', 150); }
-	get publishedAt() { return this.props.publishedAt; }
-	get createdAt() { return this.props.createdAt; }
-	get updatedAt() { return this.props.updatedAt; }
-	get schemaVersion() { return this.props.schemaVersion; }
-	get lessonCount() { return this.props.modules.reduce((count, module) => count + module.lessons.length, 0); }
-	get estimatedMinutes() { return this.props.modules.reduce((total, module) => total + module.lessons.reduce((sum, lesson) => sum + lesson.estimatedMinutes, 0), 0); }
+	get organizationId() {
+		return this.props.organizationId;
+	}
+	private set organizationId(value: string) {
+		this.props.organizationId = requiredText(value, 'Organization', 100);
+	}
+	get title() {
+		return this.props.title;
+	}
+	set title(value: string) {
+		this.requireManagement();
+		this.props.title = requiredText(value, 'Title', 180);
+	}
+	get summary() {
+		return this.props.summary;
+	}
+	set summary(value: string) {
+		this.requireManagement();
+		this.props.summary = requiredText(value, 'Summary', 300);
+	}
+	get description() {
+		return this.props.description;
+	}
+	set description(value: string) {
+		this.requireManagement();
+		this.props.description = requiredText(value, 'Description', 10000);
+	}
+	get status() {
+		return this.props.status;
+	}
+	get level() {
+		return this.props.level;
+	}
+	set level(value: CourseLevel) {
+		this.requireManagement();
+		this.props.level = value;
+	}
+	get category() {
+		return this.props.category;
+	}
+	set category(value: string) {
+		this.requireManagement();
+		this.props.category = requiredText(value, 'Category', 100);
+	}
+	get tags() {
+		return [...this.props.tags];
+	}
+	get skills() {
+		return [...this.props.skills];
+	}
+	get modules() {
+		return this.props.modules.map((module) => ({ ...module, lessons: module.lessons.map((lesson) => ({ ...lesson })) }));
+	}
+	get createdBy() {
+		return this.props.createdBy;
+	}
+	private set createdBy(value: string) {
+		this.props.createdBy = requiredText(value, 'Creator', 150);
+	}
+	get publishedAt() {
+		return this.props.publishedAt;
+	}
+	get createdAt() {
+		return this.props.createdAt;
+	}
+	get updatedAt() {
+		return this.props.updatedAt;
+	}
+	get schemaVersion() {
+		return this.props.schemaVersion;
+	}
+	get lessonCount() {
+		return this.props.modules.reduce((count, module) => count + module.lessons.length, 0);
+	}
+	get estimatedMinutes() {
+		return this.props.modules.reduce((total, module) => total + module.lessons.reduce((sum, lesson) => sum + lesson.estimatedMinutes, 0), 0);
+	}
 
 	setTaxonomy(tags: string[], skills: string[]): void {
 		this.requireManagement();
@@ -118,9 +175,13 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		if (module.lessons.length === 0) throw new Error('A module must contain at least one lesson');
 		for (const lesson of module.lessons) {
 			requiredText(lesson.title, 'Lesson title', 180);
+			requiredText(lesson.content, 'Lesson content', 50000);
 			if (lesson.estimatedMinutes < 1 || lesson.estimatedMinutes > 1440) throw new Error('Lesson duration must be between 1 and 1440 minutes');
 		}
-		this.props.modules.push({ ...module, title: requiredText(module.title, 'Module title', 180), description: module.description.trim(), order: this.props.modules.length + 1 });
+		// Mongoose-backed adapters return a defensive copy for nested arrays. Assign
+		// the new collection through the props setter so Mongoose marks `modules`
+		// modified and persists the complete aggregate change.
+		this.props.modules = [...this.props.modules, { ...module, title: requiredText(module.title, 'Module title', 180), description: module.description.trim(), order: this.props.modules.length + 1 }];
 	}
 
 	submitForReview(): void {

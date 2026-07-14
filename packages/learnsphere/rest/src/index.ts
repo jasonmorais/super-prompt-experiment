@@ -10,11 +10,13 @@ export type HttpHandler = (request: HttpRequest, context: InvocationContext) => 
 export const restHandlerCreator = (applicationServicesFactory: ApplicationServicesFactory): HttpHandler => {
 	return async (request: HttpRequest, _context: InvocationContext) => {
 		const rawAuthHeader = request.headers.get('Authorization') ?? undefined;
+		// biome-ignore lint/complexity/useLiteralKeys: Azure Functions route params are index-accessed.
+		const learnerId = request.params['learnerId'];
+		// biome-ignore lint/complexity/useLiteralKeys: Azure Functions route params are index-accessed.
+		const organizationId = request.params['organizationId'];
 		const hints: PrincipalHints = {
-			// biome-ignore lint:useLiteralKeys — Azure Functions route params are index-accessed.
-			learnerId: request.params['learnerId'] ?? undefined,
-			// biome-ignore lint:useLiteralKeys — Azure Functions route params are index-accessed.
-			organizationId: request.params['organizationId'] ?? undefined,
+			...(learnerId ? { learnerId } : {}),
+			...(organizationId ? { organizationId } : {}),
 		};
 		await applicationServicesFactory.forRequest(rawAuthHeader, hints);
 		return {

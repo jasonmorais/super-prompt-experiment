@@ -1,9 +1,10 @@
 import type React from 'react';
-import { SectionLayout } from './section-layout.tsx';
-export { CatalogPage as Catalog } from './catalog-page.tsx';
-export { LoginPage as Login } from './login-page.tsx';
+import { DashboardPage } from './components/pages/dashboard.tsx';
+export { CatalogPage as Catalog } from './components/pages/catalog.tsx';
+export { CoursePage as Course } from './components/pages/course.tsx';
+export { LoginPage as Login } from './components/pages/login.tsx';
 
 /** The root route of the LearnSphere learner portal. */
 export const Root: React.FC = () => {
-	return <SectionLayout />;
+	return <DashboardPage />;
 };

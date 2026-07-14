@@ -1,0 +1,63 @@
+query CourseExperience($courseId: ObjectID!, $organizationId: String!) {
+	courseById(id: $courseId) {
+		id
+		title
+		summary
+		description
+		category
+		level
+		skills
+		lessonCount
+		estimatedMinutes
+		status
+		modules {
+			key
+			title
+			description
+			order
+			lessons {
+				key
+				title
+				type
+				content
+				estimatedMinutes
+				required
+			}
+		}
+	}
+	myLearning(organizationId: $organizationId) {
+		id
+		courseId
+		status
+		progressPercent
+		completedActivityCount
+		activityProgress {
+			activityKey
+			completedAt
+			timeSpentMinutes
+			assessmentScore
+			attempts
+		}
+	}
+}
+
+mutation CompleteCourseActivity($input: RecordActivityInput!) {
+	recordActivity(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		learningRecord {
+			id
+			status
+			progressPercent
+			completedActivityCount
+			activityProgress {
+				activityKey
+				completedAt
+				timeSpentMinutes
+				attempts
+			}
+		}
+	}
+}

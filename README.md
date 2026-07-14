@@ -6,7 +6,7 @@ The codebase follows the domain-driven architecture of [CellixJS](https://github
 
 ## Product foundation
 
-Two interconnected vertical slices now form the executable product foundation.
+Two interconnected vertical slices and two role-specific portals form the executable product foundation.
 
 **Learning Content** owns the course catalog and authoring lifecycle:
 
@@ -26,7 +26,15 @@ Two interconnected vertical slices now form the executable product foundation.
 - derived course progress and automatic `NOT_STARTED` → `IN_PROGRESS` → `COMPLETED` transitions;
 - learner-owned progress updates and administrator waiver rules enforced through request passports.
 
-The learner portal reads these records through authenticated GraphQL. Its dashboard course cards and statistics are live rather than static presentation data.
+The learner portal reads these records through authenticated GraphQL. Its dashboard course cards and statistics are live rather than static presentation data. Enrolled courses open into a structured player where article, video, quiz, project, and resource activities expose authored content and save completion evidence.
+
+**Staff workspace** is a separate Cellix-style application boundary:
+
+- manager and learning-administrator OIDC roles are validated against a dedicated issuer, audience, and signing key;
+- the team overview groups organization-scoped learning records into learner, team, completion, effort, and overdue reporting;
+- managers can assign published training to known learners with assignment type and due-date context;
+- course management creates drafts, authors module/activity content, submits courses for review, and publishes them into the learner catalog;
+- every operation travels through the same resolver → application service → passport → repository → aggregate → Mongoose path as learner operations.
 
 ## Architecture
 
@@ -40,7 +48,7 @@ GraphQL resolver
             -> Course / LearningRecord model
 ```
 
-Application code lives under `packages/learnsphere/*`; reusable Cellix seedwork remains under `packages/cellix/*`. `apps/api` is the Azure Functions composition root, `apps/ui-portal` hosts the React portal, and `apps/docs` contains product and architecture documentation.
+Application code lives under `packages/learnsphere/*`; reusable Cellix seedwork remains under `packages/cellix/*`. `apps/api` is the Azure Functions composition root, `apps/ui-portal` hosts the learner experience, `apps/ui-staff` hosts manager and learning-operations workflows, and `apps/docs` contains product and architecture documentation.
 
 ## Development
 
@@ -50,6 +58,11 @@ pnpm run build
 pnpm run dev
 ```
 
-The root development command starts the portal (`:3000`), docs (`:3001`), Azure Functions API (`:7071`), OIDC mock (`:1355`), and seeded in-memory Mongo replica set (`:50000`). Sign in as `alex.morgan@example.com` with password `password` to load the seeded Northstar Digital learner dashboard.
+The root development command starts the learner portal (`:3000`), docs (`:3001`), staff portal (`:3002`), Azure Functions API (`:7071`), OIDC mock (`:1355`), and seeded in-memory Mongo replica set (`:50000`).
+
+- Learner: `alex.morgan@example.com` / `password`
+- Manager: `maya.chen@example.com` / `password`
+
+The seed represents Northstar Digital learners across Product Experience and Data & Insights, published course content, mixed completion states, time evidence, due dates, and overdue work so both portals have meaningful connected data immediately.
 
 See the [domain model](apps/docs/docs/domain-model.md) for current boundaries and planned extension points.

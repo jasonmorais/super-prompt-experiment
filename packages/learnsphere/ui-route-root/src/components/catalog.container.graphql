@@ -1,0 +1,31 @@
+query LearnerCatalog($organizationId: String!) {
+	courses(organizationId: $organizationId, status: PUBLISHED, limit: 30) {
+		id
+		title
+		summary
+		category
+		level
+		skills
+		lessonCount
+		estimatedMinutes
+	}
+	myLearning(organizationId: $organizationId) {
+		id
+		courseId
+		status
+	}
+}
+
+mutation CatalogSelfEnroll($input: SelfEnrollInput!) {
+	selfEnroll(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		learningRecord {
+			id
+			courseId
+			status
+		}
+	}
+}

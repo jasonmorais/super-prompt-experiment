@@ -14,7 +14,11 @@
 		"PORTAL_OIDC_AUDIENCE": "mock-client",
 		"PORTAL_OIDC_ENDPOINT": "http://localhost:1355/portal-user/.well-known/jwks.json",
 		"PORTAL_OIDC_ISSUER": "http://localhost:1355/portal-user",
-		"PORTAL_OIDC_IGNORE_ISSUER": "true"
+		"PORTAL_OIDC_IGNORE_ISSUER": "true",
+		"STAFF_OIDC_AUDIENCE": "mock-staff-client",
+		"STAFF_OIDC_ENDPOINT": "http://localhost:1355/staff-user/.well-known/jwks.json",
+		"STAFF_OIDC_ISSUER": "http://localhost:1355/staff-user",
+		"STAFF_OIDC_IGNORE_ISSUER": "true"
 	},
 	"ConnectionStrings": {},
 	"Host": {

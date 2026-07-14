@@ -25,8 +25,10 @@
 	"dependencies": {
 		"@cellix/graphql-codegen": "workspace:*",
 		"@cellix/graphql-core": "workspace:*",
+		"@graphql-tools/merge": "^9.1.1",
 		"@graphql-tools/utils": "^10.9.0",
 		"@learnsphere/application-services": "workspace:*",
+		"@learnsphere/domain": "workspace:*",
 		"graphql": "catalog:",
 		"graphql-middleware": "^6.1.35"
 	},
