@@ -6,6 +6,7 @@ import type { EnrollmentSource, StaffTeamOverviewQuery } from '../generated.tsx'
 const { Title, Paragraph, Text } = Typography;
 type RecordView = StaffTeamOverviewQuery['teamLearning'][number];
 type CourseView = StaffTeamOverviewQuery['courses'][number];
+type TeamMemberView = { learnerId: string; displayName: string; email: string; teamName: string };
 
 const sourceLabel = (source: RecordView['source']): string =>
 	source
@@ -39,6 +40,7 @@ interface AssignmentValues {
 
 export interface TeamDashboardProps {
 	records: RecordView[];
+	teamMembers: TeamMemberView[];
 	courses: CourseView[];
 	loading: boolean;
 	error?: string;
@@ -47,27 +49,32 @@ export interface TeamDashboardProps {
 	onUnassign: (id: string) => Promise<void>;
 }
 
-export const TeamDashboard = ({ records, courses, loading, error, assignmentLoading, onAssign, onUnassign }: TeamDashboardProps) => {
+export const TeamDashboard = ({ records, teamMembers, courses, loading, error, assignmentLoading, onAssign, onUnassign }: TeamDashboardProps) => {
 	const [form] = Form.useForm<AssignmentValues>();
-	const teams = [...new Set(records.map((record) => record.teamName))].sort();
+	const teams = [...new Set([...records.map((record) => record.teamName), ...teamMembers.map((member) => member.teamName)])].sort();
 	const [teamName, setTeamName] = React.useState<string>();
 	const [assignmentOpen, setAssignmentOpen] = React.useState(false);
 	const learners = React.useMemo(() => {
 		const grouped = new Map<string, RecordView[]>();
 		for (const record of records) grouped.set(record.learnerId, [...(grouped.get(record.learnerId) ?? []), record]);
+		for (const member of teamMembers) if (!grouped.has(member.learnerId)) grouped.set(member.learnerId, []);
 		return [...grouped.entries()].map(([learnerId, learnerRecords]): LearnerRow => {
 			const first = learnerRecords[0];
-			if (!first) throw new Error(`Learner ${learnerId} has no records`);
+			const member = teamMembers.find((candidate) => candidate.learnerId === learnerId);
+			if (!first && !member) throw new Error(`Learner ${learnerId} has no profile`);
+			const teamName = first?.teamName ?? member?.teamName ?? 'Unassigned';
+			const name = first?.learnerDisplayName ?? member?.displayName ?? learnerId;
+			const email = first?.learnerEmail ?? member?.email ?? '';
 			return {
 				key: learnerId,
 				learnerId,
-				name: first.learnerDisplayName,
-				email: first.learnerEmail,
-				teamName: first.teamName,
+				name,
+				email,
+				teamName,
 				assignments: learnerRecords.length,
 				completed: learnerRecords.filter((record) => record.status === 'COMPLETED').length,
 				overdue: learnerRecords.filter((record) => record.isOverdue).length,
-				averageProgress: Math.round(learnerRecords.reduce((sum, record) => sum + record.progressPercent, 0) / learnerRecords.length),
+				averageProgress: learnerRecords.length ? Math.round(learnerRecords.reduce((sum, record) => sum + record.progressPercent, 0) / learnerRecords.length) : 0,
 				learningMinutes: learnerRecords.flatMap((record) => record.activityProgress).reduce((sum, activity) => sum + activity.timeSpentMinutes, 0),
 			};
 		});

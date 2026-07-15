@@ -69,6 +69,7 @@ export default function App() {
 						</Protected>
 					}
 				/>
+				<Route path="/staff/operations/:operationId" element={<Protected><TeamOperations /></Protected>} />
 				<Route path="/staff/operations" element={<Protected><TeamOperations /></Protected>} />
 				<Route path="/staff/teams" element={<Protected><TeamManagement /></Protected>} />
 				<Route

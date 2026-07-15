@@ -15,6 +15,7 @@ export const TeamDashboardContainer = () => {
 	const { data, loading, error, refetch } = useQuery<StaffTeamOverviewQuery>(StaffTeamOverviewDocument, { variables: { organizationId, teamName: null }, skip: !organizationId });
 	const [assignLearning, assignment] = useMutation(StaffAssignLearningDocument);
 	const [unassignLearning] = useMutation(StaffUnassignLearningDocument);
+	const teamMembers = data?.teams.flatMap((team) => team.members.map((member) => ({ ...member, teamName: team.name }))) ?? [];
 	const assign = async (values: AssignmentValues, learner: LearnerRow) => {
 		const result = await assignLearning({
 			variables: {
@@ -41,6 +42,7 @@ export const TeamDashboardContainer = () => {
 	const dashboard = (
 		<TeamDashboard
 			records={data?.teamLearning ?? []}
+			teamMembers={teamMembers}
 			courses={data?.courses ?? []}
 			loading={false}
 			assignmentLoading={assignment.loading}

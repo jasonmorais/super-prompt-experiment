@@ -51,8 +51,10 @@ export class TeamOperationDomainAdapter extends MongooseSeedwork.MongooseDomainA
 		return this.doc.statusHistory.map((event) => ({ status: event.status, changedAt: event.changedAt, changedBy: event.changedBy, note: event.note ?? null }));
 	}
 	set statusHistory(v) { this.doc.statusHistory = v; }
-	get comments(): Domain.Contexts.Operations.TeamOperation.TeamOperationComment[] { return (this.doc.comments ?? []).map((comment) => ({ ...comment })); }
+	get comments(): Domain.Contexts.Operations.TeamOperation.TeamOperationComment[] {
+		return (this.doc.comments ?? []).map((comment, index) => ({ ...comment, id: typeof comment.id === 'string' && comment.id.trim() ? comment.id.trim() : `legacy-comment-${String(this.doc._id)}-${index}` }));
+	}
 	set comments(v) { this.doc.comments = v; }
-	get attachments(): Domain.Contexts.Operations.TeamOperation.TeamOperationAttachment[] { return (this.doc.attachments ?? []).map((attachment) => ({ ...attachment })); }
+	get attachments(): Domain.Contexts.Operations.TeamOperation.TeamOperationAttachment[] { return (this.doc.attachments ?? []).map((attachment, index) => ({ ...attachment, id: typeof attachment.id === 'string' && attachment.id.trim() ? attachment.id.trim() : `legacy-attachment-${String(this.doc._id)}-${index}` })); }
 	set attachments(v) { this.doc.attachments = v; }
 }

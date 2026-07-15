@@ -92,9 +92,10 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 					<Paragraph style={{ color: '#687670', fontSize: 16, margin: 0 }}>Continue active learning or review assignments from your organization.</Paragraph>
 				</div>
 				<Button
+					type="primary"
 					size="large"
 					onClick={onBrowseCatalog}
-					style={{ borderRadius: 10, borderColor: '#b9c8c2', fontWeight: 650 }}
+					style={{ borderRadius: 10, background: '#176c5b', borderColor: '#176c5b', color: 'white', fontWeight: 650, boxShadow: '0 8px 18px rgba(23,108,91,.18)' }}
 				>
 					Browse catalog <ArrowRightOutlined />
 				</Button>

@@ -209,6 +209,18 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		}
 	}
 
+	reassign(input: { teamName: string; assignedBy: string; assignmentId: string; dueAt: Date | null }): void {
+		if (!this.visa.determineIf((permissions) => permissions.canAssignLearning)) throw new PermissionError('You do not have permission to reassign learning');
+		if (this.props.status === 'COMPLETED') throw new Error('Completed learning is already satisfied');
+		if (!input.teamName.trim() || !input.assignedBy.trim() || !input.assignmentId.trim()) throw new Error('Team, assigner, and assignment are required');
+		this.props.teamName = input.teamName.trim();
+		this.props.source = 'MANAGER_ASSIGNED';
+		this.props.assignedBy = input.assignedBy.trim();
+		this.props.assignmentId = input.assignmentId;
+		this.props.assignedAt = new Date();
+		this.props.dueAt = input.dueAt;
+	}
+
 	waive(reason: string): void {
 		if (!this.visa.determineIf((permissions) => permissions.canWaiveAssignments)) throw new PermissionError('You do not have permission to waive learning');
 		if (this.props.status === 'COMPLETED') throw new Error('Completed learning cannot be waived');

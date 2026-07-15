@@ -16,6 +16,7 @@ query StaffTeams($organizationId: String!) {
 		learnerEmail
 		teamName
 		assignmentId
+		status
 	}
 	courses(organizationId: $organizationId, status: PUBLISHED, limit: 100) { id title category }
 }
@@ -25,5 +26,5 @@ mutation StaffRenameTeam($input: TeamRenameInput!) { teamRename(input: $input) {
 mutation StaffDeleteTeam($id: ObjectID!) { teamDelete(id: $id) { status { success errorMessage } team { id } } }
 mutation StaffSetTeamMembers($input: TeamSetMembersInput!) { teamSetMembers(input: $input) { status { success errorMessage } team { id name teamLeadIds members { learnerId displayName email } } } }
 mutation StaffSetTeamLeads($input: TeamSetLeadsInput!) { teamSetLeads(input: $input) { status { success errorMessage } team { id name teamLeadIds members { learnerId displayName email } } } }
-mutation StaffAssignTeamCourse($input: TeamAssignCourseInput!) { teamAssignCourse(input: $input) { status { success errorMessage } assignmentId assignedCount } }
-mutation StaffUnassignTeamCourse($input: TeamUnassignCourseInput!) { teamUnassignCourse(input: $input) { status { success errorMessage } assignmentId assignedCount } }
+mutation StaffAssignTeamCourse($input: TeamAssignCourseInput!) { teamAssignCourse(input: $input) { status { success errorMessage } assignmentId assignedCount completedCount } }
+mutation StaffUnassignTeamCourse($input: TeamUnassignCourseInput!) { teamUnassignCourse(input: $input) { status { success errorMessage } assignmentId assignedCount completedCount } }

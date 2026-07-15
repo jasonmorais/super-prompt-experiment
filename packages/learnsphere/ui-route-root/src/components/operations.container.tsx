@@ -3,6 +3,7 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
+import { useNavigate } from 'react-router-dom';
 import { AttachTeamOperationDocument, CommentTeamOperationDocument, MyTeamOperationsDocument, SubmitTeamOperationDocument, type MyTeamOperationsQuery } from '../generated.tsx';
 import { Operations } from './operations.tsx';
 
@@ -11,6 +12,7 @@ type Operation = MyTeamOperationsQuery['myTeamOperations'][number];
 export const OperationsContainer = () => {
 	const auth = useAuth();
 	const identity = readLearnSphereIdentity(auth.user?.profile);
+	const navigate = useNavigate();
 	const organizationId = identity.organizationId;
 	const { data, loading, error, refetch } = useQuery<MyTeamOperationsQuery>(MyTeamOperationsDocument, { variables: { organizationId }, skip: !organizationId });
 	const [submitOperation, submitting] = useMutation(SubmitTeamOperationDocument);
@@ -38,6 +40,6 @@ export const OperationsContainer = () => {
 		message.success('File attached to the thread');
 		await refetch();
 	};
-	const view = <Operations operations={data?.myTeamOperations ?? []} learnerId={identity.sub} loading={false} submitting={submitting.loading} commenting={commenting.loading} attaching={attaching.loading} onSubmit={(operation, note, evidence) => void submit(operation, note, evidence)} onComment={(operation, body) => void comment(operation, body)} onAttach={(operation, file) => void attach(operation, file)} />;
+	const view = <Operations operations={data?.myTeamOperations ?? []} learnerId={identity.sub} loading={false} submitting={submitting.loading} commenting={commenting.loading} attaching={attaching.loading} onSubmit={(operation, note, evidence) => void submit(operation, note, evidence)} onComment={(operation, body) => void comment(operation, body)} onAttach={(operation, file) => void attach(operation, file)} onOpenGoal={(operationId) => navigate(`/operations/${operationId}`)} />;
 	return <ComponentQueryLoader loading={loading} error={error} hasData={data} hasDataComponent={view} noDataComponent={view} errorComponent={<Alert type="error" showIcon message="Team operations could not be loaded" description={error?.message} />} />;
 };

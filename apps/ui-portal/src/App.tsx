@@ -1,5 +1,5 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { Catalog, Course, Login, Operations, Root } from '@learnsphere/ui-route-root';
+import { Catalog, Course, Login, Operations, Root, TeamGoal } from '@learnsphere/ui-route-root';
 import { Spin } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -98,6 +98,7 @@ export default function App() {
 						</Authenticated>
 					}
 				/>
+				<Route path="/operations/:operationId" element={<Authenticated><TeamGoal /></Authenticated>} />
 				<Route path="/operations" element={<Authenticated><Operations /></Authenticated>} />
 				<Route
 					path="*"

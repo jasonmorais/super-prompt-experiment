@@ -232,7 +232,7 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 
 	delete(): void {
 		if (!this.visa.determineIf((permissions) => permissions.canDeleteCourses)) throw new PermissionError('You do not have permission to delete courses');
-		if (this.props.status !== 'DRAFT') throw new Error('Only draft courses can be deleted');
+		if (this.props.status === 'ARCHIVED') throw new Error('Archived courses cannot be deleted');
 		this.requestDelete();
 	}
 }

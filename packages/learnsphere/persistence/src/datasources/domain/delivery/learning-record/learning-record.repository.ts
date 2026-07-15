@@ -10,4 +10,9 @@ export class LearningRecordRepository
 	getNewInstance(input: Domain.Contexts.Delivery.LearningRecord.NewLearningRecordInput) {
 		return Promise.resolve(Domain.Contexts.Delivery.LearningRecord.LearningRecord.getNewInstance(this.typeConverter.toAdapter(new this.model()), input, this.passport));
 	}
+
+	async findByLearnerAndCourse(organizationId: string, learnerId: string, courseId: string) {
+		const document = await this.model.findOne({ organizationId, learnerId, courseId }).exec();
+		return document ? this.typeConverter.toDomain(document, this.passport) : null;
+	}
 }

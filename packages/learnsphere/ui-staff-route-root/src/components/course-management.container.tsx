@@ -7,17 +7,20 @@ import {
 	type CourseLevel,
 	type LessonType,
 	StaffAddCourseModuleDocument,
+	StaffAssignCourseToLearnerDocument,
 	StaffCourseManagementDocument,
 	type StaffCourseManagementQuery,
 	StaffCreateCourseDocument,
 	StaffDeleteCourseDocument,
 	StaffPublishCourseDocument,
 	StaffSubmitCourseDocument,
+	StaffUnassignLearningDocument,
 	StaffUpdateCourseDocument,
 } from '../generated.tsx';
 import { CourseManagement } from './course-management.tsx';
 
 type Course = StaffCourseManagementQuery['courses'][number];
+type Person = { learnerId: string; learnerDisplayName: string; learnerEmail: string; teamName: string };
 type CourseValues = { title: string; summary: string; description: string; category: string; level: CourseLevel; tags?: string[]; skills?: string[]; discoverability: 'CATALOG' | 'ASSIGNED_ONLY'; requiresCompletionScreenshot: boolean };
 type ModuleValues = { moduleTitle: string; moduleDescription: string; lessonTitle: string; lessonType: LessonType; lessonContent: string; estimatedMinutes: number; required: boolean };
 const slug = (value: string) =>
@@ -38,6 +41,10 @@ export const CourseManagementContainer = () => {
 	const [publishCourse, publishing] = useMutation(StaffPublishCourseDocument);
 	const [updateCourse, updating] = useMutation(StaffUpdateCourseDocument);
 	const [deleteCourse, deleting] = useMutation(StaffDeleteCourseDocument);
+	const [assignCourse, assigning] = useMutation(StaffAssignCourseToLearnerDocument);
+	const [unassignCourse, unassigning] = useMutation(StaffUnassignLearningDocument);
+	const people: Person[] = data?.teams.flatMap((team) => team.members.map((member) => ({ learnerId: member.learnerId, learnerDisplayName: member.displayName, learnerEmail: member.email, teamName: team.name }))) ?? [];
+	const assignments = data?.teamLearning.filter((record) => record.source !== 'SELF_ENROLLED') ?? [];
 	const create = async (values: CourseValues) => {
 		const result = await createCourse({ variables: { input: { organizationId, ...values, tags: values.tags ?? [], skills: values.skills ?? [] } } });
 		const status = result.data?.courseCreate.status;
@@ -65,7 +72,23 @@ export const CourseManagementContainer = () => {
 			message.error(status?.errorMessage ?? 'Course could not be deleted');
 			return;
 		}
-		message.success('Draft course deleted.');
+		message.success('Course deleted.');
+		await refetch();
+	};
+	const assign = async (course: Course, values: { learnerId: string; dueAt?: { toISOString(): string }; source: 'MANAGER_ASSIGNED' | 'PROGRAM_ASSIGNED' | 'COMPLIANCE_ASSIGNED' }) => {
+		const person = people.find((candidate) => candidate.learnerId === values.learnerId);
+		if (!person) return;
+		const result = await assignCourse({ variables: { input: { organizationId, learnerId: person.learnerId, learnerDisplayName: person.learnerDisplayName, learnerEmail: person.learnerEmail, teamName: person.teamName, courseId: course.id, dueAt: values.dueAt?.toISOString(), source: values.source } } });
+		const status = result.data?.assignLearning.status;
+		if (!status?.success) { message.error(status?.errorMessage ?? 'Course could not be assigned'); return; }
+		message.success(`${course.title} assigned to ${person.learnerDisplayName}.`);
+		await refetch();
+	};
+	const unassign = async (id: string) => {
+		const result = await unassignCourse({ variables: { id } });
+		const status = result.data?.unassignLearning.status;
+		if (!status?.success) { message.error(status?.errorMessage ?? 'Course assignment could not be removed'); return; }
+		message.success('Course assignment removed.');
 		await refetch();
 	};
 	const addContent = async (course: Course, values: ModuleValues) => {
@@ -120,9 +143,15 @@ export const CourseManagementContainer = () => {
 			publishing={publishing.loading}
 			updating={updating.loading}
 			deleting={deleting.loading}
+			assigning={assigning.loading}
+			unassigning={unassigning.loading}
+			people={people}
+			assignments={assignments}
 			onCreate={(values) => void create(values)}
 			onEdit={(course, values) => void edit(course.id, values)}
 			onDelete={(course) => void remove(course.id)}
+			onAssign={(course, values) => void assign(course, values)}
+			onUnassign={(id) => void unassign(id)}
 			onAddContent={(course, values) => void addContent(course, values)}
 			onTransition={(course) => void transition(course)}
 		/>

@@ -1,4 +1,6 @@
 query StaffCourseManagement($organizationId: String!) {
+	teams(organizationId: $organizationId) { id name members { learnerId displayName email } }
+	teamLearning(organizationId: $organizationId) { id learnerId learnerDisplayName learnerEmail teamName courseId source status assignmentId }
 	courses(organizationId: $organizationId, limit: 100) {
 		id
 		title
@@ -98,4 +100,8 @@ mutation StaffDeleteCourse($id: ObjectID!) {
 		status { success errorMessage }
 		course { id status }
 	}
+}
+
+mutation StaffAssignCourseToLearner($input: AssignLearningInput!) {
+	assignLearning(input: $input) { status { success errorMessage } learningRecord { id learnerId courseId status } }
 }

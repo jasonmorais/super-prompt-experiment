@@ -1,6 +1,6 @@
 import { BookOutlined, DashboardOutlined, LogoutOutlined, ThunderboltOutlined, TeamOutlined } from '@ant-design/icons';
 import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
-import { Avatar, Button, Layout, Menu, Space, Tag, Typography } from 'antd';
+import { Avatar, Button, ConfigProvider, Layout, Menu, Space, Tag, Typography } from 'antd';
 import type { ReactNode } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -22,7 +22,7 @@ export const StaffLayout = ({ children }: { children: ReactNode }) => {
 	const initials = `${identity.givenName[0] ?? ''}${identity.familyName[0] ?? ''}` || name.slice(0, 2).toUpperCase();
 	const roles = identity.roles;
 	const organizationName = identity.organizationName;
-	return (
+	return <ConfigProvider theme={{ token: { colorPrimary: '#6d4aff', colorInfo: '#6d4aff', borderRadius: 10, colorBgLayout: '#f4f6f8' }, components: { Button: { primaryShadow: 'none' } } }}>
 		<Layout style={{ minHeight: '100vh', background: '#f4f6f8' }}>
 			<Sider
 				width={258}
@@ -91,5 +91,5 @@ export const StaffLayout = ({ children }: { children: ReactNode }) => {
 				<Content style={{ padding: '34px clamp(20px,4vw,58px) 64px', maxWidth: 1540, width: '100%', margin: '0 auto' }}>{children}</Content>
 			</Layout>
 		</Layout>
-	);
+	</ConfigProvider>;
 };

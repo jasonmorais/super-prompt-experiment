@@ -12,7 +12,16 @@ export interface TeamDataSource {
 	setTeamLeads(id: string, teamLeadIds: readonly string[]): Promise<TeamRecord>;
 }
 
-const toRecord = (document: TeamDocument): TeamRecord => ({ id: String(document._id), schemaVersion: document.schemaVersion, organizationId: document.organizationId, name: document.name, members: document.members.map((member) => ({ ...member })), teamLeadIds: [...document.teamLeadIds], createdBy: document.createdBy, createdAt: document.createdAt, updatedAt: document.updatedAt });
+const isUsableMember = (member: Partial<TeamMember> | null | undefined): member is TeamMember => Boolean(member?.learnerId?.trim() && member.displayName?.trim() && member.email?.trim());
+
+// Teams created before member validation was introduced can contain null or
+// incomplete subdocuments. Keep those records manageable while the data is
+// repaired instead of allowing one bad member to null the whole GraphQL query.
+const toRecord = (document: TeamDocument): TeamRecord => {
+	const members = document.members.filter(isUsableMember).map((member) => ({ learnerId: member.learnerId, displayName: member.displayName, email: member.email }));
+	const memberIds = new Set(members.map((member) => member.learnerId));
+	return { id: String(document._id), schemaVersion: document.schemaVersion, organizationId: document.organizationId, name: document.name, members, teamLeadIds: document.teamLeadIds.filter((id) => memberIds.has(id)), createdBy: document.createdBy, createdAt: document.createdAt, updatedAt: document.updatedAt };
+};
 
 export class TeamDataSourceImpl implements TeamDataSource {
 	private readonly models: ModelsContext;
@@ -37,8 +46,13 @@ export class TeamDataSourceImpl implements TeamDataSource {
 		await this.models.TeamOperation.updateMany({ organizationId: current.organizationId, teamName: current.name }, { $set: { teamName: 'Unassigned' } }).exec();
 		await this.models.Team.deleteOne({ _id: id }).exec();
 	}
-	async setMembers(id: string, members: readonly TeamMember[]) { const document = await this.models.Team.findByIdAndUpdate(id, { $set: { members } }, { new: true }).exec(); if (!document) throw new Error('Team was not found'); return toRecord(document); }
-	async setTeamLeads(id: string, teamLeadIds: readonly string[]) { const document = await this.models.Team.findByIdAndUpdate(id, { $set: { teamLeadIds } }, { new: true }).exec(); if (!document) throw new Error('Team was not found'); return toRecord(document); }
+	async setMembers(id: string, members: readonly TeamMember[]) {
+		const validMembers = members.filter(isUsableMember).map((member) => ({ learnerId: member.learnerId.trim(), displayName: member.displayName.trim(), email: member.email.trim() }));
+		const document = await this.models.Team.findByIdAndUpdate(id, { $set: { members: validMembers }, $pull: { teamLeadIds: { $nin: validMembers.map((member) => member.learnerId) } } }, { new: true }).exec();
+		if (!document) throw new Error('Team was not found');
+		return toRecord(document);
+	}
+	async setTeamLeads(id: string, teamLeadIds: readonly string[]) { const document = await this.models.Team.findByIdAndUpdate(id, { $set: { teamLeadIds: [...new Set(teamLeadIds.filter(Boolean))] } }, { new: true }).exec(); if (!document) throw new Error('Team was not found'); return toRecord(document); }
 }
 
 export const getTeamDataSource = (models: ModelsContext): TeamDataSource => new TeamDataSourceImpl(models);

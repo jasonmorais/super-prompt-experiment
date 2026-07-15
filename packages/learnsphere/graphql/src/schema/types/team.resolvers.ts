@@ -3,7 +3,7 @@ import type { GraphContext } from '../context.ts';
 
 const requireUser = (context: GraphContext): void => { if (!context.applicationServices.verifiedUser?.verifiedJwt?.sub) throw new Error('Unauthorized'); };
 const teamMutation = async <T>(work: Promise<T>): Promise<{ status: { success: boolean; errorMessage?: string }; team: T | null }> => { try { return { status: { success: true }, team: await work }; } catch (error) { return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'The team request could not be completed' }, team: null }; } };
-const assignmentMutation = async (work: Promise<{ assignmentId?: string; assignedCount?: number }>) => { try { const result = await work; return { status: { success: true }, assignmentId: result.assignmentId ?? '', assignedCount: result.assignedCount ?? 0 }; } catch (error) { return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'The team assignment could not be completed' }, assignmentId: '', assignedCount: 0 }; } };
+const assignmentMutation = async (work: Promise<{ assignmentId?: string; assignedCount?: number; completedCount?: number }>) => { try { const result = await work; return { status: { success: true }, assignmentId: result.assignmentId ?? '', assignedCount: result.assignedCount ?? 0, completedCount: result.completedCount ?? 0 }; } catch (error) { return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'The team assignment could not be completed' }, assignmentId: '', assignedCount: 0, completedCount: 0 }; } };
 
 const teams: Resolvers = {
 	Query: { teams: (_parent, args, context) => { requireUser(context); return context.applicationServices.Teams.list(args.organizationId); } },

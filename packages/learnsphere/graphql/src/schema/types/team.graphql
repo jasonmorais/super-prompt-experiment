@@ -33,4 +33,4 @@ input TeamSetLeadsInput { id: ObjectID! teamLeadIds: [String!]! }
 input TeamAssignCourseInput { teamId: ObjectID! courseId: ObjectID! dueAt: DateTime }
 input TeamUnassignCourseInput { organizationId: String! assignmentId: String! }
 type TeamMutationResult { status: MutationStatus! team: Team }
-type TeamAssignmentMutationResult { status: MutationStatus! assignmentId: String! assignedCount: Int! }
+type TeamAssignmentMutationResult { status: MutationStatus! assignmentId: String! assignedCount: Int! completedCount: Int! }

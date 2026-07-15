@@ -1,4 +1,5 @@
 query StaffTeamOperations($organizationId: String!, $teamName: String) {
+	teams(organizationId: $organizationId) { id name members { learnerId displayName email } }
 	teamOperations(organizationId: $organizationId, teamName: $teamName) {
 		id
 		title

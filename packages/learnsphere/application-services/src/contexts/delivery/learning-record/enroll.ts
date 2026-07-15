@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import type { Domain } from '@learnsphere/domain';
 import type { DataSources } from '@learnsphere/persistence';
 
@@ -22,6 +23,16 @@ export const enroll = async (dataSources: DataSources, command: EnrollCommand): 
 	const requiredActivityKeys: string[] = course.modules.flatMap((module) => module.lessons.filter((lesson) => lesson.required).map((lesson) => lesson.key));
 	let result: Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference | undefined;
 	await dataSources.domainDataSource.Delivery.LearningRecord.LearningRecordUnitOfWork.withScopedTransaction(async (repo) => {
+		const existing = await repo.findByLearnerAndCourse(command.organizationId, command.learnerId, course.id);
+		if (existing) {
+			if (existing.status === 'COMPLETED') {
+				result = existing;
+				return;
+			}
+			existing.reassign({ teamName: command.teamName, assignedBy: command.assignedBy ?? '', assignmentId: command.assignmentId ?? crypto.randomUUID(), dueAt: command.dueAt });
+			result = await repo.save(existing);
+			return;
+		}
 		const record = await repo.getNewInstance({
 			organizationId: command.organizationId,
 			learnerId: command.learnerId,
