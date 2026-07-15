@@ -40,12 +40,13 @@ export const StaffLayout = ({ children }: { children: ReactNode }) => {
 				<Menu
 					theme="dark"
 					mode="inline"
-					selectedKeys={[location.pathname.includes('/courses') ? 'courses' : location.pathname.includes('/operations') ? 'operations' : 'team']}
-					onClick={({ key }) => navigate(key === 'courses' ? '/staff/courses' : key === 'operations' ? '/staff/operations' : '/staff')}
+					selectedKeys={[location.pathname.includes('/courses') ? 'courses' : location.pathname.includes('/operations') ? 'operations' : location.pathname.includes('/teams') ? 'teams' : 'team']}
+					onClick={({ key }) => navigate(key === 'courses' ? '/staff/courses' : key === 'operations' ? '/staff/operations' : key === 'teams' ? '/staff/teams' : '/staff')}
 					items={[
 						{ key: 'team', icon: <DashboardOutlined />, label: 'Team overview' },
 						{ key: 'courses', icon: <BookOutlined />, label: 'Course management' },
 						{ key: 'operations', icon: <ThunderboltOutlined />, label: 'Team operations' },
+						{ key: 'teams', icon: <TeamOutlined />, label: 'Manage teams' },
 					]}
 					style={{ background: 'transparent', border: 0 }}
 				/>

@@ -4,6 +4,7 @@ import type { DataSources } from '@learnsphere/persistence';
 import { Delivery, type DeliveryContextApplicationService } from './contexts/delivery/index.ts';
 import { Learning, type LearningContextApplicationService } from './contexts/learning/index.ts';
 import { Operations, type OperationsContextApplicationService } from './contexts/operations/index.ts';
+import { Teams, type TeamsApplicationService } from './contexts/teams.ts';
 
 export type { AssignLearningCommand } from './contexts/delivery/learning-record/assign.ts';
 export type { CourseCreateCommand } from './contexts/learning/course/create.ts';
@@ -32,6 +33,7 @@ export interface ApplicationServices {
 	Learning: LearningContextApplicationService;
 	Delivery: DeliveryContextApplicationService;
 	Operations: OperationsContextApplicationService;
+	Teams: TeamsApplicationService;
 }
 
 export interface AppServicesHost<S> {
@@ -69,7 +71,8 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			},
 			Learning: Learning(dataSources, identity.sub),
 			Delivery: Delivery(dataSources, passport, identity),
-			Operations: Operations(dataSources, passport, { sub: identity.sub, ...(identity.email ? { email: identity.email } : {}) }),
+			Operations: Operations(dataSources, passport, { sub: identity.sub, ...(identity.email ? { email: identity.email } : {}), ...(identity.given_name ? { given_name: identity.given_name } : {}), ...(identity.family_name ? { family_name: identity.family_name } : {}) }),
+			Teams: Teams(dataSources, passport, identity),
 		};
 	},
 });

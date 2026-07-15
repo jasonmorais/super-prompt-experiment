@@ -7,6 +7,7 @@ extend type Mutation {
 	assignLearning(input: AssignLearningInput!): LearningRecordMutationResult!
 	recordActivity(input: RecordActivityInput!): LearningRecordMutationResult!
 	waiveLearning(input: WaiveLearningInput!): LearningRecordMutationResult!
+	unassignLearning(id: ObjectID!): LearningRecordMutationResult!
 }
 enum EnrollmentSource { SELF_ENROLLED MANAGER_ASSIGNED PROGRAM_ASSIGNED COMPLIANCE_ASSIGNED }
 enum LearningRecordStatus { NOT_STARTED IN_PROGRESS COMPLETED OVERDUE WAIVED }
@@ -16,7 +17,7 @@ type LearningRecord implements MongoBase {
 	organizationId: String! learnerId: String! learnerDisplayName: String! learnerEmail: String! teamName: String!
 	courseId: String! courseTitle: String! courseCategory: String!
 	requiredActivityKeys: [String!]! requiresCompletionScreenshot: Boolean!
-	source: EnrollmentSource! status: LearningRecordStatus! assignedBy: String assignedAt: DateTime! dueAt: DateTime
+	source: EnrollmentSource! status: LearningRecordStatus! assignedBy: String assignmentId: String assignedAt: DateTime! dueAt: DateTime
 	startedAt: DateTime completedAt: DateTime activityProgress: [ActivityProgress!]!
 	completionScreenshot: String
 	progressPercent: Int! completedActivityCount: Int! isOverdue: Boolean!

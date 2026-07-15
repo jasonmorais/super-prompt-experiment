@@ -12,6 +12,12 @@ const sourceLabel = (source: RecordView['source']): string =>
 		.replaceAll('_', ' ')
 		.toLowerCase()
 		.replace(/^./, (letter) => letter.toUpperCase());
+
+const actorLabel = (value: string | null | undefined): string => {
+	if (!value) return '—';
+	const username = (value.includes('@') ? value.split('@')[0] : value) ?? value;
+	return username.replace(/[._-]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+};
 interface LearnerRow {
 	key: string;
 	learnerId: string;
@@ -38,9 +44,10 @@ export interface TeamDashboardProps {
 	error?: string;
 	assignmentLoading: boolean;
 	onAssign: (values: AssignmentValues, learner: LearnerRow) => Promise<void>;
+	onUnassign: (id: string) => Promise<void>;
 }
 
-export const TeamDashboard = ({ records, courses, loading, error, assignmentLoading, onAssign }: TeamDashboardProps) => {
+export const TeamDashboard = ({ records, courses, loading, error, assignmentLoading, onAssign, onUnassign }: TeamDashboardProps) => {
 	const [form] = Form.useForm<AssignmentValues>();
 	const teams = [...new Set(records.map((record) => record.teamName))].sort();
 	const [teamName, setTeamName] = React.useState<string>();
@@ -243,11 +250,12 @@ export const TeamDashboard = ({ records, courses, loading, error, assignmentLoad
 							),
 						},
 						{ title: 'Source', render: (_, row) => sourceLabel(row.source) },
-						{ title: 'Assigned by', render: (_, row) => row.assignedBy ?? '—' },
+						{ title: 'Assigned by', render: (_, row) => actorLabel(row.assignedBy) },
 						{ title: 'Due', render: (_, row) => (row.dueAt ? new Date(row.dueAt).toLocaleDateString() : 'Self-paced') },
 						{ title: 'Status', render: (_, row) => <Tag color={row.status === 'COMPLETED' ? 'green' : row.isOverdue ? 'red' : 'blue'}>{row.isOverdue ? 'OVERDUE' : row.status.replaceAll('_', ' ')}</Tag> },
 						{ title: 'Evidence', render: (_, row) => row.completionScreenshot ? <Image width={44} height={44} preview={{ mask: 'View' }} src={row.completionScreenshot} style={{ objectFit: 'cover', borderRadius: 6 }} /> : row.requiresCompletionScreenshot ? <Tag color="orange">Required</Tag> : <Text type="secondary">Optional</Text> },
 						{ title: 'Progress', render: (_, row) => `${row.progressPercent}%` },
+						{ title: 'Undo', render: (_, row) => row.status !== 'COMPLETED' ? <Button type="link" onClick={() => onUnassign(row.id)}>Unassign</Button> : <Text type="secondary">Completed</Text> },
 					]}
 				/>
 			</Card>

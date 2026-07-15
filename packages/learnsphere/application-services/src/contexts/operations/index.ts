@@ -4,4 +4,4 @@ import { TeamOperation, type TeamOperationApplicationService } from './team-oper
 
 export interface OperationsContextApplicationService { TeamOperation: TeamOperationApplicationService; }
 
-export const Operations = (dataSources: DataSources, passport: Passport, identity: { sub: string; email?: string }): OperationsContextApplicationService => ({ TeamOperation: TeamOperation(dataSources, passport, identity) });
+export const Operations = (dataSources: DataSources, passport: Passport, identity: { sub: string; email?: string; given_name?: string; family_name?: string }): OperationsContextApplicationService => ({ TeamOperation: TeamOperation(dataSources, passport, identity) });

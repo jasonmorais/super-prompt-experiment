@@ -195,7 +195,7 @@ export const CourseManagement = ({ courses, loading, error, creating, adding, su
 											Add content
 										</Button>
 									)}
-									{course.status !== 'PUBLISHED' && course.status !== 'ARCHIVED' && (
+									{course.status !== 'ARCHIVED' && (
 										<Button icon={<EditOutlined />} onClick={() => setEditingCourse(course)}>Edit details</Button>
 									)}
 									{course.status === 'DRAFT' && (

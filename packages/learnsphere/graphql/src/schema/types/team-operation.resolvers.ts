@@ -45,6 +45,10 @@ const teamOperation: Resolvers = {
 			requireUser(context);
 			return mutation(context.applicationServices.Operations.TeamOperation.cancel({ id: args.input.id, reason: args.input.reason }));
 		},
+		teamOperationUpdate: (_parent, args, context) => {
+			requireUser(context);
+			return mutation(context.applicationServices.Operations.TeamOperation.update({ id: args.input.id, title: args.input.title, description: args.input.description, category: args.input.category, priority: args.input.priority as Domain.Contexts.Operations.TeamOperation.TeamOperationPriority, ...(args.input.dueAt ? { dueAt: args.input.dueAt } : {}) }));
+		},
 		teamOperationComment: (_parent, args, context) => {
 			requireUser(context);
 			return mutation(context.applicationServices.Operations.TeamOperation.comment({ id: args.input.id, body: args.input.body }));

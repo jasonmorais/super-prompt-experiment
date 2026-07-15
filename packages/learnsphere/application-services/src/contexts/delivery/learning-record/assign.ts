@@ -12,6 +12,7 @@ export interface AssignLearningCommand {
 	dueAt?: Date;
 	source: Exclude<Domain.Contexts.Delivery.LearningRecord.EnrollmentSource, 'SELF_ENROLLED'>;
 	assignedBy: string;
+	assignmentId?: string | null;
 }
 
 export const assign = (dataSources: DataSources) => (command: AssignLearningCommand) => enroll(dataSources, { ...command, assignedBy: command.assignedBy, dueAt: command.dueAt ?? null });

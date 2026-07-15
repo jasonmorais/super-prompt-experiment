@@ -10,6 +10,7 @@ export interface EnrollCommand {
 	courseId: string;
 	source: Domain.Contexts.Delivery.LearningRecord.EnrollmentSource;
 	assignedBy: string | null;
+	assignmentId?: string | null;
 	dueAt: Date | null;
 }
 
@@ -35,6 +36,7 @@ export const enroll = async (dataSources: DataSources, command: EnrollCommand): 
 			completionScreenshot: null,
 			source: command.source,
 			assignedBy: command.assignedBy,
+			assignmentId: command.assignmentId ?? null,
 			dueAt: command.dueAt,
 		});
 		result = await repo.save(record);

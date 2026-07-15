@@ -63,6 +63,10 @@ const learningRecord: Resolvers = {
 			requireUser(context);
 			return mutation(context.applicationServices.Delivery.LearningRecord.waive(args.input));
 		},
+		unassignLearning: (_parent, args, context) => {
+			requireUser(context);
+			return mutation(context.applicationServices.Delivery.LearningRecord.unassign({ id: args.id }));
+		},
 	},
 };
 

@@ -6,6 +6,7 @@ import { recordActivity } from './record-activity.ts';
 import { selfEnroll } from './self-enroll.ts';
 import { teamLearning } from './team-learning.ts';
 import { waive } from './waive.ts';
+import { unassign } from './unassign.ts';
 
 export interface LearningRecordApplicationService {
 	myLearning: (command: { organizationId: string }) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]>;
@@ -14,6 +15,7 @@ export interface LearningRecordApplicationService {
 	assign: (command: Omit<AssignLearningCommand, 'assignedBy'>) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference>;
 	recordActivity: (command: { id: string; activityKey: string; timeSpentMinutes: number; assessmentScore?: number; completionScreenshot?: string }) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference>;
 	waive: (command: { id: string; reason: string }) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference>;
+	unassign: (command: { id: string }) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference>;
 }
 
 export const LearningRecord = (dataSources: DataSources, passport: Passport, identity: { sub: string; email?: string; given_name?: string; family_name?: string }): LearningRecordApplicationService => {
@@ -25,5 +27,6 @@ export const LearningRecord = (dataSources: DataSources, passport: Passport, ide
 		assign: (command) => assign(dataSources)({ ...command, assignedBy: identity.email ?? identity.sub }),
 		recordActivity: recordActivity(dataSources),
 		waive: waive(dataSources),
+		unassign: unassign(dataSources),
 	};
 };

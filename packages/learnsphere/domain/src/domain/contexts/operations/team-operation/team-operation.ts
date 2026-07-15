@@ -186,8 +186,18 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		this.appendStatus('CANCELLED', actorId, reason.trim());
 	}
 
+	updateDetails(input: { title: string; description: string; category: string; priority: TeamOperationPriority; dueAt: Date | null }): void {
+		if (!this.visa.determineIf((permissions) => permissions.canEditTeamOperations || permissions.canManageTeamOperations)) throw new PermissionError('Only a team lead or manager can edit team goals');
+		this.requireOpen();
+		this.props.title = requiredText(input.title, 'Title', 180);
+		this.props.description = requiredText(input.description, 'Description', 10000);
+		this.props.category = requiredText(input.category, 'Category', 100);
+		this.props.priority = input.priority;
+		this.props.dueAt = input.dueAt;
+	}
+
 	private requireDiscussionAccess(): void {
-		if (!this.visa.determineIf((permissions) => permissions.canUpdateAssignedOperations || permissions.canManageTeamOperations)) throw new PermissionError('You do not have permission to use this thread');
+		if (!this.visa.determineIf((permissions) => permissions.canDiscussTeamOperations)) throw new PermissionError('You do not have permission to use this thread');
 	}
 
 	addComment(input: { id: string; body: string; authorId: string; authorName: string; createdAt: Date }): void {

@@ -46,3 +46,5 @@ mutation StaffAssignLearning($input: AssignLearningInput!) {
 		}
 	}
 }
+
+mutation StaffUnassignLearning($id: ObjectID!) { unassignLearning(id: $id) { status { success errorMessage } learningRecord { id } } }

@@ -43,6 +43,10 @@ mutation StaffCancelTeamOperation($input: TeamOperationCancelInput!) {
 	teamOperationCancel(input: $input) { status { success errorMessage } teamOperation { id status } }
 }
 
+mutation StaffUpdateTeamOperation($input: TeamOperationUpdateInput!) {
+	teamOperationUpdate(input: $input) { status { success errorMessage } teamOperation { id title description category priority dueAt } }
+}
+
 mutation StaffCommentTeamOperation($input: TeamOperationCommentInput!) {
 	teamOperationComment(input: $input) { status { success errorMessage } teamOperation { id } }
 }

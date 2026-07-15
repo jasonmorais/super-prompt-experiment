@@ -23,6 +23,7 @@ export interface LearningRecord extends MongooseSeedwork.Base {
 	source: 'SELF_ENROLLED' | 'MANAGER_ASSIGNED' | 'PROGRAM_ASSIGNED' | 'COMPLIANCE_ASSIGNED';
 	status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE' | 'WAIVED';
 	assignedBy: string | null;
+	assignmentId: string | null;
 	assignedAt: Date;
 	dueAt: Date | null;
 	startedAt: Date | null;
@@ -56,6 +57,7 @@ const LearningRecordSchema = new Schema<LearningRecord, Model<LearningRecord>, L
 	source: { type: String, required: true, enum: ['SELF_ENROLLED', 'MANAGER_ASSIGNED', 'PROGRAM_ASSIGNED', 'COMPLIANCE_ASSIGNED'] },
 	status: { type: String, required: true, enum: ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'WAIVED'], index: true },
 	assignedBy: { type: String, default: null },
+	assignmentId: { type: String, default: null, index: true },
 	assignedAt: { type: Date, required: true },
 	dueAt: { type: Date, default: null, index: true },
 	startedAt: { type: Date, default: null },

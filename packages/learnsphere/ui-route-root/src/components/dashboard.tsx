@@ -13,6 +13,12 @@ const sourceLabel = (source: LearningRecord['source']): string =>
 				.toLowerCase()
 				.replace(/^./, (letter) => letter.toUpperCase());
 
+const actorLabel = (value: string | null | undefined): string => {
+	if (!value) return 'your organization';
+	const username = (value.includes('@') ? value.split('@')[0] : value) ?? value;
+	return username.replace(/[._-]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+};
+
 const cardStyle = { border: '1px solid #e5eae6', boxShadow: '0 8px 28px rgba(24,55,48,.05)', borderRadius: 18 } as const;
 
 const LearningCard = ({ record, color, onOpen }: { record: LearningRecord; color: string; onOpen: () => void }) => (
@@ -47,7 +53,7 @@ const LearningCard = ({ record, color, onOpen }: { record: LearningRecord; color
 				<span>{record.completedActivityCount} activities completed</span>
 				<span>{record.dueAt ? `Due ${new Date(record.dueAt).toLocaleDateString()}` : 'Self-paced'}</span>
 			</div>
-			{record.source !== 'SELF_ENROLLED' && <Text type="secondary" style={{ display: 'block', marginTop: 10, fontSize: 12 }}>Assigned by {record.assignedBy ?? 'your organization'}</Text>}
+			{record.source !== 'SELF_ENROLLED' && <Text type="secondary" style={{ display: 'block', marginTop: 10, fontSize: 12 }}>Assigned by {actorLabel(record.assignedBy)}</Text>}
 			<Button
 				type="primary"
 				block

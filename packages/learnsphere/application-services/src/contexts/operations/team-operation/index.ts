@@ -8,6 +8,7 @@ import { myOperations } from './my-operations.ts';
 import { submit } from './submit.ts';
 import { teamOperations } from './team-operations.ts';
 import { mutateDiscussion } from './mutate.ts';
+import { mutate } from './mutate.ts';
 
 export type { TeamOperationCreateCommand };
 
@@ -20,10 +21,12 @@ export interface TeamOperationApplicationService {
 	cancel: (command: { id: string; reason: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	comment: (command: { id: string; body: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	attach: (command: { id: string; attachment: Domain.Contexts.Operations.TeamOperation.TeamOperationAttachment }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
+	update: (command: { id: string; title: string; description: string; category: string; priority: Domain.Contexts.Operations.TeamOperation.TeamOperationPriority; dueAt?: Date }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 }
 
-export const TeamOperation = (dataSources: DataSources, passport: Passport, identity: { sub: string; email?: string }): TeamOperationApplicationService => {
+export const TeamOperation = (dataSources: DataSources, passport: Passport, identity: { sub: string; email?: string; given_name?: string; family_name?: string }): TeamOperationApplicationService => {
 	const actorId = identity.email ?? identity.sub;
+	const actorName = `${identity.given_name ?? ''} ${identity.family_name ?? ''}`.trim() || actorId;
 	return {
 		myOperations: (command) => myOperations(dataSources)({ ...command, assigneeId: identity.sub }),
 		teamOperations: teamOperations(dataSources, passport),
@@ -31,7 +34,16 @@ export const TeamOperation = (dataSources: DataSources, passport: Passport, iden
 		submit: (command) => submit(dataSources)({ ...command, actorId }),
 		confirm: (command) => confirm(dataSources)({ ...command, actorId }),
 		cancel: (command) => cancel(dataSources)({ ...command, actorId }),
-		comment: (command) => mutateDiscussion(dataSources, command.id, (operation) => operation.addComment({ id: crypto.randomUUID(), body: command.body, authorId: actorId, authorName: actorId, createdAt: new Date() })),
+		comment: (command) => mutateDiscussion(dataSources, command.id, (operation) => operation.addComment({ id: crypto.randomUUID(), body: command.body, authorId: actorId, authorName: actorName, createdAt: new Date() })),
 		attach: (command) => mutateDiscussion(dataSources, command.id, (operation) => operation.addAttachment(command.attachment)),
+		update: async (command) => {
+			const operation = await dataSources.readonlyDataSource.Operations.TeamOperation.TeamOperationReadRepo.getById(command.id);
+			if (!operation) throw new Error('Team operation was not found');
+			if (!passport.operations.forTeamOperation(operation).determineIf((permissions) => permissions.canManageTeamOperations)) {
+				const team = (await dataSources.teamDataSource.list(operation.organizationId)).find((candidate) => candidate.name === operation.teamName);
+				if (!team?.teamLeadIds.includes(identity.sub)) throw new Error('Only a team lead or manager can edit team goals');
+			}
+			return mutate(dataSources, command.id, (entity) => entity.updateDetails({ ...command, dueAt: command.dueAt ?? null }));
+		},
 	};
 };

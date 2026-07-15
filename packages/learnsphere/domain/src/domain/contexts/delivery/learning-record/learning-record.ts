@@ -28,6 +28,7 @@ export interface LearningRecordProps extends DomainEntityProps {
 	source: EnrollmentSource;
 	status: LearningRecordStatus;
 	assignedBy: string | null;
+	assignmentId: string | null;
 	assignedAt: Date;
 	dueAt: Date | null;
 	startedAt: Date | null;
@@ -50,7 +51,7 @@ export interface LearningRecordEntityReference extends Readonly<LearningRecordPr
 export class LearningRecord<Props extends LearningRecordProps = LearningRecordProps> extends AggregateRoot<Props, Passport> implements LearningRecordEntityReference {
 	static getNewInstance<Props extends LearningRecordProps>(
 		props: Props,
-		input: Omit<LearningRecordProps, keyof DomainEntityProps | 'status' | 'assignedAt' | 'startedAt' | 'completedAt' | 'waivedAt' | 'waiverReason' | 'activityProgress' | 'createdAt' | 'updatedAt' | 'schemaVersion'>,
+		input: Omit<LearningRecordProps, keyof DomainEntityProps | 'status' | 'assignedAt' | 'startedAt' | 'completedAt' | 'waivedAt' | 'waiverReason' | 'activityProgress' | 'createdAt' | 'updatedAt' | 'schemaVersion' | 'assignmentId'> & { assignmentId?: string | null },
 		passport: Passport,
 	) {
 		const record = new LearningRecord(props, passport);
@@ -71,6 +72,7 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		props.requiredActivityKeys = [...new Set(input.requiredActivityKeys)];
 		props.source = input.source;
 		props.assignedBy = input.assignedBy;
+		props.assignmentId = input.assignmentId ?? null;
 		props.dueAt = input.dueAt;
 		props.status = 'NOT_STARTED';
 		props.assignedAt = new Date();
@@ -124,6 +126,9 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 	}
 	get assignedBy() {
 		return this.props.assignedBy;
+	}
+	get assignmentId() {
+		return this.props.assignmentId;
 	}
 	get assignedAt() {
 		return this.props.assignedAt;
@@ -211,5 +216,11 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		this.props.status = 'WAIVED';
 		this.props.waivedAt = new Date();
 		this.props.waiverReason = reason.trim();
+	}
+
+	unassign(): void {
+		if (!this.visa.determineIf((permissions) => permissions.canAssignLearning)) throw new PermissionError('You do not have permission to unassign learning');
+		if (this.props.status === 'COMPLETED') throw new Error('Completed learning cannot be unassigned');
+		this.requestDelete();
 	}
 }

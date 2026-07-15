@@ -3,7 +3,7 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
-import { type EnrollmentSource, StaffAssignLearningDocument, StaffTeamOverviewDocument, type StaffTeamOverviewQuery } from '../generated.tsx';
+import { type EnrollmentSource, StaffAssignLearningDocument, StaffTeamOverviewDocument, StaffUnassignLearningDocument, type StaffTeamOverviewQuery } from '../generated.tsx';
 import { TeamDashboard } from './team-dashboard.tsx';
 
 type LearnerRow = { learnerId: string; name: string; email: string; teamName: string };
@@ -14,6 +14,7 @@ export const TeamDashboardContainer = () => {
 	const organizationId = readLearnSphereIdentity(auth.user?.profile).organizationId;
 	const { data, loading, error, refetch } = useQuery<StaffTeamOverviewQuery>(StaffTeamOverviewDocument, { variables: { organizationId, teamName: null }, skip: !organizationId });
 	const [assignLearning, assignment] = useMutation(StaffAssignLearningDocument);
+	const [unassignLearning] = useMutation(StaffUnassignLearningDocument);
 	const assign = async (values: AssignmentValues, learner: LearnerRow) => {
 		const result = await assignLearning({
 			variables: {
@@ -36,6 +37,7 @@ export const TeamDashboardContainer = () => {
 		message.success(`Learning assigned to ${learner.name}. It will now appear in their My learning dashboard.`);
 		await refetch();
 	};
+	const unassign = async (id: string) => { const result = await unassignLearning({ variables: { id } }); if (!result.data?.unassignLearning.status.success) { message.error(result.data?.unassignLearning.status.errorMessage ?? 'Assignment could not be undone'); return; } message.success('Assignment undone.'); await refetch(); };
 	const dashboard = (
 		<TeamDashboard
 			records={data?.teamLearning ?? []}
@@ -43,6 +45,7 @@ export const TeamDashboardContainer = () => {
 			loading={false}
 			assignmentLoading={assignment.loading}
 			onAssign={assign}
+			onUnassign={unassign}
 		/>
 	);
 	return (
