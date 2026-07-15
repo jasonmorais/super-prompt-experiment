@@ -1,0 +1,74 @@
+.thread {
+	margin-top: 24px;
+	border: 1px solid #e4defd;
+	border-radius: 20px;
+	background: linear-gradient(145deg, #fdfcff, #f7f5ff);
+	box-shadow: 0 16px 36px rgb(44 31 95 / 8%);
+}
+
+.thread-icon {
+	display: grid;
+	width: 34px;
+	height: 34px;
+	place-items: center;
+	border-radius: 10px;
+	background: #e9e4ff;
+	color: #6d4aff;
+}
+
+.comment {
+	display: flex;
+	gap: 12px;
+	padding: 14px;
+	border: 1px solid #eeeaff;
+	border-radius: 14px;
+	background: white;
+}
+
+.avatar {
+	display: grid;
+	flex: 0 0 34px;
+	width: 34px;
+	height: 34px;
+	place-items: center;
+	border-radius: 50%;
+	background: #d9d1ff;
+	color: #3e278f;
+	font-weight: 700;
+}
+
+.meta {
+	margin-left: 8px;
+	font-size: 12px;
+}
+
+.body {
+	margin-top: 5px;
+	color: #3b3957;
+	line-height: 1.55;
+}
+
+.empty {
+	padding: 4px 0 2px;
+	color: #73718a;
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.attach {
+	border-color: #cfc5ff;
+	color: #6d4aff;
+}
+
+.attachment {
+	padding: 7px 10px;
+	border: 0;
+	border-radius: 9px;
+	background: #eeeaff;
+	color: #6d4aff;
+}

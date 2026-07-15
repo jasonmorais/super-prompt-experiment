@@ -1,10 +1,10 @@
 import { BookOutlined, CheckOutlined, ClockCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Row, Space, Tag, Typography } from 'antd';
-import type { LearnerCatalogQuery } from '../generated.tsx';
+import type { LearnerCatalogContainerCatalogQuery } from '../generated.tsx';
 
 const { Title, Paragraph, Text } = Typography;
-type Course = LearnerCatalogQuery['courses'][number];
-type Enrollment = LearnerCatalogQuery['myLearning'][number];
+type Course = LearnerCatalogContainerCatalogQuery['courses'][number];
+type Enrollment = LearnerCatalogContainerCatalogQuery['myLearning'][number];
 const cardStyle = { height: '100%', border: '1px solid #e5eae6', boxShadow: '0 8px 28px rgba(24,55,48,.05)', borderRadius: 18 } as const;
 
 export interface CatalogProps {

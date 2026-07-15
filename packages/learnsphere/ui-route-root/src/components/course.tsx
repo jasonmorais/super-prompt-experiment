@@ -1,11 +1,11 @@
 import { ArrowLeftOutlined, BookOutlined, CheckCircleFilled, CheckOutlined, ClockCircleOutlined, FileTextOutlined, PlayCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Divider, Progress, Row, Space, Tag, Typography } from 'antd';
-import type { CourseExperienceQuery } from '../generated.tsx';
+import type { LearnerCourseContainerCourseExperienceQuery } from '../generated.tsx';
 
 const { Title, Paragraph, Text } = Typography;
-type Course = NonNullable<CourseExperienceQuery['courseById']>;
+type Course = NonNullable<LearnerCourseContainerCourseExperienceQuery['courseById']>;
 type Lesson = Course['modules'][number]['lessons'][number];
-type LearningRecord = CourseExperienceQuery['myLearning'][number];
+type LearningRecord = LearnerCourseContainerCourseExperienceQuery['myLearning'][number];
 
 const activityIcon = (type: string) => (type === 'VIDEO' ? <PlayCircleOutlined /> : type === 'ARTICLE' || type === 'RESOURCE' ? <FileTextOutlined /> : <BookOutlined />);
 

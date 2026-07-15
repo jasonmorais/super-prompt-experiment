@@ -20,7 +20,17 @@ export interface LearnSphereIdentity {
 	roles: string[];
 }
 
-export const STAFF_ACCESS_ROLES = ['Manager', 'LearningAdmin', 'ManagerLearningAdmin'] as const;
+export const STAFF_ACCESS_ROLES = ['Manager', 'LearningAdmin', 'ManagerLearningAdmin', 'Instructor'] as const;
+
+export interface LearnSphereStaffCapabilities {
+	canViewTeamLearning: boolean;
+	canManageCourses: boolean;
+	canPublishCourses: boolean;
+	canDeleteCourses: boolean;
+	canManageTeams: boolean;
+	canManageTeamOperations: boolean;
+	canConfirmTeamOperations: boolean;
+}
 
 const claimString = (profile: LearnSphereProfile | undefined, key: keyof LearnSphereProfile): string => {
 	const value = profile?.[key];
@@ -52,3 +62,21 @@ export const readLearnSphereIdentity = (profile: LearnSphereProfile | undefined)
 };
 
 export const hasStaffAccess = (roles: readonly string[]): boolean => roles.some((role) => STAFF_ACCESS_ROLES.includes(role as (typeof STAFF_ACCESS_ROLES)[number]));
+
+export const getStaffCapabilities = (roles: readonly string[]): LearnSphereStaffCapabilities => {
+	const isManager = roles.includes('Manager');
+	const isLearningAdmin = roles.includes('LearningAdmin');
+	const isManagerLearningAdmin = roles.includes('ManagerLearningAdmin') || (isManager && isLearningAdmin);
+	const isInstructor = roles.includes('Instructor');
+	const canViewTeamLearning = isManager || isLearningAdmin || isManagerLearningAdmin;
+	const canManageTeams = isManager || isManagerLearningAdmin;
+	return {
+		canViewTeamLearning,
+		canManageCourses: isInstructor || isLearningAdmin || isManagerLearningAdmin,
+		canPublishCourses: isLearningAdmin || isManagerLearningAdmin,
+		canDeleteCourses: isLearningAdmin || isManagerLearningAdmin,
+		canManageTeams,
+		canManageTeamOperations: canViewTeamLearning,
+		canConfirmTeamOperations: isManager || isManagerLearningAdmin,
+	};
+};

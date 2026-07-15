@@ -1,5 +1,5 @@
 import type { Team as TeamDocument, TeamMember } from '@learnsphere/data-sources-mongoose-models';
-import type { ModelsContext } from '../index.ts';
+import type { ModelsContext } from '../../index.ts';
 
 export interface TeamRecord { id: string; schemaVersion: string; organizationId: string; name: string; members: TeamMember[]; teamLeadIds: string[]; createdBy: string; createdAt: Date; updatedAt: Date; }
 export interface TeamDataSource {

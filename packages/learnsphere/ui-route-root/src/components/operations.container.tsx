@@ -4,20 +4,20 @@ import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate } from 'react-router-dom';
-import { AttachTeamOperationDocument, CommentTeamOperationDocument, MyTeamOperationsDocument, SubmitTeamOperationDocument, type MyTeamOperationsQuery } from '../generated.tsx';
+import { LearnerOperationsContainerAttachDocument, LearnerOperationsContainerCommentDocument, LearnerOperationsContainerMyTeamOperationsDocument, LearnerOperationsContainerSubmitDocument, type LearnerOperationsContainerMyTeamOperationsQuery } from '../generated.tsx';
 import { Operations } from './operations.tsx';
 
-type Operation = MyTeamOperationsQuery['myTeamOperations'][number];
+type Operation = LearnerOperationsContainerMyTeamOperationsQuery['myTeamOperations'][number];
 
 export const OperationsContainer = () => {
 	const auth = useAuth();
 	const identity = readLearnSphereIdentity(auth.user?.profile);
 	const navigate = useNavigate();
 	const organizationId = identity.organizationId;
-	const { data, loading, error, refetch } = useQuery<MyTeamOperationsQuery>(MyTeamOperationsDocument, { variables: { organizationId }, skip: !organizationId });
-	const [submitOperation, submitting] = useMutation(SubmitTeamOperationDocument);
-	const [commentOperation, commenting] = useMutation(CommentTeamOperationDocument);
-	const [attachOperation, attaching] = useMutation(AttachTeamOperationDocument);
+	const { data, loading, error, refetch } = useQuery<LearnerOperationsContainerMyTeamOperationsQuery>(LearnerOperationsContainerMyTeamOperationsDocument, { variables: { organizationId }, skip: !organizationId });
+	const [submitOperation, submitting] = useMutation(LearnerOperationsContainerSubmitDocument);
+	const [commentOperation, commenting] = useMutation(LearnerOperationsContainerCommentDocument);
+	const [attachOperation, attaching] = useMutation(LearnerOperationsContainerAttachDocument);
 	const submit = async (operation: Operation, completionNote: string, completionEvidence?: string) => {
 		const result = await submitOperation({ variables: { input: { id: operation.id, completionNote, completionEvidence } } });
 		const status = result.data?.teamOperationSubmit.status;

@@ -77,6 +77,14 @@
 					"performance": { "noBarrelFile": "error", "noReExportAll": "error" }
 				}
 			}
+		},
+		{
+			"includes": ["apps/ui-portal/src/index.css"],
+			"linter": { "rules": { "suspicious": { "noUnknownAtRules": "off" } } }
+		},
+		{
+			"includes": ["apps/ui-staff/src/index.css"],
+			"linter": { "rules": { "suspicious": { "noUnknownAtRules": "off" } } }
 		}
 	],
 	"assist": {

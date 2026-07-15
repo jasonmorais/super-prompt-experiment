@@ -1,9 +1,11 @@
 import { ArrowRightOutlined, BookOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { Avatar, Button, Card, Col, Progress, Row, Space, Tag, Typography } from 'antd';
-import type { LearnerDashboardQuery } from '../generated.tsx';
+import { Button, Card, Col, Row, Tag, Typography } from 'antd';
+import type { LearnerDashboardContainerMyLearningQuery } from '../generated.tsx';
+import { LearningCard } from './dashboard/learning-card.tsx';
+import { LearningMetric } from './dashboard/learning-metric.tsx';
 
 const { Title, Text, Paragraph } = Typography;
-type LearningRecord = LearnerDashboardQuery['myLearning'][number];
+type LearningRecord = LearnerDashboardContainerMyLearningQuery['myLearning'][number];
 
 const sourceLabel = (source: LearningRecord['source']): string =>
 	source === 'SELF_ENROLLED'
@@ -13,58 +15,7 @@ const sourceLabel = (source: LearningRecord['source']): string =>
 				.toLowerCase()
 				.replace(/^./, (letter) => letter.toUpperCase());
 
-const actorLabel = (value: string | null | undefined): string => {
-	if (!value) return 'your organization';
-	const username = (value.includes('@') ? value.split('@')[0] : value) ?? value;
-	return username.replace(/[._-]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
-};
-
 const cardStyle = { border: '1px solid #e5eae6', boxShadow: '0 8px 28px rgba(24,55,48,.05)', borderRadius: 18 } as const;
-
-const LearningCard = ({ record, color, onOpen }: { record: LearningRecord; color: string; onOpen: () => void }) => (
-	<Card
-		style={cardStyle}
-		styles={{ body: { padding: 0, overflow: 'hidden', borderRadius: 18 } }}
-	>
-		<div style={{ height: 116, background: color, padding: 20, position: 'relative' }}>
-			<Tag
-				bordered={false}
-				style={{ background: 'rgba(255,255,255,.78)', color: '#18362f' }}
-			>
-				{record.courseCategory}
-			</Tag>
-			{record.source !== 'SELF_ENROLLED' && <Tag bordered={false} color="orange">Assigned to me</Tag>}
-			<BookOutlined style={{ position: 'absolute', right: 20, bottom: 15, fontSize: 42, color: 'rgba(16,47,42,.25)' }} />
-		</div>
-		<div style={{ padding: 20 }}>
-			<Title
-				level={4}
-				style={{ margin: '0 0 18px', minHeight: 54 }}
-			>
-				{record.courseTitle}
-			</Title>
-			<Progress
-				percent={record.progressPercent}
-				showInfo={false}
-				strokeColor="#277f6c"
-				trailColor="#e9eeeb"
-			/>
-			<div style={{ display: 'flex', justifyContent: 'space-between', color: '#6d7975', fontSize: 12 }}>
-				<span>{record.completedActivityCount} activities completed</span>
-				<span>{record.dueAt ? `Due ${new Date(record.dueAt).toLocaleDateString()}` : 'Self-paced'}</span>
-			</div>
-			{record.source !== 'SELF_ENROLLED' && <Text type="secondary" style={{ display: 'block', marginTop: 10, fontSize: 12 }}>Assigned by {actorLabel(record.assignedBy)}</Text>}
-			<Button
-				type="primary"
-				block
-				onClick={onOpen}
-				style={{ background: '#176c5b', marginTop: 16 }}
-			>
-				{record.progressPercent > 0 ? 'Continue course' : 'Start course'} <ArrowRightOutlined />
-			</Button>
-		</div>
-	</Card>
-);
 
 export interface DashboardProps {
 	records: LearningRecord[];
@@ -104,118 +55,24 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 				gutter={[20, 20]}
 				style={{ marginBottom: 34 }}
 			>
-				<Col
-					xs={24}
-					sm={12}
-					xl={6}
-				>
-					<Card
-						loading={loading}
-						style={cardStyle}
+				{[
+					{ title: 'Courses in progress', value: activeRecords.length, icon: <BookOutlined />, background: '#dcefe9', color: '#176c5b' },
+					{ title: 'Tracked learning', value: `${(learningMinutes / 60).toFixed(1)} hrs`, icon: <ClockCircleOutlined />, background: '#edf4cf', color: '#607515' },
+					{ title: 'Courses completed', value: completedRecords.length, icon: <CheckCircleOutlined />, background: '#e7e5f5', color: '#5b5296' },
+					{ title: 'Assigned learning', value: assignedRecords.length, icon: <ArrowRightOutlined />, background: '#fde8da', color: '#a25326' },
+				].map((metric) => (
+					<Col
+						key={metric.title}
+						xs={24}
+						sm={12}
+						xl={6}
 					>
-						<Space size="middle">
-							<Avatar
-								shape="square"
-								size={46}
-								style={{ background: '#dcefe9', color: '#176c5b' }}
-								icon={<BookOutlined />}
-							/>
-							<div>
-								<Text type="secondary">Courses in progress</Text>
-								<Title
-									level={3}
-									style={{ margin: 0 }}
-								>
-									{activeRecords.length}
-								</Title>
-							</div>
-						</Space>
-					</Card>
-				</Col>
-				<Col
-					xs={24}
-					sm={12}
-					xl={6}
-				>
-					<Card
-						loading={loading}
-						style={cardStyle}
-					>
-						<Space size="middle">
-							<Avatar
-								shape="square"
-								size={46}
-								style={{ background: '#edf4cf', color: '#607515' }}
-								icon={<ClockCircleOutlined />}
-							/>
-							<div>
-								<Text type="secondary">Tracked learning</Text>
-								<Title
-									level={3}
-									style={{ margin: 0 }}
-								>
-									{(learningMinutes / 60).toFixed(1)} hrs
-								</Title>
-							</div>
-						</Space>
-					</Card>
-				</Col>
-				<Col
-					xs={24}
-					sm={12}
-					xl={6}
-				>
-					<Card
-						loading={loading}
-						style={cardStyle}
-					>
-						<Space size="middle">
-							<Avatar
-								shape="square"
-								size={46}
-								style={{ background: '#e7e5f5', color: '#5b5296' }}
-								icon={<CheckCircleOutlined />}
-							/>
-							<div>
-								<Text type="secondary">Courses completed</Text>
-								<Title
-									level={3}
-									style={{ margin: 0 }}
-								>
-									{completedRecords.length}
-								</Title>
-							</div>
-						</Space>
-					</Card>
-				</Col>
-				<Col
-					xs={24}
-					sm={12}
-					xl={6}
-				>
-					<Card
-						loading={loading}
-						style={cardStyle}
-					>
-						<Space size="middle">
-							<Avatar
-								shape="square"
-								size={46}
-								style={{ background: '#fde8da', color: '#a25326' }}
-								icon={<ArrowRightOutlined />}
-							/>
-							<div>
-								<Text type="secondary">Assigned learning</Text>
-								<Title
-									level={3}
-									style={{ margin: 0 }}
-								>
-									{assignedRecords.length}
-								</Title>
-							</div>
-						</Space>
-					</Card>
-				</Col>
+						<LearningMetric
+							{...metric}
+							loading={loading}
+						/>
+					</Col>
+				))}
 			</Row>
 			<Title
 				level={3}
@@ -223,7 +80,12 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 			>
 				Assigned to me
 			</Title>
-			<Paragraph type="secondary" style={{ marginTop: -8, marginBottom: 16 }}>These courses were assigned by your organization and are the work expected from you.</Paragraph>
+			<Paragraph
+				type="secondary"
+				style={{ marginTop: -8, marginBottom: 16 }}
+			>
+				These courses were assigned by your organization and are the work expected from you.
+			</Paragraph>
 			<Row
 				gutter={[20, 20]}
 				style={{ marginBottom: 38 }}
@@ -250,10 +112,37 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 					</Col>
 				)}
 			</Row>
-			<Title level={3} style={{ margin: '0 0 16px', color: '#173b33' }}>Continue learning</Title>
-			<Row gutter={[20, 20]} style={{ marginBottom: 38 }}>
-				{selfActiveRecords.slice(0, 3).map((record, index) => <Col key={record.id} xs={24} md={12} xl={8}><LearningCard record={record} color={palette[index] ?? palette[0] ?? ''} onOpen={() => onOpenCourse(record.courseId)} /></Col>)}
-				{!loading && selfActiveRecords.length === 0 && <Col span={24}><Card><Text type="secondary">No self-enrolled learning in progress.</Text></Card></Col>}
+			<Title
+				level={3}
+				style={{ margin: '0 0 16px', color: '#173b33' }}
+			>
+				Continue learning
+			</Title>
+			<Row
+				gutter={[20, 20]}
+				style={{ marginBottom: 38 }}
+			>
+				{selfActiveRecords.slice(0, 3).map((record, index) => (
+					<Col
+						key={record.id}
+						xs={24}
+						md={12}
+						xl={8}
+					>
+						<LearningCard
+							record={record}
+							color={palette[index] ?? palette[0] ?? ''}
+							onOpen={() => onOpenCourse(record.courseId)}
+						/>
+					</Col>
+				))}
+				{!loading && selfActiveRecords.length === 0 && (
+					<Col span={24}>
+						<Card>
+							<Text type="secondary">No self-enrolled learning in progress.</Text>
+						</Card>
+					</Col>
+				)}
 			</Row>
 			<Card
 				loading={loading}

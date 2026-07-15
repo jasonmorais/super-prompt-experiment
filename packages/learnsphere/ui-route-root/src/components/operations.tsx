@@ -1,52 +1,184 @@
-import { ArrowLeftOutlined, CheckCircleOutlined, ClockCircleOutlined, PaperClipOutlined, SendOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Col, Form, Input, Progress, Row, Space, Tag, Typography, Upload } from 'antd';
-import { useState } from 'react';
-import type { MyTeamOperationsQuery } from '../generated.tsx';
+import { CheckCircleOutlined, ClockCircleOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Col, Progress, Row, Space, Tag, Typography } from 'antd';
+import type { Operation } from './operations/types.ts';
 
 const { Title, Paragraph, Text } = Typography;
-type Operation = MyTeamOperationsQuery['myTeamOperations'][number];
-const color = (status: string) => status === 'COMPLETED' ? 'green' : status === 'SUBMITTED' ? 'gold' : status === 'CANCELLED' ? 'default' : 'blue';
+const color = (status: string) => (status === 'COMPLETED' ? 'green' : status === 'SUBMITTED' ? 'gold' : status === 'CANCELLED' ? 'default' : 'blue');
 
-export interface OperationsProps { operations: Operation[]; learnerId: string; loading: boolean; submitting: boolean; commenting: boolean; attaching: boolean; onSubmit: (operation: Operation, note: string, evidence?: string) => void; onComment: (operation: Operation, body: string) => void; onAttach: (operation: Operation, file: File) => void; onOpenGoal: (operationId: string) => void; }
-
-export const OperationThread = ({ operation, commenting, attaching, onComment, onAttach }: { operation: Operation; commenting: boolean; attaching: boolean; onComment: OperationsProps['onComment']; onAttach: OperationsProps['onAttach'] }) => {
-	const [commentForm] = Form.useForm<{ body: string }>();
-	const activityCount = operation.thread.comments.length + operation.thread.attachments.length;
-	return <Card title={<Space><span style={{ width: 34, height: 34, borderRadius: 10, background: '#dcefe9', color: '#176c5b', display: 'grid', placeItems: 'center' }}><SendOutlined /></span><span>Team discussion</span><Tag bordered={false} color="green">{activityCount} {activityCount === 1 ? 'update' : 'updates'}</Tag></Space>} style={{ marginTop: 24, background: '#f5f9f7', border: '1px solid #e2eee9', borderRadius: 18, boxShadow: '0 12px 30px rgba(24,55,48,.06)' }}>
-		<Space direction="vertical" style={{ width: '100%' }} size="middle">
-			{activityCount === 0 && <div style={{ padding: '4px 0 2px', color: '#687670' }}>No updates yet. Start the conversation with the team.</div>}
-			{operation.thread.comments.map((comment) => <div key={comment.id} style={{ display: 'flex', gap: 12, padding: 14, background: 'white', border: '1px solid #e6efeb', borderRadius: 14 }}><div style={{ flex: '0 0 34px', height: 34, borderRadius: '50%', background: '#f0b88b', color: '#462d1f', display: 'grid', placeItems: 'center', fontWeight: 700 }}>{comment.authorName.slice(0, 1).toUpperCase()}</div><div><div><Text strong>{comment.authorName}</Text><Text type="secondary" style={{ marginLeft: 8, fontSize: 12 }}>{new Date(comment.createdAt).toLocaleString()}</Text></div><div style={{ marginTop: 5, color: '#344c46', lineHeight: 1.55 }}>{comment.body}</div></div></div>)}
-			{operation.thread.attachments.map((attachment) => <Tag key={attachment.id} icon={<PaperClipOutlined />} style={{ padding: '7px 10px', borderRadius: 9, color: '#176c5b', background: '#e8f5f0', border: 0 }}>{attachment.fileName} · {Math.ceil(attachment.size / 1024)} KB</Tag>)}
-			<Form form={commentForm} layout="vertical" onFinish={(values) => { onComment(operation, values.body); commentForm.resetFields(); }} style={{ width: '100%' }}>
-				<Form.Item name="body" rules={[{ required: true, min: 1 }]} style={{ marginBottom: 10 }}><Input.TextArea autoSize={{ minRows: 2, maxRows: 5 }} placeholder="Write an update for the team…" /></Form.Item>
-				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}><Upload showUploadList={false} disabled={attaching} beforeUpload={(file) => { onAttach(operation, file); return false; }}><Button icon={<PaperClipOutlined />} style={{ color: '#176c5b', borderColor: '#b9d9cd' }}>{attaching ? 'Uploading…' : 'Attach file'}</Button></Upload><Button htmlType="submit" type="primary" icon={<SendOutlined />} loading={commenting}>Post update</Button></div>
-			</Form>
-		</Space>
-	</Card>;
-};
-
-export interface TeamGoalDetailProps { operation: Operation; learnerId: string; submitting: boolean; commenting: boolean; attaching: boolean; onSubmit: OperationsProps['onSubmit']; onComment: OperationsProps['onComment']; onAttach: OperationsProps['onAttach']; onBack: () => void; }
-
-export const TeamGoalDetail = ({ operation, learnerId, submitting, commenting, attaching, onSubmit, onComment, onAttach, onBack }: TeamGoalDetailProps) => {
-	const [form] = Form.useForm<{ completionNote: string; completionEvidence?: string }>();
-	const [evidenceFile, setEvidenceFile] = useState<string>();
-	const [evidenceName, setEvidenceName] = useState<string>();
-	const canSubmit = operation.assigneeId === learnerId && !['COMPLETED', 'CANCELLED', 'SUBMITTED'].includes(operation.status);
-	return <><Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} style={{ paddingLeft: 0, marginBottom: 18, color: '#176c5b' }}>Back to team operations</Button><Card style={{ border: 0, borderRadius: 22, background: 'linear-gradient(135deg,#123b33,#1f6657)', marginBottom: 22 }} styles={{ body: { padding: '34px clamp(22px,5vw,54px)' } }}><Space wrap><Tag bordered={false} color="green">{operation.status.replaceAll('_', ' ')}</Tag><Tag bordered={false}>{operation.category}</Tag><Text style={{ color: '#d5e6e1' }}>{operation.priority.toLowerCase()}{operation.dueAt ? ` · Due ${new Date(operation.dueAt).toLocaleDateString()}` : ''}</Text></Space><Title style={{ color: 'white', margin: '14px 0 8px' }}>{operation.title}</Title><Paragraph style={{ color: '#d5e6e1', fontSize: 16, margin: 0 }}>{operation.description}</Paragraph></Card><Card style={{ borderRadius: 18, border: '1px solid #e5eae6' }}><Space direction="vertical" size="middle" style={{ width: '100%' }}><Text type="secondary">Owner: {operation.assigneeDisplayName} · Assigned by {operation.createdBy}</Text>{operation.completionNote && <Alert type="success" showIcon message="Submitted for confirmation" description={operation.completionNote} />}{canSubmit && <Form form={form} layout="vertical" onFinish={(values) => { onSubmit(operation, values.completionNote, evidenceFile ?? values.completionEvidence); form.resetFields(); setEvidenceFile(undefined); setEvidenceName(undefined); }}><Form.Item name="completionNote" label="Ready to submit your work?" rules={[{ required: true, min: 10 }]}><Input.TextArea rows={4} placeholder="Summarize the outcome and what you verified." /></Form.Item><Form.Item name="completionEvidence" label="Evidence link or file (optional)"><Space.Compact style={{ width: '100%' }}><Input placeholder="https://…" disabled={Boolean(evidenceFile)} /><Upload showUploadList={false} accept="image/*,.pdf" beforeUpload={(file) => { if (file.size > 6 * 1024 * 1024) return false; const reader = new FileReader(); reader.onload = () => { setEvidenceFile(String(reader.result)); setEvidenceName(file.name); }; reader.readAsDataURL(file); return false; }}><Button icon={<PaperClipOutlined />}>{evidenceName ? 'Replace file' : 'Attach proof'}</Button></Upload></Space.Compact>{evidenceName && <Text type="secondary">Attached proof: {evidenceName}</Text>}</Form.Item><Button type="primary" htmlType="submit" loading={submitting}>Submit for confirmation</Button></Form>}</Space></Card><OperationThread operation={operation} commenting={commenting} attaching={attaching} onComment={onComment} onAttach={onAttach} /></>;
-};
+export interface OperationsProps {
+	operations: Operation[];
+	learnerId: string;
+	loading: boolean;
+	submitting: boolean;
+	commenting: boolean;
+	attaching: boolean;
+	onSubmit: (operation: Operation, note: string, evidence?: string) => void;
+	onComment: (operation: Operation, body: string) => void;
+	onAttach: (operation: Operation, file: File) => void;
+	onOpenGoal: (operationId: string) => void;
+}
 
 export const Operations = ({ operations, learnerId, loading, onOpenGoal }: OperationsProps) => {
 	const assigned = operations.filter((operation) => operation.assigneeId === learnerId);
 	const open = assigned.filter((operation) => !['COMPLETED', 'CANCELLED'].includes(operation.status));
 	const teamGoals = operations.filter((operation) => !['COMPLETED', 'CANCELLED'].includes(operation.status));
-	return <>
-		<div style={{ marginBottom: 30 }}><Text style={{ color: '#277f6c', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', fontSize: 12 }}>Team operations</Text><Title style={{ color: '#173b33', margin: '7px 0' }}>Team operations</Title><Paragraph style={{ color: '#687670', fontSize: 16 }}>Showcase the team-wide goals your group is driving and the work assigned to you. Submit your part for manager confirmation when it is ready.</Paragraph></div>
-		<Alert type="info" showIcon message="Manager confirmation required" description="Submitting your work does not mark it complete. A manager must review and confirm it." style={{ marginBottom: 22 }} />
-		<Title level={3} style={{ color: '#173b33', marginTop: 0 }}>Team goals</Title>
-		<Row gutter={[20, 20]} style={{ marginBottom: 30 }}>{teamGoals.map((operation) => <Col key={`goal-${operation.id}`} xs={24} md={12} xl={8}><Card loading={loading} style={{ height: '100%', borderRadius: 18, border: '1px solid #e5eae6' }} title={<Space><ThunderboltOutlined /><Tag color={color(operation.status)}>{operation.status.replaceAll('_', ' ')}</Tag></Space>}><Title level={4}>{operation.title}</Title><Text type="secondary">{operation.category} · {operation.priority.toLowerCase()}</Text><Paragraph style={{ marginTop: 14 }}>{operation.description}</Paragraph><Space direction="vertical"><Text type="secondary">Owner: {operation.assigneeDisplayName}</Text><Text type="secondary"><ClockCircleOutlined /> {operation.dueAt ? `Due ${new Date(operation.dueAt).toLocaleDateString()}` : 'No due date'}</Text><Button type="link" style={{ padding: 0, color: '#176c5b' }} onClick={() => onOpenGoal(operation.id)}>Open team goal <ThunderboltOutlined /></Button></Space></Card></Col>)}</Row>
-		<Title level={3} style={{ color: '#173b33', marginTop: 0 }}>Assigned to me</Title>
-		<Row gutter={[20, 20]}>{open.map((operation) => <Col key={operation.id} xs={24} md={12} xl={8}><Card loading={loading} style={{ height: '100%', borderRadius: 18, border: '1px solid #e5eae6' }} title={<Space><ThunderboltOutlined /><Tag color={color(operation.status)}>{operation.status.replaceAll('_', ' ')}</Tag></Space>}><Title level={4}>{operation.title}</Title><Text type="secondary">Team goal · {operation.category} · {operation.priority.toLowerCase()}</Text><Paragraph style={{ marginTop: 14 }}>{operation.description}</Paragraph><Progress percent={operation.status === 'SUBMITTED' ? 100 : operation.status === 'IN_PROGRESS' ? 50 : 0} steps={2} showInfo={false} strokeColor="#277c69" /><Space direction="vertical" style={{ width: '100%', marginTop: 14 }}><Text type="secondary"><ClockCircleOutlined /> {operation.dueAt ? `Due ${new Date(operation.dueAt).toLocaleDateString()}` : 'No due date'}</Text><Text type="secondary">Assigned by {operation.createdBy}</Text><Button type="link" style={{ padding: 0, color: '#176c5b' }} onClick={() => onOpenGoal(operation.id)}>Open team goal</Button>{operation.status === 'SUBMITTED' ? <Alert type="success" message="Awaiting manager confirmation" /> : <Button type="primary" block onClick={() => onOpenGoal(operation.id)}>Open goal</Button>}</Space></Card></Col>)}</Row>
-		{operations.filter((operation) => ['COMPLETED', 'CANCELLED'].includes(operation.status)).length > 0 && <Card title="Team operations history" style={{ marginTop: 28 }}>{operations.filter((operation) => ['COMPLETED', 'CANCELLED'].includes(operation.status)).map((operation) => <div key={operation.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid #edf0ee' }}><Space><CheckCircleOutlined style={{ color: operation.status === 'COMPLETED' ? '#277f6c' : '#9aa7a2' }} /><span>{operation.title}</span></Space><Tag color={color(operation.status)}>{operation.status}</Tag></div>)}</Card>}
-		{!loading && operations.length === 0 && <Card><Text type="secondary">No team operations are currently assigned to you.</Text></Card>}
-	</>;
+	const history = operations.filter((operation) => ['COMPLETED', 'CANCELLED'].includes(operation.status));
+	return (
+		<>
+			<div className="mb-[30px]">
+				<Text className="text-xs font-bold uppercase tracking-[.08em] text-[#277f6c]">Team operations</Text>
+				<Title className="my-[7px] text-[#173b33]">Team operations</Title>
+				<Paragraph className="text-base text-[#687670]">Showcase the team-wide goals your group is driving and the work assigned to you. Submit your part for manager confirmation when it is ready.</Paragraph>
+			</div>
+			<Alert
+				type="info"
+				showIcon
+				message="Manager confirmation required"
+				description="Submitting your work does not mark it complete. A manager must review and confirm it."
+				className="mb-[22px]"
+			/>
+			<Title
+				level={3}
+				className="mt-0 text-[#173b33]"
+			>
+				Team goals
+			</Title>
+			<Row
+				gutter={[20, 20]}
+				className="mb-[30px]"
+			>
+				{teamGoals.map((operation) => (
+					<Col
+						key={`goal-${operation.id}`}
+						xs={24}
+						md={12}
+						xl={8}
+					>
+						<Card
+							loading={loading}
+							className="h-full rounded-[18px] border border-[#e5eae6]"
+							title={
+								<Space>
+									<ThunderboltOutlined />
+									<Tag color={color(operation.status)}>{operation.status.replaceAll('_', ' ')}</Tag>
+								</Space>
+							}
+						>
+							<Title level={4}>{operation.title}</Title>
+							<Text type="secondary">
+								{operation.category} · {operation.priority.toLowerCase()}
+							</Text>
+							<Paragraph className="mt-[14px]">{operation.description}</Paragraph>
+							<Space direction="vertical">
+								<Text type="secondary">Owner: {operation.assigneeDisplayName}</Text>
+								<Text type="secondary">
+									<ClockCircleOutlined /> {operation.dueAt ? `Due ${new Date(operation.dueAt).toLocaleDateString()}` : 'No due date'}
+								</Text>
+								<Button
+									type="link"
+									className="p-0 text-[#176c5b]"
+									onClick={() => onOpenGoal(operation.id)}
+								>
+									Open team goal <ThunderboltOutlined />
+								</Button>
+							</Space>
+						</Card>
+					</Col>
+				))}
+			</Row>
+			<Title
+				level={3}
+				className="mt-0 text-[#173b33]"
+			>
+				Assigned to me
+			</Title>
+			<Row gutter={[20, 20]}>
+				{open.map((operation) => (
+					<Col
+						key={operation.id}
+						xs={24}
+						md={12}
+						xl={8}
+					>
+						<Card
+							loading={loading}
+							className="h-full rounded-[18px] border border-[#e5eae6]"
+							title={
+								<Space>
+									<ThunderboltOutlined />
+									<Tag color={color(operation.status)}>{operation.status.replaceAll('_', ' ')}</Tag>
+								</Space>
+							}
+						>
+							<Title level={4}>{operation.title}</Title>
+							<Text type="secondary">
+								Team goal · {operation.category} · {operation.priority.toLowerCase()}
+							</Text>
+							<Paragraph className="mt-[14px]">{operation.description}</Paragraph>
+							<Progress
+								percent={operation.status === 'SUBMITTED' ? 100 : operation.status === 'IN_PROGRESS' ? 50 : 0}
+								steps={2}
+								showInfo={false}
+								strokeColor="#277c69"
+							/>
+							<Space
+								direction="vertical"
+								className="mt-[14px] w-full"
+							>
+								<Text type="secondary">
+									<ClockCircleOutlined /> {operation.dueAt ? `Due ${new Date(operation.dueAt).toLocaleDateString()}` : 'No due date'}
+								</Text>
+								<Text type="secondary">Assigned by {operation.createdBy}</Text>
+								<Button
+									type="link"
+									className="p-0 text-[#176c5b]"
+									onClick={() => onOpenGoal(operation.id)}
+								>
+									Open team goal
+								</Button>
+								{operation.status === 'SUBMITTED' ? (
+									<Alert
+										type="success"
+										message="Awaiting manager confirmation"
+									/>
+								) : (
+									<Button
+										type="primary"
+										block
+										onClick={() => onOpenGoal(operation.id)}
+									>
+										Open goal
+									</Button>
+								)}
+							</Space>
+						</Card>
+					</Col>
+				))}
+			</Row>
+			{history.length > 0 && (
+				<Card
+					title="Team operations history"
+					className="mt-7"
+				>
+					{history.map((operation) => (
+						<div
+							key={operation.id}
+							className="flex justify-between border-b border-[#edf0ee] py-[14px]"
+						>
+							<Space>
+								<CheckCircleOutlined className={operation.status === 'COMPLETED' ? 'text-[#277f6c]' : 'text-[#9aa7a2]'} />
+								<span>{operation.title}</span>
+							</Space>
+							<Tag color={color(operation.status)}>{operation.status}</Tag>
+						</div>
+					))}
+				</Card>
+			)}
+			{!loading && operations.length === 0 && (
+				<Card>
+					<Text type="secondary">No team operations are currently assigned to you.</Text>
+				</Card>
+			)}
+		</>
+	);
 };

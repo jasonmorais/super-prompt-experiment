@@ -4,7 +4,7 @@ import { getLearningRecordUnitOfWork } from './domain/delivery/learning-record/l
 import { getCourseUnitOfWork } from './domain/learning/course/course.uow.ts';
 import { getTeamOperationUnitOfWork } from './domain/operations/team-operation/team-operation.uow.ts';
 import { ReadonlyDataSourceImplementation, type ReadonlyDataSource } from './readonly/index.ts';
-import { getTeamDataSource, type TeamDataSource } from './team.ts';
+import { getTeamDataSource, type TeamDataSource } from './teams/team-data-source.ts';
 
 export type DataSources = { readonly domainDataSource: DomainDataSource; readonly readonlyDataSource: ReadonlyDataSource; readonly teamDataSource: TeamDataSource };
 export type DataSourcesFactory = { withPassport(passport: Passport): DataSources; withSystemPassport(): DataSources };

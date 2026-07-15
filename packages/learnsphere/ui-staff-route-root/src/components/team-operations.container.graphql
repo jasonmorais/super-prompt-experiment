@@ -1,57 +1,94 @@
-query StaffTeamOperations($organizationId: String!, $teamName: String) {
-	teams(organizationId: $organizationId) { id name members { learnerId displayName email } }
-	teamOperations(organizationId: $organizationId, teamName: $teamName) {
-		id
-		title
-		description
-		category
-		priority
-		status
-		assigneeId
-		assigneeDisplayName
-		assigneeEmail
-		teamName
-		createdBy
-		assignedAt
-		dueAt
-		submittedAt
-		submittedBy
-		completionNote
-		completionEvidence
-		confirmedAt
-		confirmedBy
-		isOverdue
-		statusHistory { status changedAt changedBy note }
-		thread { comments { id body authorId authorName createdAt } attachments { id fileName contentType size blobName uploadedBy uploadedAt } }
+fragment StaffTeamOperationsContainerTeamMemberFields on TeamMember {
+	learnerId
+	displayName
+	email
+}
+
+fragment StaffTeamOperationsContainerTeamFields on Team {
+	id
+	name
+	members { ...StaffTeamOperationsContainerTeamMemberFields }
+}
+
+fragment StaffTeamOperationsContainerTeamOperationFields on TeamOperation {
+	id
+	title
+	description
+	category
+	priority
+	status
+	assigneeId
+	assigneeDisplayName
+	assigneeEmail
+	teamName
+	createdBy
+	assignedAt
+	dueAt
+	submittedAt
+	submittedBy
+	completionNote
+	completionEvidence
+	confirmedAt
+	confirmedBy
+	isOverdue
+	statusHistory { status changedAt changedBy note }
+	thread {
+		comments { id body authorId authorName createdAt }
+		attachments { id fileName contentType size blobName uploadedBy uploadedAt }
 	}
-	teamLearning(organizationId: $organizationId, teamName: $teamName) {
-		learnerId
-		learnerDisplayName
-		learnerEmail
-		teamName
+}
+
+fragment StaffTeamOperationsContainerLearningRecordFields on LearningRecord {
+	learnerId
+	learnerDisplayName
+	learnerEmail
+	teamName
+}
+
+query StaffTeamOperationsContainerTeamOperations($organizationId: String!, $teamName: String) {
+	teams(organizationId: $organizationId) { ...StaffTeamOperationsContainerTeamFields }
+	teamOperations(organizationId: $organizationId, teamName: $teamName) { ...StaffTeamOperationsContainerTeamOperationFields }
+	teamLearning(organizationId: $organizationId, teamName: $teamName) { ...StaffTeamOperationsContainerLearningRecordFields }
+}
+
+mutation StaffTeamOperationsContainerCreateTeamOperation($input: TeamOperationCreateInput!) {
+	teamOperationCreate(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
 	}
 }
 
-mutation StaffCreateTeamOperation($input: TeamOperationCreateInput!) {
-	teamOperationCreate(input: $input) { status { success errorMessage } teamOperation { id status } }
+mutation StaffTeamOperationsContainerConfirmTeamOperation($input: TeamOperationConfirmInput!) {
+	teamOperationConfirm(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
 }
 
-mutation StaffConfirmTeamOperation($input: TeamOperationConfirmInput!) {
-	teamOperationConfirm(input: $input) { status { success errorMessage } teamOperation { id status confirmedAt confirmedBy } }
+mutation StaffTeamOperationsContainerCancelTeamOperation($input: TeamOperationCancelInput!) {
+	teamOperationCancel(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
 }
 
-mutation StaffCancelTeamOperation($input: TeamOperationCancelInput!) {
-	teamOperationCancel(input: $input) { status { success errorMessage } teamOperation { id status } }
+mutation StaffTeamOperationsContainerUpdateTeamOperation($input: TeamOperationUpdateInput!) {
+	teamOperationUpdate(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
 }
 
-mutation StaffUpdateTeamOperation($input: TeamOperationUpdateInput!) {
-	teamOperationUpdate(input: $input) { status { success errorMessage } teamOperation { id title description category priority dueAt } }
+mutation StaffTeamOperationsContainerCommentTeamOperation($input: TeamOperationCommentInput!) {
+	teamOperationComment(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
 }
 
-mutation StaffCommentTeamOperation($input: TeamOperationCommentInput!) {
-	teamOperationComment(input: $input) { status { success errorMessage } teamOperation { id } }
-}
-
-mutation StaffAttachTeamOperation($input: TeamOperationAttachInput!) {
-	teamOperationAttach(input: $input) { status { success errorMessage } teamOperation { id } }
+mutation StaffTeamOperationsContainerAttachTeamOperation($input: TeamOperationAttachInput!) {
+	teamOperationAttach(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
 }

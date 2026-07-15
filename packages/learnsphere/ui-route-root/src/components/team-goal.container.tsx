@@ -4,20 +4,20 @@ import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AttachTeamOperationDocument, CommentTeamOperationDocument, MyTeamOperationsDocument, SubmitTeamOperationDocument, type MyTeamOperationsQuery } from '../generated.tsx';
-import { TeamGoalDetail } from './operations.tsx';
+import { LearnerTeamGoalContainerAttachDocument, LearnerTeamGoalContainerCommentDocument, LearnerTeamGoalContainerSubmitDocument, LearnerTeamGoalContainerTeamGoalDocument, type LearnerTeamGoalContainerTeamGoalQuery } from '../generated.tsx';
+import { TeamGoalDetail } from './operations/team-goal-detail.tsx';
 
-type Operation = MyTeamOperationsQuery['myTeamOperations'][number];
+type Operation = LearnerTeamGoalContainerTeamGoalQuery['myTeamOperations'][number];
 
 export const TeamGoalContainer = () => {
 	const auth = useAuth();
 	const identity = readLearnSphereIdentity(auth.user?.profile);
 	const navigate = useNavigate();
 	const { operationId } = useParams<{ operationId: string }>();
-	const { data, loading, error, refetch } = useQuery<MyTeamOperationsQuery>(MyTeamOperationsDocument, { variables: { organizationId: identity.organizationId }, skip: !identity.organizationId });
-	const [submitOperation, submitting] = useMutation(SubmitTeamOperationDocument);
-	const [commentOperation, commenting] = useMutation(CommentTeamOperationDocument);
-	const [attachOperation, attaching] = useMutation(AttachTeamOperationDocument);
+	const { data, loading, error, refetch } = useQuery<LearnerTeamGoalContainerTeamGoalQuery>(LearnerTeamGoalContainerTeamGoalDocument, { variables: { organizationId: identity.organizationId }, skip: !identity.organizationId });
+	const [submitOperation, submitting] = useMutation(LearnerTeamGoalContainerSubmitDocument);
+	const [commentOperation, commenting] = useMutation(LearnerTeamGoalContainerCommentDocument);
+	const [attachOperation, attaching] = useMutation(LearnerTeamGoalContainerAttachDocument);
 	const operation = data?.myTeamOperations.find((candidate) => candidate.id === operationId);
 	const submit = async (candidate: Operation, completionNote: string, completionEvidence?: string) => { const result = await submitOperation({ variables: { input: { id: candidate.id, completionNote, completionEvidence } } }); const status = result.data?.teamOperationSubmit.status; if (!status?.success) { message.error(status?.errorMessage ?? 'The operation could not be submitted'); return; } message.success('Submitted for manager confirmation.'); await refetch(); };
 	const comment = async (candidate: Operation, body: string) => { const result = await commentOperation({ variables: { input: { id: candidate.id, body } } }); const status = result.data?.teamOperationComment.status; if (!status?.success) { message.error(status?.errorMessage ?? 'The comment could not be saved'); return; } await refetch(); };

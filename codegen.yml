@@ -40,6 +40,20 @@ generates:
       - typescript-operations
       - typed-document-node
 
+  packages/learnsphere/ui-staff-route-team-management/src/generated.tsx:
+    documents:
+      - 'packages/learnsphere/ui-staff-route-team-management/src/**/*.container.graphql'
+    config:
+      withHooks: false
+      withHOC: false
+      withComponent: false
+      useTypeImports: true
+      enumsAsTypes: true
+    plugins:
+      - typescript
+      - typescript-operations
+      - typed-document-node
+
   packages/learnsphere/graphql/src/schema/builder/generated.ts:
     config:
       contextType: "../context.ts#GraphContext"

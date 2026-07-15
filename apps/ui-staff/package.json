@@ -16,6 +16,7 @@
 		"@apollo/client": "^3.13.9",
 		"@cellix/ui-core": "workspace:*",
 		"@learnsphere/ui-shared": "workspace:*",
+		"@learnsphere/ui-staff-route-team-management": "workspace:*",
 		"@learnsphere/ui-staff-route-root": "workspace:*",
 		"antd": "catalog:",
 		"react": "catalog:",
@@ -28,6 +29,9 @@
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"@vitejs/plugin-react": "^6.0.1",
+		"autoprefixer": "^10.4.20",
+		"postcss": "^8.5.10",
+		"tailwindcss": "^3.4.17",
 		"typescript": "catalog:",
 		"vite": "catalog:"
 	}

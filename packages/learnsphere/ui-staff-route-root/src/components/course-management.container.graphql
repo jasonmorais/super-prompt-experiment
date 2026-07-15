@@ -1,107 +1,116 @@
-query StaffCourseManagement($organizationId: String!) {
-	teams(organizationId: $organizationId) { id name members { learnerId displayName email } }
-	teamLearning(organizationId: $organizationId) { id learnerId learnerDisplayName learnerEmail teamName courseId source status assignmentId }
-	courses(organizationId: $organizationId, limit: 100) {
-		id
+fragment StaffCourseManagementContainerTeamMemberFields on TeamMember {
+	learnerId
+	displayName
+	email
+}
+
+fragment StaffCourseManagementContainerTeamFields on Team {
+	id
+	name
+	members { ...StaffCourseManagementContainerTeamMemberFields }
+}
+
+fragment StaffCourseManagementContainerLearningRecordFields on LearningRecord {
+	id
+	learnerId
+	learnerDisplayName
+	learnerEmail
+	teamName
+	courseId
+	source
+	status
+	assignmentId
+}
+
+fragment StaffCourseManagementContainerCourseFields on Course {
+	id
+	title
+	summary
+	description
+	category
+	level
+	status
+	tags
+	skills
+	discoverability
+	requiresCompletionScreenshot
+	lessonCount
+	estimatedMinutes
+	updatedAt
+	modules {
+		key
 		title
-		summary
 		description
-		category
-		level
-		status
-		tags
-		skills
-		discoverability
-		requiresCompletionScreenshot
-		lessonCount
-		estimatedMinutes
-		updatedAt
-		modules {
+		order
+		lessons {
 			key
 			title
-			description
-			order
-			lessons {
-				key
-				title
-				type
-				content
-				estimatedMinutes
-				required
-			}
-		}
-	}
-}
-
-mutation StaffCreateCourse($input: CourseCreateInput!) {
-	courseCreate(input: $input) {
-		status {
-			success
-			errorMessage
-		}
-		course {
-			id
-			title
-			status
-		}
-	}
-}
-
-mutation StaffAddCourseModule($input: CourseAddModuleInput!) {
-	courseAddModule(input: $input) {
-		status {
-			success
-			errorMessage
-		}
-		course {
-			id
-			lessonCount
+			type
+			content
 			estimatedMinutes
+			required
 		}
 	}
 }
 
-mutation StaffSubmitCourse($id: ObjectID!) {
+query StaffCourseManagementContainerCourseManagement($organizationId: String!) {
+	teams(organizationId: $organizationId) { ...StaffCourseManagementContainerTeamFields }
+	teamLearning(organizationId: $organizationId) { ...StaffCourseManagementContainerLearningRecordFields }
+	courses(organizationId: $organizationId, limit: 100) { ...StaffCourseManagementContainerCourseFields }
+}
+
+mutation StaffCourseManagementContainerCreateCourse($input: CourseCreateInput!) {
+	courseCreate(input: $input) {
+		status { success errorMessage }
+		course { ...StaffCourseManagementContainerCourseFields }
+	}
+}
+
+mutation StaffCourseManagementContainerAddCourseModule($input: CourseAddModuleInput!) {
+	courseAddModule(input: $input) {
+		status { success errorMessage }
+		course { ...StaffCourseManagementContainerCourseFields }
+	}
+}
+
+mutation StaffCourseManagementContainerSubmitCourse($id: ObjectID!) {
 	courseSubmitForReview(id: $id) {
-		status {
-			success
-			errorMessage
-		}
-		course {
-			id
-			status
-		}
+		status { success errorMessage }
+		course { ...StaffCourseManagementContainerCourseFields }
 	}
 }
 
-mutation StaffPublishCourse($id: ObjectID!) {
+mutation StaffCourseManagementContainerPublishCourse($id: ObjectID!) {
 	coursePublish(id: $id) {
-		status {
-			success
-			errorMessage
-		}
-		course {
-			id
-			status
-			publishedAt
-		}
+		status { success errorMessage }
+		course { ...StaffCourseManagementContainerCourseFields }
 	}
 }
 
-mutation StaffUpdateCourse($input: CourseUpdateInput!) {
+mutation StaffCourseManagementContainerUpdateCourse($input: CourseUpdateInput!) {
 	courseUpdate(input: $input) {
 		status { success errorMessage }
-		course { id title status updatedAt }
+		course { ...StaffCourseManagementContainerCourseFields }
 	}
 }
 
-mutation StaffDeleteCourse($id: ObjectID!) {
+mutation StaffCourseManagementContainerDeleteCourse($id: ObjectID!) {
 	courseDelete(id: $id) {
 		status { success errorMessage }
-		course { id status }
+		course { ...StaffCourseManagementContainerCourseFields }
 	}
 }
 
-mutation StaffAssignCourseToLearner($input: AssignLearningInput!) {
-	assignLearning(input: $input) { status { success errorMessage } learningRecord { id learnerId courseId status } }
+mutation StaffCourseManagementContainerAssignCourseToLearner($input: AssignLearningInput!) {
+	assignLearning(input: $input) {
+		status { success errorMessage }
+		learningRecord { ...StaffCourseManagementContainerLearningRecordFields }
+	}
+}
+
+mutation StaffCourseManagementContainerUnassignLearning($id: ObjectID!) {
+	unassignLearning(id: $id) {
+		status { success errorMessage }
+		learningRecord { ...StaffCourseManagementContainerLearningRecordFields }
+	}
 }

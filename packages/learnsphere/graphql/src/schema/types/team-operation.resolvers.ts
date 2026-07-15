@@ -1,7 +1,7 @@
-import crypto from 'node:crypto';
 import type { Domain } from '@learnsphere/domain';
 import type { Resolvers } from '../builder/generated.ts';
 import type { GraphContext } from '../context.ts';
+import { attachTeamOperation } from './team-operation-attachment.ts';
 
 const requireUser = (context: GraphContext): string => {
 	const subject = context.applicationServices.verifiedUser?.verifiedJwt?.sub;
@@ -53,21 +53,9 @@ const teamOperation: Resolvers = {
 			requireUser(context);
 			return mutation(context.applicationServices.Operations.TeamOperation.comment({ id: args.input.id, body: args.input.body }));
 		},
-		teamOperationAttach: async (_parent, args, context) => {
+		teamOperationAttach: (_parent, args, context) => {
 			requireUser(context);
-			const rawName = args.input.fileName.trim().replaceAll(/[^a-zA-Z0-9._-]/g, '_');
-			if (!rawName || rawName.length > 255) return { status: { success: false, errorMessage: 'A valid file name is required' } };
-			const content = Buffer.from(args.input.contentBase64, 'base64');
-			if (!content.length || content.length > 8_000_000) return { status: { success: false, errorMessage: 'Attachments must be smaller than 8 MB' } };
-			const blobName = `team-operations/${args.input.id}/${crypto.randomUUID()}-${rawName}`;
-			try {
-				await context.blobStorageService.uploadData({ containerName: 'team-attachments', blobName, data: content, httpHeaders: { blobContentType: args.input.contentType || 'application/octet-stream' } });
-				const result = await mutation(context.applicationServices.Operations.TeamOperation.attach({ id: args.input.id, attachment: { id: crypto.randomUUID(), fileName: rawName, contentType: args.input.contentType || 'application/octet-stream', size: content.length, blobName, uploadedBy: context.applicationServices.verifiedUser?.verifiedJwt?.email ?? context.applicationServices.verifiedUser?.verifiedJwt?.sub ?? 'unknown', uploadedAt: new Date() } }));
-				if (!result.status.success) await context.blobStorageService.deleteBlob({ containerName: 'team-attachments', blobName });
-				return result;
-			} catch (error) {
-				return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'The attachment could not be saved' } };
-			}
+			return attachTeamOperation(args.input, context);
 		},
 	},
 };

@@ -1,28 +1,53 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { hasStaffAccess, readLearnSphereIdentity } from '@learnsphere/ui-shared';
-import { CourseManagement, StaffLogin, TeamDashboard, TeamManagement, TeamOperations } from '@learnsphere/ui-staff-route-root';
+import { getStaffCapabilities, hasStaffAccess, readLearnSphereIdentity, type LearnSphereStaffCapabilities } from '@learnsphere/ui-shared';
+import { CourseManagement, getDefaultStaffPath, StaffLayout, StaffLogin, TeamDashboard, TeamOperations } from '@learnsphere/ui-staff-route-root';
+import { TeamManagementContainer } from '@learnsphere/ui-staff-route-team-management';
 import { Spin } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
 
-const Protected = ({ children }: { children: React.JSX.Element }) => {
+interface ProtectedProps {
+	children: React.JSX.Element;
+	required?: keyof LearnSphereStaffCapabilities;
+}
+
+const Protected = ({ children, required }: ProtectedProps) => {
 	const auth = useAuth();
 	if (auth.isLoading || auth.activeNavigator)
 		return (
-			<div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+			<div
+				className="min-h-screen place-items-center"
+				style={{ display: 'grid' }}
+			>
 				<Spin size="large" />
 			</div>
 		);
 	const roles = readLearnSphereIdentity(auth.user?.profile).roles;
-	return auth.isAuthenticated && hasStaffAccess(roles) ? (
+	const capabilities = getStaffCapabilities(roles);
+	const allowed = !required || capabilities[required];
+	if (!auth.isAuthenticated)
+		return (
+			<Navigate
+				to="/login"
+				replace
+			/>
+		);
+	return hasStaffAccess(roles) && allowed ? (
 		children
 	) : (
 		<Navigate
-			to="/login"
+			to="/unauthorized"
 			replace
 		/>
 	);
+};
+
+const StaffEntry = () => {
+	const auth = useAuth();
+	const roles = readLearnSphereIdentity(auth.user?.profile).roles;
+	const capabilities = getStaffCapabilities(roles);
+	return <Navigate to={getDefaultStaffPath(capabilities)} replace />;
 };
 
 export default function App() {
@@ -57,6 +82,14 @@ export default function App() {
 					path="/staff"
 					element={
 						<Protected>
+							<StaffEntry />
+						</Protected>
+					}
+				/>
+				<Route
+					path="/staff/overview"
+					element={
+						<Protected required="canViewTeamLearning">
 							<TeamDashboard />
 						</Protected>
 					}
@@ -64,14 +97,41 @@ export default function App() {
 				<Route
 					path="/staff/courses"
 					element={
-						<Protected>
+						<Protected required="canManageCourses">
 							<CourseManagement />
 						</Protected>
 					}
 				/>
-				<Route path="/staff/operations/:operationId" element={<Protected><TeamOperations /></Protected>} />
-				<Route path="/staff/operations" element={<Protected><TeamOperations /></Protected>} />
-				<Route path="/staff/teams" element={<Protected><TeamManagement /></Protected>} />
+				<Route
+					path="/staff/operations/:operationId"
+					element={
+						<Protected required="canManageTeamOperations">
+							<TeamOperations />
+						</Protected>
+					}
+				/>
+				<Route
+					path="/staff/operations"
+					element={
+						<Protected required="canManageTeamOperations">
+							<TeamOperations />
+						</Protected>
+					}
+				/>
+				<Route
+					path="/staff/teams"
+					element={
+						<Protected required="canManageTeams">
+							<StaffLayout>
+								<TeamManagementContainer />
+							</StaffLayout>
+						</Protected>
+					}
+				/>
+				<Route
+					path="/unauthorized"
+					element={<div className="grid min-h-screen place-items-center">You are not authorized to view this area.</div>}
+				/>
 				<Route
 					path="*"
 					element={

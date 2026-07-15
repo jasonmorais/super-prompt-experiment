@@ -1,0 +1,68 @@
+.header {
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 20px;
+	margin-bottom: 28px;
+}
+
+.card {
+	height: 100%;
+	border: 1px solid #e5e6ee;
+	border-radius: 18px;
+}
+
+.team-icon {
+	display: grid;
+	width: 34px;
+	height: 34px;
+	place-items: center;
+	border-radius: 10px;
+	background: #eeeaff;
+	color: #6d4aff;
+}
+
+.secondary-button {
+	border-color: #cfc5ff;
+	color: #6d4aff;
+}
+
+.lead-block {
+	margin-top: 5px;
+}
+
+.members-block {
+	border-top: 1px solid #edf0f4;
+	padding-top: 14px;
+}
+
+.member-list {
+	width: 100%;
+	margin-top: 9px;
+}
+
+.member {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.member-avatar {
+	background: #d9d1ff;
+	color: #3e278f;
+	font-size: 12px;
+}
+
+.member-copy {
+	min-width: 0;
+	flex: 1;
+}
+
+.member-email {
+	font-size: 12px;
+}
+
+.undo {
+	padding: 0;
+	color: #6d4aff;
+}

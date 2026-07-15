@@ -1,0 +1,83 @@
+.sider {
+	position: sticky;
+	top: 0;
+	height: 100vh;
+	padding: 22px 12px;
+	background: #17233c;
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	padding: 0 14px 28px;
+	color: white;
+}
+
+.brand-mark {
+	display: grid;
+	width: 38px;
+	height: 38px;
+	place-items: center;
+	border-radius: 11px;
+	background: #7c5cff;
+	font-weight: 900;
+}
+
+.brand-name {
+	font-size: 19px;
+	font-weight: 750;
+}
+
+.workspace-label {
+	color: #9facbf;
+}
+
+.permissions-card {
+	position: absolute;
+	right: 18px;
+	bottom: 24px;
+	left: 18px;
+	padding: 14px;
+	border-radius: 14px;
+	background: #22304a;
+	color: #cbd4e1;
+}
+
+.permissions-copy {
+	display: block;
+	margin-top: 6px;
+	color: #aebbd0;
+}
+
+.permission-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 9px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 74px;
+	padding: 0 34px;
+	border-bottom: 1px solid #e6eaf0;
+	background: white;
+}
+
+.identity {
+	line-height: 1.2;
+}
+
+.email {
+	color: #77849a;
+}
+
+.content {
+	width: 100%;
+	max-width: 1540px;
+	margin: 0 auto;
+	padding: 34px clamp(20px, 4vw, 58px) 64px;
+}

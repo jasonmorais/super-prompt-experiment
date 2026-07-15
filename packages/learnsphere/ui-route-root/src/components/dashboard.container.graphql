@@ -1,19 +1,23 @@
-query LearnerDashboard($organizationId: String!) {
+fragment LearnerDashboardContainerLearningRecordFields on LearningRecord {
+	id
+	courseId
+	courseTitle
+	courseCategory
+	source
+	assignedBy
+	status
+	progressPercent
+	completedActivityCount
+	assignedAt
+	dueAt
+	completedAt
+	activityProgress {
+		timeSpentMinutes
+	}
+}
+
+query LearnerDashboardContainerMyLearning($organizationId: String!) {
 	myLearning(organizationId: $organizationId) {
-		id
-		courseId
-		courseTitle
-		courseCategory
-		source
-		assignedBy
-		status
-		progressPercent
-		completedActivityCount
-		assignedAt
-		dueAt
-		completedAt
-		activityProgress {
-			timeSpentMinutes
-		}
+		...LearnerDashboardContainerLearningRecordFields
 	}
 }

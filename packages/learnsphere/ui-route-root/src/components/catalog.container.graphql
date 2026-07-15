@@ -1,34 +1,40 @@
-query LearnerCatalog($organizationId: String!) {
+fragment LearnerCatalogContainerCourseFields on Course {
+	id
+	title
+	summary
+	category
+	level
+	skills
+	tags
+	discoverability
+	lessonCount
+	estimatedMinutes
+}
+
+fragment LearnerCatalogContainerLearningRecordFields on LearningRecord {
+	id
+	courseId
+	status
+	assignedBy
+}
+
+query LearnerCatalogContainerCatalog($organizationId: String!) {
 	courses(organizationId: $organizationId, status: PUBLISHED, limit: 30) {
-		id
-		title
-		summary
-		category
-		level
-		skills
-		tags
-		discoverability
-		lessonCount
-		estimatedMinutes
+		...LearnerCatalogContainerCourseFields
 	}
 	myLearning(organizationId: $organizationId) {
-		id
-		courseId
-		status
-		assignedBy
+		...LearnerCatalogContainerLearningRecordFields
 	}
 }
 
-mutation CatalogSelfEnroll($input: SelfEnrollInput!) {
+mutation LearnerCatalogContainerSelfEnroll($input: SelfEnrollInput!) {
 	selfEnroll(input: $input) {
 		status {
 			success
 			errorMessage
 		}
 		learningRecord {
-			id
-			courseId
-			status
+			...LearnerCatalogContainerLearningRecordFields
 		}
 	}
 }

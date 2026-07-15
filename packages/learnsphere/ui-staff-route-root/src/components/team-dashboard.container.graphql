@@ -1,51 +1,61 @@
-query StaffTeamOverview($organizationId: String!, $teamName: String) {
-	teams(organizationId: $organizationId) { id name members { learnerId displayName email } }
-	teamLearning(organizationId: $organizationId, teamName: $teamName) {
-		id
-		learnerId
-		learnerDisplayName
-		learnerEmail
-		teamName
-		courseId
-		courseTitle
-		courseCategory
-		source
-		status
-		assignedAt
-		assignedBy
-		dueAt
-		completedAt
-		progressPercent
-		completedActivityCount
-		isOverdue
-		requiresCompletionScreenshot
-		completionScreenshot
-		activityProgress {
-			timeSpentMinutes
-			assessmentScore
-		}
-	}
-	courses(organizationId: $organizationId, status: PUBLISHED, limit: 100) {
-		id
-		title
-		category
-		lessonCount
-	}
+fragment StaffTeamDashboardContainerTeamMemberFields on TeamMember {
+	learnerId
+	displayName
+	email
 }
 
-mutation StaffAssignLearning($input: AssignLearningInput!) {
+fragment StaffTeamDashboardContainerTeamFields on Team {
+	id
+	name
+	members { ...StaffTeamDashboardContainerTeamMemberFields }
+}
+
+fragment StaffTeamDashboardContainerLearningRecordFields on LearningRecord {
+	id
+	learnerId
+	learnerDisplayName
+	learnerEmail
+	teamName
+	courseId
+	courseTitle
+	courseCategory
+	source
+	status
+	assignedAt
+	assignedBy
+	dueAt
+	completedAt
+	progressPercent
+	completedActivityCount
+	isOverdue
+	requiresCompletionScreenshot
+	completionScreenshot
+	activityProgress { timeSpentMinutes assessmentScore }
+}
+
+fragment StaffTeamDashboardContainerCourseFields on Course {
+	id
+	title
+	category
+	lessonCount
+}
+
+query StaffTeamDashboardContainerTeamOverview($organizationId: String!, $teamName: String) {
+	teams(organizationId: $organizationId) { ...StaffTeamDashboardContainerTeamFields }
+	teamLearning(organizationId: $organizationId, teamName: $teamName) { ...StaffTeamDashboardContainerLearningRecordFields }
+	courses(organizationId: $organizationId, status: PUBLISHED, limit: 100) { ...StaffTeamDashboardContainerCourseFields }
+}
+
+mutation StaffTeamDashboardContainerAssignLearning($input: AssignLearningInput!) {
 	assignLearning(input: $input) {
-		status {
-			success
-			errorMessage
-		}
-		learningRecord {
-			id
-			learnerId
-			courseId
-			status
-		}
+		status { success errorMessage }
+		learningRecord { ...StaffTeamDashboardContainerLearningRecordFields }
 	}
 }
 
-mutation StaffUnassignLearning($id: ObjectID!) { unassignLearning(id: $id) { status { success errorMessage } learningRecord { id } } }
+mutation StaffTeamDashboardContainerUnassignLearning($id: ObjectID!) {
+	unassignLearning(id: $id) {
+		status { success errorMessage }
+		learningRecord { ...StaffTeamDashboardContainerLearningRecordFields }
+	}
+}

@@ -1,70 +1,67 @@
-query CourseExperience($courseId: ObjectID!, $organizationId: String!) {
-	courseById(id: $courseId) {
-		id
+fragment LearnerCourseContainerCourseFields on Course {
+	id
+	title
+	summary
+	description
+	category
+	level
+	skills
+	discoverability
+	requiresCompletionScreenshot
+	lessonCount
+	estimatedMinutes
+	status
+	modules {
+		key
 		title
-		summary
 		description
-		category
-		level
-		skills
-		discoverability
-		requiresCompletionScreenshot
-		lessonCount
-		estimatedMinutes
-		status
-		modules {
+		order
+		lessons {
 			key
 			title
-			description
-			order
-			lessons {
-				key
-				title
-				type
-				content
-				estimatedMinutes
-				required
-			}
-		}
-	}
-	myLearning(organizationId: $organizationId) {
-		id
-		courseId
-		status
-		progressPercent
-		completedActivityCount
-		requiredActivityKeys
-		requiresCompletionScreenshot
-		completionScreenshot
-		activityProgress {
-			activityKey
-			completedAt
-			timeSpentMinutes
-			assessmentScore
-			attempts
+			type
+			content
+			estimatedMinutes
+			required
 		}
 	}
 }
 
-mutation CompleteCourseActivity($input: RecordActivityInput!) {
+fragment LearnerCourseContainerLearningRecordFields on LearningRecord {
+	id
+	courseId
+	status
+	progressPercent
+	completedActivityCount
+	requiredActivityKeys
+	requiresCompletionScreenshot
+	completionScreenshot
+	activityProgress {
+		activityKey
+		completedAt
+		timeSpentMinutes
+		assessmentScore
+		attempts
+	}
+}
+
+query LearnerCourseContainerCourseExperience($courseId: ObjectID!, $organizationId: String!) {
+	courseById(id: $courseId) {
+		...LearnerCourseContainerCourseFields
+	}
+	myLearning(organizationId: $organizationId) {
+		...LearnerCourseContainerLearningRecordFields
+	}
+}
+
+mutation LearnerCourseContainerCompleteActivity($input: RecordActivityInput!) {
 	recordActivity(input: $input) {
 		status {
 			success
 			errorMessage
 		}
 		learningRecord {
-			id
-			status
-			progressPercent
-			completedActivityCount
-			requiresCompletionScreenshot
-			completionScreenshot
-			activityProgress {
-				activityKey
-				completedAt
-				timeSpentMinutes
-				attempts
-			}
+			...LearnerCourseContainerLearningRecordFields
 		}
 	}
 }

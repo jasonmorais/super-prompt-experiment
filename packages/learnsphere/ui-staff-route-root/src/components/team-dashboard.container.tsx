@@ -3,7 +3,7 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
-import { type EnrollmentSource, StaffAssignLearningDocument, StaffTeamOverviewDocument, StaffUnassignLearningDocument, type StaffTeamOverviewQuery } from '../generated.tsx';
+import { type EnrollmentSource, StaffTeamDashboardContainerAssignLearningDocument, StaffTeamDashboardContainerTeamOverviewDocument, StaffTeamDashboardContainerUnassignLearningDocument, type StaffTeamDashboardContainerTeamOverviewQuery } from '../generated.tsx';
 import { TeamDashboard } from './team-dashboard.tsx';
 
 type LearnerRow = { learnerId: string; name: string; email: string; teamName: string };
@@ -12,9 +12,9 @@ type AssignmentValues = { courseId: string; dueAt?: { toISOString(): string }; s
 export const TeamDashboardContainer = () => {
 	const auth = useAuth();
 	const organizationId = readLearnSphereIdentity(auth.user?.profile).organizationId;
-	const { data, loading, error, refetch } = useQuery<StaffTeamOverviewQuery>(StaffTeamOverviewDocument, { variables: { organizationId, teamName: null }, skip: !organizationId });
-	const [assignLearning, assignment] = useMutation(StaffAssignLearningDocument);
-	const [unassignLearning] = useMutation(StaffUnassignLearningDocument);
+	const { data, loading, error, refetch } = useQuery<StaffTeamDashboardContainerTeamOverviewQuery>(StaffTeamDashboardContainerTeamOverviewDocument, { variables: { organizationId, teamName: null }, skip: !organizationId });
+	const [assignLearning, assignment] = useMutation(StaffTeamDashboardContainerAssignLearningDocument);
+	const [unassignLearning] = useMutation(StaffTeamDashboardContainerUnassignLearningDocument);
 	const teamMembers = data?.teams.flatMap((team) => team.members.map((member) => ({ ...member, teamName: team.name }))) ?? [];
 	const assign = async (values: AssignmentValues, learner: LearnerRow) => {
 		const result = await assignLearning({
@@ -61,7 +61,6 @@ export const TeamDashboardContainer = () => {
 				<Alert
 					type="error"
 					showIcon
-					message="Team progress could not be loaded"
 					description={error?.message}
 				/>
 			}

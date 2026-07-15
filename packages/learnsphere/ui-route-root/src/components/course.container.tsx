@@ -5,7 +5,7 @@ import { Alert, Button, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CompleteCourseActivityDocument, CourseExperienceDocument, type CourseExperienceQuery } from '../generated.tsx';
+import { LearnerCourseContainerCompleteActivityDocument, LearnerCourseContainerCourseExperienceDocument, type LearnerCourseContainerCourseExperienceQuery } from '../generated.tsx';
 import { Course } from './course.tsx';
 
 export const CourseContainer = () => {
@@ -13,8 +13,8 @@ export const CourseContainer = () => {
 	const navigate = useNavigate();
 	const { courseId = '', activityKey } = useParams();
 	const organizationId = readLearnSphereIdentity(auth.user?.profile).organizationId;
-	const { data, loading, error, refetch } = useQuery<CourseExperienceQuery>(CourseExperienceDocument, { variables: { courseId, organizationId }, skip: !courseId || !organizationId });
-	const [recordActivity, mutation] = useMutation(CompleteCourseActivityDocument);
+	const { data, loading, error, refetch } = useQuery<LearnerCourseContainerCourseExperienceQuery>(LearnerCourseContainerCourseExperienceDocument, { variables: { courseId, organizationId }, skip: !courseId || !organizationId });
+	const [recordActivity, mutation] = useMutation(LearnerCourseContainerCompleteActivityDocument);
 	const [completionScreenshot, setCompletionScreenshot] = useState<string>();
 	const course = data?.courseById;
 	const record = data?.myLearning.find((candidate) => candidate.courseId === courseId);

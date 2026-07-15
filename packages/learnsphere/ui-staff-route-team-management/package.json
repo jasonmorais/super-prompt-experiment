@@ -1,0 +1,31 @@
+{
+	"name": "@learnsphere/ui-staff-route-team-management",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"exports": { ".": "./src/index.tsx" },
+	"scripts": {
+		"build": "tsgo --noEmit",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@ant-design/icons": "catalog:",
+		"@apollo/client": "^3.13.9",
+		"@cellix/ui-core": "workspace:*",
+		"@graphql-typed-document-node/core": "^3.2.0",
+		"@learnsphere/ui-shared": "workspace:*",
+		"antd": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"react-oidc-context": "^3.3.0"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@types/react": "^19.1.11",
+		"@types/react-dom": "^19.1.6",
+		"typescript": "catalog:"
+	}
+}

@@ -1,0 +1,35 @@
+.hero {
+	margin-bottom: 22px;
+	border: 0;
+	border-radius: 22px;
+	background: linear-gradient(135deg, #272052, #5940b4);
+}
+
+.hero-body {
+	padding: 34px clamp(22px, 5vw, 54px);
+}
+
+.hero-meta {
+	color: #e8e5ff;
+}
+
+.title {
+	margin: 14px 0 8px;
+	color: white;
+}
+
+.description {
+	margin: 0;
+	color: #e8e5ff;
+	font-size: 16px;
+}
+
+.details {
+	border: 1px solid #ebe7ff;
+	border-radius: 18px;
+}
+
+.evidence {
+	display: block;
+	margin-top: 12px;
+}

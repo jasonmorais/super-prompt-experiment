@@ -4,7 +4,7 @@ import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate } from 'react-router-dom';
-import { LearnerDashboardDocument, type LearnerDashboardQuery } from '../generated.tsx';
+import { LearnerDashboardContainerMyLearningDocument, type LearnerDashboardContainerMyLearningQuery } from '../generated.tsx';
 import { Dashboard } from './dashboard.tsx';
 import { MissingOrganizationAlert } from './shared/missing-organization-alert.tsx';
 
@@ -13,7 +13,7 @@ export const DashboardContainer = () => {
 	const navigate = useNavigate();
 	const identity = readLearnSphereIdentity(auth.user?.profile);
 	const organizationId = identity.organizationId;
-	const { data, loading, error } = useQuery<LearnerDashboardQuery>(LearnerDashboardDocument, { variables: { organizationId }, skip: !organizationId });
+	const { data, loading, error } = useQuery<LearnerDashboardContainerMyLearningQuery>(LearnerDashboardContainerMyLearningDocument, { variables: { organizationId }, skip: !organizationId });
 	const dashboard = (
 		<Dashboard
 			records={data?.myLearning ?? []}

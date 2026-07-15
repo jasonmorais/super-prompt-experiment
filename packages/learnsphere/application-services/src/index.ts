@@ -4,7 +4,7 @@ import type { DataSources } from '@learnsphere/persistence';
 import { Delivery, type DeliveryContextApplicationService } from './contexts/delivery/index.ts';
 import { Learning, type LearningContextApplicationService } from './contexts/learning/index.ts';
 import { Operations, type OperationsContextApplicationService } from './contexts/operations/index.ts';
-import { Teams, type TeamsApplicationService } from './contexts/teams.ts';
+import { Teams, type TeamsApplicationService } from './contexts/teams/index.ts';
 
 export type { AssignLearningCommand } from './contexts/delivery/learning-record/assign.ts';
 export type { CourseCreateCommand } from './contexts/learning/course/create.ts';

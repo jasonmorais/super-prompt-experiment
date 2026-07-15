@@ -1,28 +1,22 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
+import { getStaffCapabilities, readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import {
-	type CourseLevel,
-	type LessonType,
-	StaffAddCourseModuleDocument,
-	StaffAssignCourseToLearnerDocument,
-	StaffCourseManagementDocument,
-	type StaffCourseManagementQuery,
-	StaffCreateCourseDocument,
-	StaffDeleteCourseDocument,
-	StaffPublishCourseDocument,
-	StaffSubmitCourseDocument,
-	StaffUnassignLearningDocument,
-	StaffUpdateCourseDocument,
+	StaffCourseManagementContainerAddCourseModuleDocument,
+	StaffCourseManagementContainerAssignCourseToLearnerDocument,
+	StaffCourseManagementContainerCourseManagementDocument,
+	type StaffCourseManagementContainerCourseManagementQuery,
+	StaffCourseManagementContainerCreateCourseDocument,
+	StaffCourseManagementContainerDeleteCourseDocument,
+	StaffCourseManagementContainerPublishCourseDocument,
+	StaffCourseManagementContainerSubmitCourseDocument,
+	StaffCourseManagementContainerUnassignLearningDocument,
+	StaffCourseManagementContainerUpdateCourseDocument,
 } from '../generated.tsx';
 import { CourseManagement } from './course-management.tsx';
-
-type Course = StaffCourseManagementQuery['courses'][number];
-type Person = { learnerId: string; learnerDisplayName: string; learnerEmail: string; teamName: string };
-type CourseValues = { title: string; summary: string; description: string; category: string; level: CourseLevel; tags?: string[]; skills?: string[]; discoverability: 'CATALOG' | 'ASSIGNED_ONLY'; requiresCompletionScreenshot: boolean };
-type ModuleValues = { moduleTitle: string; moduleDescription: string; lessonTitle: string; lessonType: LessonType; lessonContent: string; estimatedMinutes: number; required: boolean };
+import type { AssignmentValues, Course, CourseValues, ModuleValues, Person } from './course-management/types.ts';
 const slug = (value: string) =>
 	value
 		.toLowerCase()
@@ -33,16 +27,18 @@ const slug = (value: string) =>
 
 export const CourseManagementContainer = () => {
 	const auth = useAuth();
-	const organizationId = readLearnSphereIdentity(auth.user?.profile).organizationId;
-	const { data, loading, error, refetch } = useQuery<StaffCourseManagementQuery>(StaffCourseManagementDocument, { variables: { organizationId }, skip: !organizationId });
-	const [createCourse, creating] = useMutation(StaffCreateCourseDocument);
-	const [addModule, adding] = useMutation(StaffAddCourseModuleDocument);
-	const [submitCourse, submitting] = useMutation(StaffSubmitCourseDocument);
-	const [publishCourse, publishing] = useMutation(StaffPublishCourseDocument);
-	const [updateCourse, updating] = useMutation(StaffUpdateCourseDocument);
-	const [deleteCourse, deleting] = useMutation(StaffDeleteCourseDocument);
-	const [assignCourse, assigning] = useMutation(StaffAssignCourseToLearnerDocument);
-	const [unassignCourse, unassigning] = useMutation(StaffUnassignLearningDocument);
+	const identity = readLearnSphereIdentity(auth.user?.profile);
+	const capabilities = getStaffCapabilities(identity.roles);
+	const organizationId = identity.organizationId;
+	const { data, loading, error, refetch } = useQuery<StaffCourseManagementContainerCourseManagementQuery>(StaffCourseManagementContainerCourseManagementDocument, { variables: { organizationId }, skip: !organizationId });
+	const [createCourse, creating] = useMutation(StaffCourseManagementContainerCreateCourseDocument);
+	const [addModule, adding] = useMutation(StaffCourseManagementContainerAddCourseModuleDocument);
+	const [submitCourse, submitting] = useMutation(StaffCourseManagementContainerSubmitCourseDocument);
+	const [publishCourse, publishing] = useMutation(StaffCourseManagementContainerPublishCourseDocument);
+	const [updateCourse, updating] = useMutation(StaffCourseManagementContainerUpdateCourseDocument);
+	const [deleteCourse, deleting] = useMutation(StaffCourseManagementContainerDeleteCourseDocument);
+	const [assignCourse, assigning] = useMutation(StaffCourseManagementContainerAssignCourseToLearnerDocument);
+	const [unassignCourse, unassigning] = useMutation(StaffCourseManagementContainerUnassignLearningDocument);
 	const people: Person[] = data?.teams.flatMap((team) => team.members.map((member) => ({ learnerId: member.learnerId, learnerDisplayName: member.displayName, learnerEmail: member.email, teamName: team.name }))) ?? [];
 	const assignments = data?.teamLearning.filter((record) => record.source !== 'SELF_ENROLLED') ?? [];
 	const create = async (values: CourseValues) => {
@@ -56,7 +52,9 @@ export const CourseManagementContainer = () => {
 		await refetch();
 	};
 	const edit = async (id: string, values: CourseValues) => {
-		const result = await updateCourse({ variables: { input: { id, ...values, tags: values.tags ?? [], skills: values.skills ?? [], discoverability: values.discoverability, requiresCompletionScreenshot: values.requiresCompletionScreenshot } } });
+		const result = await updateCourse({
+			variables: { input: { id, ...values, tags: values.tags ?? [], skills: values.skills ?? [], discoverability: values.discoverability, requiresCompletionScreenshot: values.requiresCompletionScreenshot } },
+		});
 		const status = result.data?.courseUpdate.status;
 		if (!status?.success) {
 			message.error(status?.errorMessage ?? 'Course could not be updated');
@@ -75,19 +73,38 @@ export const CourseManagementContainer = () => {
 		message.success('Course deleted.');
 		await refetch();
 	};
-	const assign = async (course: Course, values: { learnerId: string; dueAt?: { toISOString(): string }; source: 'MANAGER_ASSIGNED' | 'PROGRAM_ASSIGNED' | 'COMPLIANCE_ASSIGNED' }) => {
+	const assign = async (course: Course, values: AssignmentValues) => {
 		const person = people.find((candidate) => candidate.learnerId === values.learnerId);
 		if (!person) return;
-		const result = await assignCourse({ variables: { input: { organizationId, learnerId: person.learnerId, learnerDisplayName: person.learnerDisplayName, learnerEmail: person.learnerEmail, teamName: person.teamName, courseId: course.id, dueAt: values.dueAt?.toISOString(), source: values.source } } });
+		const result = await assignCourse({
+			variables: {
+				input: {
+					organizationId,
+					learnerId: person.learnerId,
+					learnerDisplayName: person.learnerDisplayName,
+					learnerEmail: person.learnerEmail,
+					teamName: person.teamName,
+					courseId: course.id,
+					dueAt: values.dueAt?.toISOString(),
+					source: values.source,
+				},
+			},
+		});
 		const status = result.data?.assignLearning.status;
-		if (!status?.success) { message.error(status?.errorMessage ?? 'Course could not be assigned'); return; }
+		if (!status?.success) {
+			message.error(status?.errorMessage ?? 'Course could not be assigned');
+			return;
+		}
 		message.success(`${course.title} assigned to ${person.learnerDisplayName}.`);
 		await refetch();
 	};
 	const unassign = async (id: string) => {
 		const result = await unassignCourse({ variables: { id } });
 		const status = result.data?.unassignLearning.status;
-		if (!status?.success) { message.error(status?.errorMessage ?? 'Course assignment could not be removed'); return; }
+		if (!status?.success) {
+			message.error(status?.errorMessage ?? 'Course assignment could not be removed');
+			return;
+		}
 		message.success('Course assignment removed.');
 		await refetch();
 	};
@@ -145,6 +162,8 @@ export const CourseManagementContainer = () => {
 			deleting={deleting.loading}
 			assigning={assigning.loading}
 			unassigning={unassigning.loading}
+			canDelete={capabilities.canDeleteCourses}
+			canPublish={capabilities.canPublishCourses}
 			people={people}
 			assignments={assignments}
 			onCreate={(values) => void create(values)}

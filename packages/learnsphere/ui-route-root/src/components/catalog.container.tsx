@@ -4,7 +4,7 @@ import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate } from 'react-router-dom';
-import { CatalogSelfEnrollDocument, LearnerCatalogDocument, type LearnerCatalogQuery } from '../generated.tsx';
+import { LearnerCatalogContainerCatalogDocument, LearnerCatalogContainerSelfEnrollDocument, type LearnerCatalogContainerCatalogQuery } from '../generated.tsx';
 import { Catalog, CatalogEmptyState } from './catalog.tsx';
 import { MissingOrganizationAlert } from './shared/missing-organization-alert.tsx';
 
@@ -12,8 +12,8 @@ export const CatalogContainer = () => {
 	const auth = useAuth();
 	const navigate = useNavigate();
 	const organizationId = readLearnSphereIdentity(auth.user?.profile).organizationId;
-	const { data, loading, error, refetch } = useQuery<LearnerCatalogQuery>(LearnerCatalogDocument, { variables: { organizationId }, skip: !organizationId });
-	const [selfEnroll, enrollment] = useMutation(CatalogSelfEnrollDocument);
+	const { data, loading, error, refetch } = useQuery<LearnerCatalogContainerCatalogQuery>(LearnerCatalogContainerCatalogDocument, { variables: { organizationId }, skip: !organizationId });
+	const [selfEnroll, enrollment] = useMutation(LearnerCatalogContainerSelfEnrollDocument);
 	const enroll = async (courseId: string) => {
 		const result = await selfEnroll({ variables: { input: { organizationId, courseId } } });
 		if (!result.data?.selfEnroll.status.success) {
