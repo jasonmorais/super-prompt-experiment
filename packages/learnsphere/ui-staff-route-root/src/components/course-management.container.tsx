@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { getStaffCapabilities, readLearnSphereIdentity } from '@learnsphere/ui-shared';
+import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import {
@@ -17,6 +17,7 @@ import {
 } from '../generated.tsx';
 import { CourseManagement } from './course-management.tsx';
 import type { AssignmentValues, Course, CourseValues, ModuleValues, Person } from './course-management/types.ts';
+import { useStaffAuthorization } from '../staff-authorization.tsx';
 const slug = (value: string) =>
 	value
 		.toLowerCase()
@@ -28,7 +29,7 @@ const slug = (value: string) =>
 export const CourseManagementContainer = () => {
 	const auth = useAuth();
 	const identity = readLearnSphereIdentity(auth.user?.profile);
-	const capabilities = getStaffCapabilities(identity.roles);
+	const capabilities = useStaffAuthorization().capabilities;
 	const organizationId = identity.organizationId;
 	const { data, loading, error, refetch } = useQuery<StaffCourseManagementContainerCourseManagementQuery>(StaffCourseManagementContainerCourseManagementDocument, { variables: { organizationId }, skip: !organizationId });
 	const [createCourse, creating] = useMutation(StaffCourseManagementContainerCreateCourseDocument);

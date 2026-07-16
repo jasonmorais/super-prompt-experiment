@@ -1,6 +1,6 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { getStaffCapabilities, hasStaffAccess, readLearnSphereIdentity, type LearnSphereStaffCapabilities } from '@learnsphere/ui-shared';
-import { CourseManagement, getDefaultStaffPath, StaffLayout, StaffLogin, TeamDashboard, TeamOperations } from '@learnsphere/ui-staff-route-root';
+import type { LearnSphereStaffCapabilities } from '@learnsphere/ui-shared';
+import { CourseManagement, getDefaultStaffPath, StaffLayout, StaffLogin, TeamDashboard, TeamOperations, useStaffAuthorization } from '@learnsphere/ui-staff-route-root';
 import { TeamManagementContainer } from '@learnsphere/ui-staff-route-team-management';
 import { Spin } from 'antd';
 import { useAuth } from 'react-oidc-context';
@@ -14,6 +14,7 @@ interface ProtectedProps {
 
 const Protected = ({ children, required }: ProtectedProps) => {
 	const auth = useAuth();
+	const authorization = useStaffAuthorization();
 	if (auth.isLoading || auth.activeNavigator)
 		return (
 			<div
@@ -23,9 +24,6 @@ const Protected = ({ children, required }: ProtectedProps) => {
 				<Spin size="large" />
 			</div>
 		);
-	const roles = readLearnSphereIdentity(auth.user?.profile).roles;
-	const capabilities = getStaffCapabilities(roles);
-	const allowed = !required || capabilities[required];
 	if (!auth.isAuthenticated)
 		return (
 			<Navigate
@@ -33,7 +31,7 @@ const Protected = ({ children, required }: ProtectedProps) => {
 				replace
 			/>
 		);
-	return hasStaffAccess(roles) && allowed ? (
+	return authorization.loading ? <Spin size="large" /> : authorization.roleName && (!required || authorization.capabilities[required]) ? (
 		children
 	) : (
 		<Navigate
@@ -44,10 +42,9 @@ const Protected = ({ children, required }: ProtectedProps) => {
 };
 
 const StaffEntry = () => {
-	const auth = useAuth();
-	const roles = readLearnSphereIdentity(auth.user?.profile).roles;
-	const capabilities = getStaffCapabilities(roles);
-	return <Navigate to={getDefaultStaffPath(capabilities)} replace />;
+	const authorization = useStaffAuthorization();
+	if (authorization.loading) return <Spin size="large" />;
+	return <Navigate to={getDefaultStaffPath(authorization.capabilities)} replace />;
 };
 
 export default function App() {

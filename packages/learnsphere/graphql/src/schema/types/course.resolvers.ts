@@ -9,8 +9,6 @@ const requireUser = (context: GraphContext): string => {
 	return subject;
 };
 
-const staffRoles = ['LearningAdmin', 'Manager', 'ManagerLearningAdmin', 'Instructor'];
-
 const mutation = async <T>(work: Promise<T>, field: 'course') => {
 	try {
 		return { status: { success: true }, [field]: await work };
@@ -23,15 +21,14 @@ const course: Resolvers = {
 	Query: {
 		courseById: (_parent, args, context) => {
 			const user = requireUser(context);
-			const roles = context.applicationServices.verifiedUser?.verifiedJwt?.roles ?? [];
-			return context.applicationServices.Learning.Course.queryById({ id: args.id, ...(context.applicationServices.verifiedUser?.verifiedJwt?.tid ? { organizationId: context.applicationServices.verifiedUser.verifiedJwt.tid } : {}), ...(roles.some((role) => staffRoles.includes(role)) ? {} : { learnerId: user }) });
+			const isStaffUser = Boolean(context.applicationServices.verifiedUser?.staffUser);
+			return context.applicationServices.Learning.Course.queryById({ id: args.id, ...(context.applicationServices.verifiedUser?.verifiedJwt?.tid ? { organizationId: context.applicationServices.verifiedUser.verifiedJwt.tid } : {}), ...(isStaffUser ? {} : { learnerId: user }) });
 		},
 		courses: (_parent, args, context) => {
 			const user = requireUser(context);
-			const roles = context.applicationServices.verifiedUser?.verifiedJwt?.roles ?? [];
 			return context.applicationServices.Learning.Course.list({
 				organizationId: args.organizationId,
-				...(roles.some((role) => staffRoles.includes(role)) ? {} : { learnerId: user }),
+				...(context.applicationServices.verifiedUser?.staffUser ? {} : { learnerId: user }),
 				...(args.status ? { status: args.status as Domain.Contexts.Learning.Course.CourseStatus } : {}),
 				...(args.search ? { search: args.search } : {}),
 				...(args.limit !== null && args.limit !== undefined ? { limit: args.limit } : {}),

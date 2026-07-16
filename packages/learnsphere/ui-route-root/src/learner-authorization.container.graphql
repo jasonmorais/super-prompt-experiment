@@ -1,0 +1,9 @@
+query CurrentLearnerUserAndCreateIfNotExists {
+	currentLearnerUserAndCreateIfNotExists {
+		id
+		externalId
+		email
+		displayName
+		accessBlocked
+	}
+}

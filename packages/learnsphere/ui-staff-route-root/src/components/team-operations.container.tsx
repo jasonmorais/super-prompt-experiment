@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { ComponentQueryLoader } from '@cellix/ui-core';
-import { getStaffCapabilities, readLearnSphereIdentity } from '@learnsphere/ui-shared';
+import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, Button, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -17,11 +17,12 @@ import {
 import { TeamOperations } from './team-operations.tsx';
 import { StaffTeamGoalDetail } from './team-operations/team-goal-detail.tsx';
 import type { CreateValues, Operation, UpdateValues } from './team-operations/types.ts';
+import { useStaffAuthorization } from '../staff-authorization.tsx';
 
 export const TeamOperationsContainer = () => {
 	const auth = useAuth();
 	const identity = readLearnSphereIdentity(auth.user?.profile);
-	const capabilities = getStaffCapabilities(identity.roles);
+	const capabilities = useStaffAuthorization().capabilities;
 	const navigate = useNavigate();
 	const { operationId } = useParams<{ operationId: string }>();
 	const organizationId = identity.organizationId;

@@ -7,6 +7,11 @@ import type { LearningRecordVisa } from './contexts/delivery/learning-record/lea
 import type { TeamOperationEntityReference } from './contexts/operations/team-operation/team-operation.ts';
 import type { TeamOperationDomainPermissions } from './contexts/operations/team-operation/team-operation.domain-permissions.ts';
 import type { TeamOperationVisa } from './contexts/operations/team-operation/team-operation.visa.ts';
+import type { LearnerUserEntityReference } from './contexts/user/learner-user/learner-user.ts';
+import type { StaffUserEntityReference } from './contexts/user/staff-user/staff-user.ts';
+import type { UserDomainPermissions } from './contexts/user/user.domain-permissions.ts';
+import type { UserPassport } from './contexts/user/user.passport.ts';
+import type { UserVisa } from './contexts/user/user.visa.ts';
 
 export type LearningDeliveryPermissions = LearningRecordDomainPermissions;
 export type LearningContentVisa = CourseVisa;
@@ -15,6 +20,7 @@ export interface Passport {
 	readonly isGuest: boolean;
 	readonly canViewTeamLearning: boolean;
 	readonly canManageTeams: boolean;
+	readonly user: UserPassport;
 	readonly learning: {
 		forCourse(course: CourseEntityReference): CourseVisa;
 	};
@@ -26,10 +32,15 @@ export interface Passport {
 	};
 }
 
-const buildPassport = (isGuest: boolean, canManageTeams: boolean, permissions: CourseDomainPermissions, deliveryPermissions: LearningDeliveryPermissions | ((record: LearningRecordEntityReference) => LearningDeliveryPermissions), operationPermissions: TeamOperationDomainPermissions | ((operation: TeamOperationEntityReference) => TeamOperationDomainPermissions)): Passport => ({
+const buildPassport = (isGuest: boolean, canManageTeams: boolean, permissions: CourseDomainPermissions, deliveryPermissions: LearningDeliveryPermissions | ((record: LearningRecordEntityReference) => LearningDeliveryPermissions), operationPermissions: TeamOperationDomainPermissions | ((operation: TeamOperationEntityReference) => TeamOperationDomainPermissions), userPermissions: UserDomainPermissions, actorExternalId?: string): Passport => ({
 	isGuest,
 	canManageTeams,
 	canViewTeamLearning: typeof deliveryPermissions === 'function' ? false : deliveryPermissions.canViewTeamLearning,
+	user: {
+		forLearnerUser: (root): UserVisa => ({ determineIf: (predicate) => predicate({ ...userPermissions, isEditingOwnAccount: Boolean(actorExternalId && root.externalId === actorExternalId) }) }),
+		forStaffUser: (root): UserVisa => ({ determineIf: (predicate) => predicate({ ...userPermissions, isEditingOwnAccount: Boolean(actorExternalId && root.externalId === actorExternalId) }) }),
+		forStaffRole: (_root): UserVisa => ({ determineIf: (predicate) => predicate(userPermissions) }),
+	},
 	learning: {
 		forCourse: (_course) => ({ determineIf: (predicate) => predicate(permissions) }),
 	},
@@ -64,9 +75,9 @@ const systemDeliveryPermissions: LearningDeliveryPermissions = {
 };
 
 export const PassportFactory = {
-	forGuest: (): Passport => buildPassport(true, false, noContentPermissions, { canSelfEnroll: false, canAssignLearning: false, canViewTeamLearning: false, canRecordProgress: false, canWaiveAssignments: false }, { canManageTeamOperations: false, canUpdateAssignedOperations: false, canEditTeamOperations: false, canDiscussTeamOperations: false, canConfirmTeamOperations: false }),
+	forGuest: (): Passport => buildPassport(true, false, noContentPermissions, { canSelfEnroll: false, canAssignLearning: false, canViewTeamLearning: false, canRecordProgress: false, canWaiveAssignments: false }, { canManageTeamOperations: false, canUpdateAssignedOperations: false, canEditTeamOperations: false, canDiscussTeamOperations: false, canConfirmTeamOperations: false }, { canManageLearnerUsers: false, canManageStaffRolesAndPermissions: false, canManageStaffUsers: false, isEditingOwnAccount: false, isSystemAccount: false }),
 	forLearner: (learnerId: string): Passport =>
-		buildPassport(false, false, noContentPermissions, (record) => ({ canSelfEnroll: true, canAssignLearning: false, canViewTeamLearning: false, canRecordProgress: record.learnerId === learnerId, canWaiveAssignments: false }), (operation) => ({ canManageTeamOperations: false, canUpdateAssignedOperations: operation.assigneeId === learnerId, canEditTeamOperations: true, canDiscussTeamOperations: true, canConfirmTeamOperations: false })),
+		buildPassport(false, false, noContentPermissions, (record) => ({ canSelfEnroll: true, canAssignLearning: false, canViewTeamLearning: false, canRecordProgress: record.learnerId === learnerId, canWaiveAssignments: false }), (operation) => ({ canManageTeamOperations: false, canUpdateAssignedOperations: operation.assigneeId === learnerId, canEditTeamOperations: true, canDiscussTeamOperations: true, canConfirmTeamOperations: false }), { canManageLearnerUsers: false, canManageStaffRolesAndPermissions: false, canManageStaffUsers: false, isEditingOwnAccount: false, isSystemAccount: false }),
 	forInstructor: (): Passport =>
 		buildPassport(
 			false,
@@ -74,9 +85,24 @@ export const PassportFactory = {
 			{ ...noContentPermissions, canCreateCourses: true, canManageLearningContent: true },
 			{ canSelfEnroll: false, canAssignLearning: false, canViewTeamLearning: false, canRecordProgress: false, canWaiveAssignments: false },
 			{ canManageTeamOperations: false, canUpdateAssignedOperations: false, canEditTeamOperations: false, canDiscussTeamOperations: false, canConfirmTeamOperations: false },
+			{ canManageLearnerUsers: false, canManageStaffRolesAndPermissions: false, canManageStaffUsers: false, isEditingOwnAccount: false, isSystemAccount: false },
 		),
-	forManager: (): Passport => buildPassport(false, true, noContentPermissions, { canSelfEnroll: false, canAssignLearning: true, canViewTeamLearning: true, canRecordProgress: false, canWaiveAssignments: true }, { canManageTeamOperations: true, canUpdateAssignedOperations: true, canEditTeamOperations: true, canDiscussTeamOperations: true, canConfirmTeamOperations: true }),
-	forLearningAdmin: (): Passport => buildPassport(false, false, systemContentPermissions, systemDeliveryPermissions, { canManageTeamOperations: true, canUpdateAssignedOperations: false, canEditTeamOperations: true, canDiscussTeamOperations: true, canConfirmTeamOperations: false }),
-	forManagerLearningAdmin: (): Passport => buildPassport(false, true, systemContentPermissions, systemDeliveryPermissions, { canManageTeamOperations: true, canUpdateAssignedOperations: true, canEditTeamOperations: true, canDiscussTeamOperations: true, canConfirmTeamOperations: true }),
-	forSystem: (): Passport => buildPassport(false, true, systemContentPermissions, systemDeliveryPermissions, { canManageTeamOperations: true, canUpdateAssignedOperations: true, canEditTeamOperations: true, canDiscussTeamOperations: true, canConfirmTeamOperations: true }),
+	forLearnerUser: (learnerUser: LearnerUserEntityReference): Passport => buildPassport(false, false, noContentPermissions, (record) => ({ canSelfEnroll: true, canAssignLearning: false, canViewTeamLearning: false, canRecordProgress: record.learnerId === learnerUser.externalId, canWaiveAssignments: false }), (operation) => ({ canManageTeamOperations: false, canUpdateAssignedOperations: operation.assigneeId === learnerUser.externalId, canEditTeamOperations: true, canDiscussTeamOperations: true, canConfirmTeamOperations: false }), { canManageLearnerUsers: false, canManageStaffRolesAndPermissions: false, canManageStaffUsers: false, isEditingOwnAccount: true, isSystemAccount: false }, learnerUser.externalId),
+	forStaffUser: (staffUser: StaffUserEntityReference): Passport => {
+		const role = staffUser.role;
+		const portal = role?.permissions.staffPortalPermissions;
+		const staffPermissions = role?.permissions.userPermissions;
+		const canManageTeams = role?.enterpriseAppRole === 'Staff.Manager' && (portal?.canManageTeams ?? false);
+		const canManageStaffRolesAndPermissions = (role?.permissions.userPermissions.canAssignStaffRoles ?? false) || (role?.permissions.staffRolePermissions.canEditRole ?? false);
+		return buildPassport(
+			false,
+			canManageTeams,
+			{ canCreateCourses: portal?.canManageCourses ?? false, canManageLearningContent: portal?.canManageCourses ?? false, canPublishCourses: portal?.canPublishCourses ?? false, canDeleteCourses: portal?.canDeleteCourses ?? false },
+			{ canSelfEnroll: false, canAssignLearning: portal?.canViewTeamLearning ?? false, canViewTeamLearning: portal?.canViewTeamLearning ?? false, canRecordProgress: false, canWaiveAssignments: portal?.canManageTeamOperations ?? false },
+			{ canManageTeamOperations: portal?.canManageTeamOperations ?? false, canUpdateAssignedOperations: portal?.canManageTeamOperations ?? false, canEditTeamOperations: portal?.canManageTeamOperations ?? false, canDiscussTeamOperations: portal?.canManageTeamOperations ?? false, canConfirmTeamOperations: portal?.canConfirmTeamOperations ?? false },
+			{ canManageLearnerUsers: false, canManageStaffRolesAndPermissions, canManageStaffUsers: staffPermissions?.canManageUsers ?? false, isEditingOwnAccount: false, isSystemAccount: false },
+			staffUser.externalId,
+		);
+	},
+	forSystem: (): Passport => buildPassport(false, true, systemContentPermissions, systemDeliveryPermissions, { canManageTeamOperations: true, canUpdateAssignedOperations: true, canEditTeamOperations: true, canDiscussTeamOperations: true, canConfirmTeamOperations: true }, { canManageLearnerUsers: true, canManageStaffRolesAndPermissions: true, canManageStaffUsers: true, isEditingOwnAccount: false, isSystemAccount: true }),
 } as const;

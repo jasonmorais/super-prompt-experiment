@@ -1,0 +1,85 @@
+type StaffRolePortalPermissions {
+	canViewTeamLearning: Boolean!
+	canManageCourses: Boolean!
+	canPublishCourses: Boolean!
+	canDeleteCourses: Boolean!
+	canManageTeams: Boolean!
+	canManageTeamOperations: Boolean!
+	canConfirmTeamOperations: Boolean!
+}
+type StaffRoleUserPermissions {
+	canManageUsers: Boolean!
+	canAssignStaffRoles: Boolean!
+	canViewStaffUsers: Boolean!
+}
+type StaffRoleRolePermissions {
+	canViewRoles: Boolean!
+	canAddRole: Boolean!
+	canEditRole: Boolean!
+	canRemoveRole: Boolean!
+}
+type StaffRolePermissions {
+	staffPortalPermissions: StaffRolePortalPermissions!
+	userPermissions: StaffRoleUserPermissions!
+	staffRolePermissions: StaffRoleRolePermissions!
+}
+type StaffRole implements MongoBase {
+	roleName: String!
+	enterpriseAppRole: String!
+	roleType: String
+	isDefault: Boolean!
+	permissions: StaffRolePermissions!
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+extend type Query {
+	staffRoles: [StaffRole!]!
+	staffRoleById(id: ObjectID!): StaffRole
+}
+
+input StaffRolePortalPermissionsInput {
+	canViewTeamLearning: Boolean
+	canManageCourses: Boolean
+	canPublishCourses: Boolean
+	canDeleteCourses: Boolean
+	canManageTeams: Boolean
+	canManageTeamOperations: Boolean
+	canConfirmTeamOperations: Boolean
+}
+input StaffRoleUserPermissionsInput {
+	canManageUsers: Boolean
+	canAssignStaffRoles: Boolean
+	canViewStaffUsers: Boolean
+}
+input StaffRoleRolePermissionsInput {
+	canViewRoles: Boolean
+	canAddRole: Boolean
+	canEditRole: Boolean
+	canRemoveRole: Boolean
+}
+input StaffRolePermissionsInput {
+	staffPortalPermissions: StaffRolePortalPermissionsInput
+	userPermissions: StaffRoleUserPermissionsInput
+	staffRolePermissions: StaffRoleRolePermissionsInput
+}
+input StaffRoleCreateInput {
+	roleName: String!
+	enterpriseAppRole: String!
+	permissions: StaffRolePermissionsInput
+}
+input StaffRoleUpdateInput {
+	roleId: ObjectID!
+	roleName: String!
+	enterpriseAppRole: String!
+	permissions: StaffRolePermissionsInput
+}
+type StaffRoleMutationResult {
+	status: MutationStatus!
+	staffRole: StaffRole
+}
+extend type Mutation {
+	staffRoleCreate(input: StaffRoleCreateInput!): StaffRoleMutationResult!
+	staffRoleUpdate(input: StaffRoleUpdateInput!): StaffRoleMutationResult!
+}

@@ -5,6 +5,7 @@ import { Delivery, type DeliveryContextApplicationService } from './contexts/del
 import { Learning, type LearningContextApplicationService } from './contexts/learning/index.ts';
 import { Operations, type OperationsContextApplicationService } from './contexts/operations/index.ts';
 import { Teams, type TeamsApplicationService } from './contexts/teams/index.ts';
+import { User, type UserContextApplicationService } from './contexts/user/index.ts';
 
 export type { AssignLearningCommand } from './contexts/delivery/learning-record/assign.ts';
 export type { CourseCreateCommand } from './contexts/learning/course/create.ts';
@@ -24,6 +25,8 @@ export interface VerifiedUser {
 	verifiedJwt?: VerifiedJwt;
 	openIdConfigKey?: string;
 	hints?: PrincipalHints;
+	staffUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference;
+	learnerUser?: Domain.Contexts.User.LearnerUser.LearnerUserEntityReference;
 }
 
 export type PrincipalHints = { organizationId?: string; learnerId?: string };
@@ -34,6 +37,7 @@ export interface ApplicationServices {
 	Delivery: DeliveryContextApplicationService;
 	Operations: OperationsContextApplicationService;
 	Teams: TeamsApplicationService;
+	User: UserContextApplicationService;
 }
 
 export interface AppServicesHost<S> {
@@ -44,26 +48,27 @@ export type ApplicationServicesFactory = AppServicesHost<ApplicationServices>;
 
 const getIdentity = (verifiedJwt: VerifiedJwt | undefined): VerifiedJwt => verifiedJwt ?? { sub: 'anonymous' };
 
-const getPassport = (verifiedJwt: VerifiedJwt | undefined): Domain.Passport => {
-	if (!verifiedJwt) return Domain.PassportFactory.forGuest();
-	const roles = verifiedJwt.roles ?? [];
-	if (roles.includes('ManagerLearningAdmin') || (roles.includes('Manager') && roles.includes('LearningAdmin'))) return Domain.PassportFactory.forManagerLearningAdmin();
-	if (roles.includes('LearningAdmin')) return Domain.PassportFactory.forLearningAdmin();
-	if (roles.includes('Manager')) return Domain.PassportFactory.forManager();
-	if (roles.includes('Instructor')) return Domain.PassportFactory.forInstructor();
-	return Domain.PassportFactory.forLearner(verifiedJwt.sub);
-};
-
 export const buildApplicationServicesFactory = (context: ApiContextSpec): ApplicationServicesFactory => ({
 	async forRequest(rawAuthHeader, hints) {
 		const accessToken = rawAuthHeader?.replace(/^Bearer\s+/i, '').trim();
 		const tokenValidationResult = accessToken ? await context.tokenValidationService.verifyJwt<VerifiedJwt>(accessToken) : null;
 		const verifiedJwt = tokenValidationResult?.verifiedJwt;
 		const identity = getIdentity(verifiedJwt);
-		const passport = getPassport(verifiedJwt);
+		let passport = Domain.PassportFactory.forGuest();
+		let staffUser: Domain.Contexts.User.StaffUser.StaffUserEntityReference | undefined;
+		let learnerUser: Domain.Contexts.User.LearnerUser.LearnerUserEntityReference | undefined;
+		if (tokenValidationResult?.openIdConfigKey === 'StaffPortal') {
+			const systemDataSources = context.dataSourcesFactory.withSystemPassport();
+			staffUser = await systemDataSources.readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(identity.sub) ?? undefined;
+			if (staffUser) passport = Domain.PassportFactory.forStaffUser(staffUser);
+		} else if (verifiedJwt) {
+			const systemDataSources = context.dataSourcesFactory.withSystemPassport();
+			learnerUser = await systemDataSources.readonlyDataSource.User.LearnerUser.LearnerUserReadRepo.getByExternalId(verifiedJwt.sub) ?? undefined;
+			passport = learnerUser ? Domain.PassportFactory.forLearnerUser(learnerUser) : Domain.PassportFactory.forLearner(verifiedJwt.sub);
+		}
 		const dataSources: DataSources = context.dataSourcesFactory.withPassport(passport);
 		const verifiedUser: VerifiedUser | null = tokenValidationResult
-			? { ...tokenValidationResult, ...(hints ? { hints } : {}) }
+			? { ...tokenValidationResult, ...(hints ? { hints } : {}), ...(staffUser ? { staffUser } : {}), ...(learnerUser ? { learnerUser } : {}) }
 			: null;
 		return {
 			get verifiedUser() {
@@ -73,6 +78,7 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			Delivery: Delivery(dataSources, passport, identity),
 			Operations: Operations(dataSources, passport, { sub: identity.sub, ...(identity.email ? { email: identity.email } : {}), ...(identity.given_name ? { given_name: identity.given_name } : {}), ...(identity.family_name ? { family_name: identity.family_name } : {}) }),
 			Teams: Teams(dataSources, passport, identity),
+			User: User(dataSources, passport),
 		};
 	},
 });

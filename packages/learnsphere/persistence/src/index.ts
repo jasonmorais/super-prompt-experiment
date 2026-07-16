@@ -5,6 +5,9 @@ import { DataSourcesFactoryImpl } from './datasources/index.ts';
 export type ModelsContext = ReturnType<typeof mongooseContextBuilder>;
 export type { DataSources, DataSourcesFactory, ReadonlyDataSource } from './datasources/index.ts';
 export type { TeamDataSource, TeamRecord } from './datasources/teams/team-data-source.ts';
+export type { LearnerUserReadRepository } from './datasources/readonly/user/learner-user/index.ts';
+export type { StaffRoleReadRepository } from './datasources/readonly/user/staff-role/index.ts';
+export type { StaffUserReadRepository } from './datasources/readonly/user/staff-user/index.ts';
 
 /**
  * Builds the application's data-source factory from a connected Mongoose

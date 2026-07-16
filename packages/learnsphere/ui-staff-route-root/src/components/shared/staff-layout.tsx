@@ -1,10 +1,11 @@
 import { BookOutlined, DashboardOutlined, LogoutOutlined, ThunderboltOutlined, TeamOutlined } from '@ant-design/icons';
-import { getStaffCapabilities, readLearnSphereIdentity } from '@learnsphere/ui-shared';
+import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Avatar, Button, ConfigProvider, Layout, Menu, Space, Tag, Typography, type MenuProps } from 'antd';
 import type { ReactNode } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './staff-layout.module.css';
+import { useStaffAuthorization } from '../../staff-authorization.tsx';
 
 const { Sider, Header, Content } = Layout;
 
@@ -23,10 +24,10 @@ export const StaffLayout = ({ children }: StaffLayoutProps) => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const identity = readLearnSphereIdentity(auth.user?.profile);
+	const authorization = useStaffAuthorization();
 	const name = `${identity.givenName} ${identity.familyName}`.trim() || identity.email || 'Staff user';
 	const initials = `${identity.givenName[0] ?? ''}${identity.familyName[0] ?? ''}` || name.slice(0, 2).toUpperCase();
-	const roles = identity.roles;
-	const capabilities = getStaffCapabilities(roles);
+	const capabilities = authorization.capabilities;
 	const organizationName = identity.organizationName;
 	const menuItems: MenuProps['items'] = [
 		...(capabilities.canViewTeamLearning ? [{ key: 'team', icon: <DashboardOutlined />, label: 'Team overview' }] : []),
@@ -64,7 +65,7 @@ export const StaffLayout = ({ children }: StaffLayoutProps) => {
 						</div>
 						<small className={styles['permissions-copy']}>Create courses, assign learning, and review team progress.</small>
 						<div className={styles['permission-tags']}>
-							{roles.map((role) => (
+							{[authorization.roleName].filter(Boolean).map((role) => (
 								<Tag
 									key={role}
 									bordered={false}

@@ -1,10 +1,13 @@
 import { type MongoMemoryServerConfig, startMockMongoDB } from '@cellix/server-mongodb-memory-mock-seedwork';
 import { setupEnvironment } from './setup-environment.ts';
+import { seedMockUsers } from './mock-user-seed.ts';
 import { ObjectId } from 'mongodb';
+import { fileURLToPath } from 'node:url';
 
 setupEnvironment();
 
 const { PORT, DB_NAME, REPL_SET_NAME } = process.env;
+const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
 
 /**
  * Starts a deterministic LearnSphere development tenant once the API has
@@ -14,13 +17,14 @@ const config: MongoMemoryServerConfig = {
 	port: Number(PORT ?? 50000),
 	dbName: DB_NAME ?? 'learnsphere',
 	replSetName: REPL_SET_NAME ?? 'globaldb',
-	collectionsToSeed: ['courses', 'learningrecords', 'teamoperations', 'teams'],
+	collectionsToSeed: ['courses', 'learningrecords', 'teamoperations', 'teams', 'roles', 'users'],
 	seedDatabase: async (connection) => {
 		const db = connection.db;
 		if (!db) throw new Error('MongoDB connection is not ready for LearnSphere seeding');
 		const learnerId = '00000000-0000-4000-8000-000000000001';
 		const organizationId = 'simnova';
 		const now = new Date();
+		await seedMockUsers(db, repoRoot);
 		const courseDocuments = [
 			{
 				_id: new ObjectId('66a000000000000000000001'), organizationId, title: 'Designing Accessible Digital Products', summary: 'Build inclusive product experiences that work for everyone.', description: 'A practical pathway through accessibility research, interaction design, content, testing, and delivery.', status: 'PUBLISHED', level: 'INTERMEDIATE', category: 'Design', discoverability: 'CATALOG', tags: ['accessibility', 'inclusive-design'], skills: ['WCAG', 'Inclusive research'], createdBy: 'instructor@simnova.example', publishedAt: now, schemaVersion: '1.0.0', createdAt: now, updatedAt: now,

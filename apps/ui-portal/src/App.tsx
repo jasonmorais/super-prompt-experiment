@@ -1,5 +1,5 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { Catalog, Course, Login, Operations, Root, TeamGoal } from '@learnsphere/ui-route-root';
+import { Catalog, Course, Login, Operations, Root, TeamGoal, useLearnerAuthorization } from '@learnsphere/ui-route-root';
 import { Spin } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -7,13 +7,14 @@ import { ApolloConnection } from './components/ui/organisms/apollo-connection/in
 
 const Authenticated = ({ children }: { children: React.JSX.Element }) => {
 	const auth = useAuth();
+	const learner = useLearnerAuthorization();
 	if (auth.isLoading || auth.activeNavigator)
 		return (
 			<div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
 				<Spin size="large" />
 			</div>
 		);
-	return auth.isAuthenticated ? (
+	return auth.isAuthenticated && !learner.loading ? (
 		children
 	) : (
 		<Navigate
