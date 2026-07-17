@@ -1,27 +1,11 @@
-import type { ServiceBase } from '@cellix/api-services-spec';
+import { createRegisteredQueueService, registerQueues } from '@cellix/service-queue-storage';
 
 export type { QueueLoggingConfig } from '@cellix/service-queue-storage';
 
-/**
- * Strongly-typed queue operations exposed to the application context.
- *
- * The blank scaffold registers no queues. Define queues with `defineQueue` and
- * `registerQueues` from `@cellix/service-queue-storage`, then surface their
- * `sendMessageTo<Queue>` / `receiveFrom<Queue>` operations on this interface.
- */
-// biome-ignore lint:noEmptyInterface — extension point; populated as queues are registered.
-export interface QueueStorageOperations {}
+// Keep the service registered through Cellix even while LearnSphere has no
+// application queues. Adding a queue later only changes this registry; the
+// lifecycle and storage authentication remain the standard Cellix behavior.
+const queues = registerQueues({ outbound: {}, inbound: {} });
 
-/**
- * Infrastructure service that owns the queue-storage lifecycle. Ships as an
- * empty placeholder that satisfies the Cellix `ServiceBase` contract.
- */
-export class ServiceQueueStorage implements ServiceBase<QueueStorageOperations>, QueueStorageOperations {
-	public startUp(): Promise<QueueStorageOperations> {
-		return Promise.resolve(this);
-	}
-
-	public shutDown(): Promise<void> {
-		return Promise.resolve();
-	}
-}
+export const ServiceQueueStorage = createRegisteredQueueService(queues);
+export type ServiceQueueStorage = InstanceType<typeof ServiceQueueStorage>;

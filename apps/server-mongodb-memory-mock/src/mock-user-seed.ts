@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Db } from 'mongodb';
 import { ObjectId } from 'mongodb';
+import { seedCollection } from './seed/seed-collection.ts';
 
 interface MockOidcUser {
 	sub: string;
@@ -37,14 +38,14 @@ const staffRoleIdFor = (user: MockOidcUser): ObjectId => {
 
 export const seedMockUsers = async (db: Db, repoRoot: string): Promise<void> => {
 	const [learnerUsers, staffUsers] = await Promise.all([readMockUsers(repoRoot, 'ui-portal'), readMockUsers(repoRoot, 'ui-staff')]);
-	const now = new Date();
-	await db.collection('organizations').insertMany([
+	const now = new Date('2026-07-01T00:00:00Z');
+	await seedCollection(db, 'organizations', [
 		{ _id: new ObjectId('66f000000000000000000001'), externalId: 'simnova', name: 'SimNova', parentOrganizationId: null, ancestorOrganizationIds: [], createdBy: 'system', schemaVersion: '1.0.0', createdAt: now, updatedAt: now },
 		{ _id: new ObjectId('66f000000000000000000002'), externalId: 'simnova-product', name: 'Product Experience', parentOrganizationId: 'simnova', ancestorOrganizationIds: ['simnova'], createdBy: 'system', schemaVersion: '1.0.0', createdAt: now, updatedAt: now },
 		{ _id: new ObjectId('66f000000000000000000003'), externalId: 'simnova-data', name: 'Data & Insights', parentOrganizationId: 'simnova', ancestorOrganizationIds: ['simnova'], createdBy: 'system', schemaVersion: '1.0.0', createdAt: now, updatedAt: now },
 	]);
 
-	await db.collection('roles').insertMany([
+	await seedCollection(db, 'roles', [
 		{
 			_id: managerRoleId,
 			roleType: 'staff-user-role',
@@ -77,7 +78,7 @@ export const seedMockUsers = async (db: Db, repoRoot: string): Promise<void> => 
 		},
 	]);
 
-	await db.collection('users').insertMany([
+	await seedCollection(db, 'users', [
 		...learnerUsers.map((user, index) => {
 			const firstName = claim(user, 'given_name');
 			const lastName = claim(user, 'family_name') || firstName || 'Learner';

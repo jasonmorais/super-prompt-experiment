@@ -12,7 +12,7 @@ export const DataSourcesFactoryImpl = (models: ModelsContext): DataSourcesFactor
 	const withPassport = (passport: Passport): DataSources => ({
 		domainDataSource: DomainDataSourceImplementation(models, passport),
 		readonlyDataSource: ReadonlyDataSourceImplementation(models, passport),
-		teamDataSource: getTeamDataSource(models),
+		teamDataSource: getTeamDataSource(models, passport),
 	});
 	return {
 		withPassport,

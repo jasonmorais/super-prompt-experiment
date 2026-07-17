@@ -7,4 +7,4 @@ export interface LearningContextApplicationService {
 	Assessment: AssessmentApplicationService;
 }
 
-export const Learning = (dataSources: DataSources, passport: import('@learnsphere/domain').Passport, createdBy: string): LearningContextApplicationService => ({ Course: Course(dataSources, createdBy), Assessment: Assessment(dataSources, passport, createdBy) });
+export const Learning = (dataSources: DataSources, createdBy: string): LearningContextApplicationService => ({ Course: Course(dataSources, createdBy), Assessment: Assessment(dataSources, createdBy) });

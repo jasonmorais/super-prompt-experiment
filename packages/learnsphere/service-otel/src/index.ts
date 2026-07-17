@@ -1,4 +1,7 @@
 import type { SyncServiceBase } from '@cellix/api-services-spec';
+import * as opentelemetry from '@opentelemetry/sdk-node';
+import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
+import { OtelBuilder } from './otel-builder.ts';
 
 export interface OtelConfig {
 	/** Export telemetry to the console. @default false */
@@ -7,28 +10,28 @@ export interface OtelConfig {
 	useSimpleProcessors?: boolean;
 }
 
-/**
- * OpenTelemetry bootstrap service.
- *
- * The blank scaffold ships a no-op placeholder that satisfies the Cellix
- * `SyncServiceBase` lifecycle. Wire the OpenTelemetry Node SDK
- * (`@opentelemetry/sdk-node` plus the Azure Monitor exporter) here to enable
- * traces, metrics, and logs for your application.
- */
 export class ServiceOtel implements SyncServiceBase<void> {
-	private readonly config: OtelConfig;
+	private readonly sdk: opentelemetry.NodeSDK;
 
 	constructor(config: OtelConfig) {
-		this.config = config;
+		const builder = new OtelBuilder();
+		const exporters = builder.buildExporters(config.exportToConsole);
+		this.sdk = new opentelemetry.NodeSDK({
+			...builder.buildProcessors(config.useSimpleProcessors, exporters),
+			metricReader: builder.buildMetricReader(exporters),
+			instrumentations: builder.buildInstrumentations(),
+			resource: opentelemetry.resources.Resource.default().merge(new opentelemetry.resources.Resource({ [ATTR_SERVICE_NAME]: 'LearnSphere', [ATTR_SERVICE_VERSION]: '1.0.0' })),
+			sampler: builder.buildSampler(),
+		});
 	}
 
 	public startUp(): void {
-		if (this.config.exportToConsole) {
-			console.log('ServiceOtel started (placeholder — configure the OpenTelemetry SDK to enable telemetry)');
-		}
+		this.sdk.start();
+		console.log('ServiceOtel started');
 	}
 
 	public shutDown(): void {
+		void this.sdk.shutdown();
 		console.log('ServiceOtel stopped');
 	}
 }

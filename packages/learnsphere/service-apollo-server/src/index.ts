@@ -60,11 +60,23 @@ export class ServiceApolloServer<TContext extends BaseContext = BaseContext> imp
 	}
 
 	public async shutDown(): Promise<void> {
-		if (!this.serverInternal) {
-			throw new Error('ServiceApolloServer is not started - shutdown cannot proceed');
-		}
-		await this.serverInternal.stop();
-		this.serverInternal = undefined;
+		await this.tracer.startActiveSpan('ServiceApolloServer.shutDown', async (span: Span) => {
+			try {
+				if (!this.serverInternal) {
+					throw new Error('ServiceApolloServer is not started - shutdown cannot proceed');
+				}
+				await this.serverInternal.stop();
+				this.serverInternal = undefined;
+				span.addEvent('ServiceApolloServer stopped');
+				span.setStatus({ code: SpanStatusCode.OK });
+			} catch (error) {
+				span.setStatus({ code: SpanStatusCode.ERROR, message: error instanceof Error ? error.message : 'Shutdown failed' });
+				if (error instanceof Error) span.recordException(error);
+				throw error;
+			} finally {
+				span.end();
+			}
+		});
 	}
 
 	public get server(): ApolloServer<TContext> {

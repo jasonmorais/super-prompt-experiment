@@ -45,7 +45,12 @@ export const TeamGoalDetail = ({ operation, learnerId, submitting, commenting, a
 						{operation.dueAt ? ` · Due ${new Date(operation.dueAt).toLocaleDateString()}` : ''}
 					</Text>
 				</Space>
-				<Title className="my-[14px] mb-2 text-white">{operation.title}</Title>
+				<Title
+					className="my-[14px] mb-2 text-white"
+					style={{ color: '#fff', fontWeight: 700 }}
+				>
+					{operation.title}
+				</Title>
 				<Paragraph className="m-0 text-base text-[#d5e6e1]">{operation.description}</Paragraph>
 			</Card>
 			<Card className="rounded-[18px] border border-[#e5eae6]">

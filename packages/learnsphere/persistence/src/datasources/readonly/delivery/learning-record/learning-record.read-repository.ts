@@ -21,15 +21,17 @@ export class LearningRecordReadRepositoryImpl implements LearningRecordReadRepos
 
 	async getById(id: string): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference | null> {
 		const document = await this.models.LearningRecord.findById(id).exec();
-		return document ? this.converter.toDomain(document, this.passport) : null;
+		return document && this.passport.canAccessOrganization(document.organizationId) ? this.converter.toDomain(document, this.passport) : null;
 	}
 
 	async getByLearner(organizationId: string, learnerId: string): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]> {
+		if (!this.passport.canAccessOrganization(organizationId)) throw new Error('You do not have access to this organization');
 		const documents = await this.models.LearningRecord.find({ organizationId, learnerId }).sort({ updatedAt: -1 }).exec();
-		return documents.map((document) => this.converter.toDomain(document, this.passport));
+		return documents.map((document) => this.converter.toDomain(document, this.passport)).filter((record) => this.passport.delivery.forLearningRecord(record).determineIf((permissions) => permissions.canRecordProgress || permissions.canViewTeamLearning));
 	}
 
 	async listByOrganization(organizationId: string, teamName?: string): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]> {
+		if (!this.passport.canAccessOrganization(organizationId) || !this.passport.canViewTeamLearning) throw new Error('You do not have access to team learning in this organization');
 		const documents = await this.models.LearningRecord.find({ organizationId, ...(teamName ? { teamName } : {}) })
 			.sort({ teamName: 1, learnerDisplayName: 1, updatedAt: -1 })
 			.exec();
@@ -37,6 +39,7 @@ export class LearningRecordReadRepositoryImpl implements LearningRecordReadRepos
 	}
 
 	async getTrainingLeaderboard(organizationId: string, limit = 100): Promise<Domain.Contexts.Delivery.LearningRecord.TrainingLeaderboardEntry[]> {
+		if (!this.passport.canAccessOrganization(organizationId) || !this.passport.canViewTeamLearning) throw new Error('You do not have access to team learning in this organization');
 		type AggregateEntry = Omit<Domain.Contexts.Delivery.LearningRecord.TrainingLeaderboardEntry, 'rank'> & { _id: string };
 		const entries = await this.models.LearningRecord.aggregate<AggregateEntry>([
 			{ $match: { organizationId } },

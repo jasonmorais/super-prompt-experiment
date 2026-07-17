@@ -1,6 +1,6 @@
 import type { DataSourcesFactory } from '@learnsphere/persistence';
 import type { ServiceApolloServer } from '@learnsphere/service-apollo-server';
-import type { ServiceBlobStorage } from '@learnsphere/service-blob-storage';
+import type { BlobStorageOperations } from '@learnsphere/service-blob-storage';
 import type { ServiceQueueStorage } from '@learnsphere/service-queue-storage';
 import type { TokenValidation } from '@learnsphere/service-token-validation';
 
@@ -18,7 +18,7 @@ export interface ApiContextSpec {
 	/** Apollo Server instance backing the GraphQL API. */
 	apolloServerService: ServiceApolloServer<Record<string, never>>;
 	/** Blob storage service for server-side blob operations. */
-	blobStorageService: ServiceBlobStorage;
+	blobStorageService: BlobStorageOperations;
 	/** Queue storage service for asynchronous messaging. */
 	queueStorageService: ServiceQueueStorage;
 }

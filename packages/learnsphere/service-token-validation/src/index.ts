@@ -1,5 +1,7 @@
 import type { ServiceBase } from '@cellix/api-services-spec';
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { type OpenIdConfig, VerifiedTokenService } from './verified-token-service.ts';
+
+export { type OpenIdConfig, VerifiedTokenService } from './verified-token-service.ts';
 
 export interface TokenValidation {
 	verifyJwt<ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null>;
@@ -8,13 +10,6 @@ export interface TokenValidation {
 export interface TokenValidationResult<ClaimsType> {
 	verifiedJwt: ClaimsType;
 	openIdConfigKey: string;
-}
-
-interface OpenIdConfig {
-	oidcEndpoint: string;
-	audience: string;
-	issuerUrl: string;
-	ignoreIssuer: boolean;
 }
 
 /**
@@ -26,48 +21,43 @@ interface OpenIdConfig {
  */
 export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 	private readonly tokenSettings: Map<string, OpenIdConfig>;
-	private readonly jwksCache: Map<string, ReturnType<typeof createRemoteJWKSet>>;
+	private readonly tokenVerifier: VerifiedTokenService;
+	private readonly refreshInterval: number;
 
-	constructor(portalTokens: Map<string, string>) {
+	constructor(portalTokens: Map<string, string>, refreshInterval = 1000 * 60 * 5) {
 		this.tokenSettings = new Map<string, OpenIdConfig>();
-		this.jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
+		this.refreshInterval = refreshInterval;
 		for (const [portalKey, envPrefix] of portalTokens) {
 			this.tokenSettings.set(portalKey, {
 				oidcEndpoint: this.requireEnv(`${envPrefix}_OIDC_ENDPOINT`),
+				clockTolerance: process.env[`${envPrefix}_OIDC_CLOCK_TOLERANCE`] ?? '5 minutes',
 				audience: this.requireEnv(`${envPrefix}_OIDC_AUDIENCE`),
 				issuerUrl: this.requireEnv(`${envPrefix}_OIDC_ISSUER`),
 				ignoreIssuer: (process.env[`${envPrefix}_OIDC_IGNORE_ISSUER`] ?? 'false') === 'true',
 			});
 		}
+		this.tokenVerifier = new VerifiedTokenService(this.tokenSettings, this.refreshInterval);
 	}
 
 	public startUp(): Promise<TokenValidation> {
-		for (const [key, config] of this.tokenSettings) {
-			this.jwksCache.set(key, createRemoteJWKSet(new URL(config.oidcEndpoint)));
-		}
+		this.tokenVerifier.start();
 		return Promise.resolve(this);
 	}
 
 	public async verifyJwt<ClaimsType>(token: string): Promise<TokenValidationResult<ClaimsType> | null> {
-		for (const [key, config] of this.tokenSettings) {
-			const jwks = this.jwksCache.get(key);
-			if (!jwks) {
-				continue;
-			}
+		for (const key of this.tokenSettings.keys()) {
 			try {
-				const { payload } = await jwtVerify(token, jwks, {
-					audience: config.audience,
-					...(config.ignoreIssuer ? {} : { issuer: config.issuerUrl }),
-				});
+				const { payload } = await this.tokenVerifier.getVerifiedJwt(token, key);
 				return { verifiedJwt: payload as unknown as ClaimsType, openIdConfigKey: key };
-			} catch {
-				// Signature or claims validation failed for this portal; try the next one.
+			} catch (error) {
+				if (!this.isRetryableVerificationError(error)) throw error;
 			}
 		}
 		return null;
 	}
 
 	public shutDown(): Promise<void> {
+		if (this.tokenVerifier.timerInstance) clearInterval(this.tokenVerifier.timerInstance);
 		return Promise.resolve();
 	}
 
@@ -77,5 +67,9 @@ export class ServiceTokenValidation implements ServiceBase<TokenValidation> {
 			throw new Error(`Environment variable ${name} not set`);
 		}
 		return value;
+	}
+
+	private isRetryableVerificationError(error: unknown): boolean {
+		return error instanceof Error && ['JWSSignatureVerificationFailed', 'JWTClaimValidationFailed', 'JWTExpired', 'JWTInvalid', 'JWSInvalid'].includes(error.name);
 	}
 }

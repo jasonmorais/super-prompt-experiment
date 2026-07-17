@@ -1,5 +1,5 @@
 import type { DataSources } from '@learnsphere/persistence';
-import type { Domain, Passport } from '@learnsphere/domain';
+import type { Domain } from '@learnsphere/domain';
 
 export interface TeamLearningCommand {
 	organizationId: string;
@@ -7,8 +7,5 @@ export interface TeamLearningCommand {
 }
 
 export const teamLearning =
-	(dataSources: DataSources, passport: Passport): ((command: TeamLearningCommand) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]>) =>
-	(command) => {
-		if (!passport.canViewTeamLearning || !passport.canAccessOrganization(command.organizationId)) throw new Error('You do not have access to team learning in this organization');
-		return dataSources.readonlyDataSource.Delivery.LearningRecord.LearningRecordReadRepo.listByOrganization(command.organizationId, command.teamName);
-	};
+		(dataSources: DataSources): ((command: TeamLearningCommand) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]>) =>
+		(command) => dataSources.readonlyDataSource.Delivery.LearningRecord.LearningRecordReadRepo.listByOrganization(command.organizationId, command.teamName);

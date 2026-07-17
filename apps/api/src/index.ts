@@ -25,14 +25,14 @@ import * as TokenValidationConfig from './service-config/token-validation/index.
  *   register infrastructure services → build the context → initialize
  *   application services → register HTTP handlers → start up.
  *
-	* LearnSphere wires Mongo, blob and queue storage, multi-portal token
-	* validation, Apollo, and the GraphQL, REST, and health HTTP boundaries here.
+ * LearnSphere wires Mongo, blob and queue storage, multi-portal token
+ * validation, Apollo, and the GraphQL, REST, and health HTTP boundaries here.
  */
 Cellix.initializeInfrastructureServices<ApiContextSpec, ApplicationServices>((serviceRegistry) => {
 	serviceRegistry
 		.registerInfrastructureService(new ServiceMongoose(MongooseConfig.mongooseConnectionString, MongooseConfig.mongooseConnectOptions))
 		.registerInfrastructureService(new ServiceBlobStorage({ accountName: AzureStorageConfig.accountName, ...(AzureStorageConfig.connectionString ? { connectionString: AzureStorageConfig.connectionString } : {}) }))
-		.registerInfrastructureService(new ServiceQueueStorage())
+		.registerInfrastructureService(new ServiceQueueStorage(AzureStorageConfig.connectionString ? { connectionString: AzureStorageConfig.connectionString } : { accountName: AzureStorageConfig.accountName }))
 		.registerInfrastructureService(new ServiceTokenValidation(TokenValidationConfig.portalTokens))
 		.registerInfrastructureService(new ServiceApolloServer<GraphContext>(ApolloServerConfig.apolloServerOptions));
 })

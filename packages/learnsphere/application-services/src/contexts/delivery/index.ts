@@ -1,5 +1,4 @@
 import type { DataSources } from '@learnsphere/persistence';
-import type { Passport } from '@learnsphere/domain';
 import { LearningRecord, type LearningRecordApplicationService } from './learning-record/index.ts';
 import { AssessmentAttempt, type AssessmentAttemptApplicationService } from './assessment-attempt/index.ts';
 
@@ -8,7 +7,7 @@ export interface DeliveryContextApplicationService {
 	AssessmentAttempt: AssessmentAttemptApplicationService;
 }
 
-export const Delivery = (dataSources: DataSources, passport: Passport, identity: { sub: string; email?: string; given_name?: string; family_name?: string }): DeliveryContextApplicationService => ({
-	LearningRecord: LearningRecord(dataSources, passport, identity),
+export const Delivery = (dataSources: DataSources, identity: { sub: string; email?: string; given_name?: string; family_name?: string }): DeliveryContextApplicationService => ({
+	LearningRecord: LearningRecord(dataSources, identity),
 	AssessmentAttempt: AssessmentAttempt(dataSources, identity.sub),
 });

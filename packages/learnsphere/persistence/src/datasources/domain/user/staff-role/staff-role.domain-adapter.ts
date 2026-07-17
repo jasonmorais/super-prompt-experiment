@@ -7,7 +7,7 @@ export class StaffRoleConverter extends MongooseSeedwork.MongoTypeConverter<Staf
 }
 export class StaffRoleDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<StaffRoleDocument> implements Domain.Contexts.User.StaffRole.StaffRoleProps {
 	get roleName() { return this.doc.roleName; } set roleName(value: string) { this.doc.roleName = value; }
-	get enterpriseAppRole() { return this.doc.enterpriseAppRole; } set enterpriseAppRole(value: Domain.Contexts.User.StaffRole.StaffEnterpriseAppRole) { this.doc.enterpriseAppRole = value; }
+	get enterpriseAppRole(): Domain.Contexts.User.StaffRole.StaffEnterpriseAppRole { return this.doc.enterpriseAppRole as Domain.Contexts.User.StaffRole.StaffEnterpriseAppRole; } set enterpriseAppRole(value: Domain.Contexts.User.StaffRole.StaffEnterpriseAppRole) { this.doc.enterpriseAppRole = value as typeof this.doc.enterpriseAppRole; }
 	get isDefault() { return this.doc.isDefault; } set isDefault(value: boolean) { this.doc.isDefault = value; }
 	get permissions() { if (!this.doc.permissions) this.doc.set('permissions', {}); return this.doc.permissions; } set permissions(value) { this.doc.permissions = value; }
 	get roleType() { return this.doc.roleType ?? null; }

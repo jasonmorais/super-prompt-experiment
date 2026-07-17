@@ -56,7 +56,7 @@ export const Operations = ({ operations, learnerId, loading, onOpenGoal }: Opera
 					>
 						<Card
 							loading={loading}
-							className="h-full rounded-[18px] border border-[#e5eae6]"
+							className="h-full rounded-[18px] border border-[#d9eee4] bg-[#f5fbf8]"
 							title={
 								<Space>
 									<ThunderboltOutlined />
@@ -64,7 +64,7 @@ export const Operations = ({ operations, learnerId, loading, onOpenGoal }: Opera
 								</Space>
 							}
 						>
-							<Title level={4}>{operation.title}</Title>
+							<Title level={4} className="text-[#173b33]">{operation.title}</Title>
 							<Text type="secondary">
 								{operation.category} · {operation.priority.toLowerCase()}
 							</Text>
@@ -102,7 +102,7 @@ export const Operations = ({ operations, learnerId, loading, onOpenGoal }: Opera
 					>
 						<Card
 							loading={loading}
-							className="h-full rounded-[18px] border border-[#e5eae6]"
+							className="h-full rounded-[18px] border border-[#d9eee4] bg-[#f5fbf8]"
 							title={
 								<Space>
 									<ThunderboltOutlined />
@@ -110,7 +110,7 @@ export const Operations = ({ operations, learnerId, loading, onOpenGoal }: Opera
 								</Space>
 							}
 						>
-							<Title level={4}>{operation.title}</Title>
+							<Title level={4} className="text-[#173b33]">{operation.title}</Title>
 							<Text type="secondary">
 								Team goal · {operation.category} · {operation.priority.toLowerCase()}
 							</Text>

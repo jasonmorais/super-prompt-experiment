@@ -1,4 +1,3 @@
-import type { Passport } from '@learnsphere/domain';
 import type { DataSources, TeamRecord } from '@learnsphere/persistence';
 
 export interface TeamsIdentity {
@@ -21,18 +20,7 @@ export interface TeamsApplicationService {
 
 export interface TeamsServiceDependencies {
 	dataSources: DataSources;
-	passport: Passport;
 	identity: TeamsIdentity;
 }
-
-export const requireTeamStaff = (passport: Passport): void => {
-	if (!passport.canViewTeamLearning) throw new Error('Manager or learning administrator role required');
-};
-
-export const requireTeamManagement = (passport: Passport): void => {
-	if (!passport.canManageTeams) throw new Error('Manager role required');
-};
-
-export const requireOrganizationAccess = (passport: Passport, organizationId: string): void => { if (!passport.canAccessOrganization(organizationId)) throw new Error('You do not have access to this organization'); };
 
 export const actorName = (identity: TeamsIdentity): string => `${identity.given_name ?? ''} ${identity.family_name ?? ''}`.trim() || identity.email || identity.sub;

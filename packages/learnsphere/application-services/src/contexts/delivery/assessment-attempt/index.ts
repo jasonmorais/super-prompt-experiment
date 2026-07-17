@@ -10,7 +10,7 @@ export const AssessmentAttempt = (dataSources: DataSources, learnerId: string) =
 		const course = await dataSources.readonlyDataSource.Learning.Course.CourseReadRepo.getById(command.courseId, { organizationId: assessmentRef.organizationId, learnerId });
 		const activity = course?.modules.flatMap((module) => module.lessons).find((lesson) => lesson.key === command.activityKey);
 		if (!course || activity?.type !== 'ASSESSMENT' || activity.assessment?.id !== assessmentRef.id) throw new Error('Assessment is not attached to this course activity');
-		const attemptCount = await dataSources.readonlyDataSource.Delivery.AssessmentAttempt.AssessmentAttemptReadRepo.count({ learnerId, assessmentId: assessmentRef.id, courseId: command.courseId, activityKey: command.activityKey });
+		const attemptCount = await dataSources.readonlyDataSource.Delivery.AssessmentAttempt.AssessmentAttemptReadRepo.count({ organizationId: assessmentRef.organizationId, learnerId, assessmentId: assessmentRef.id, courseId: command.courseId, activityKey: command.activityKey });
 		if (attemptCount >= assessmentRef.maxAttempts) throw new Error('Maximum assessment attempts reached');
 		let result: Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttemptEntityReference | undefined;
 		await dataSources.domainDataSource.Learning.Assessment.AssessmentUnitOfWork.withScopedTransaction(async (assessmentRepository) => {

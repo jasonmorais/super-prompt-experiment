@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { Domain, Passport } from '@learnsphere/domain';
+import type { Domain } from '@learnsphere/domain';
 import type { DataSources } from '@learnsphere/persistence';
 import { cancel } from './cancel.ts';
 import { confirm } from './confirm.ts';
@@ -24,13 +24,13 @@ export interface TeamOperationApplicationService {
 	update: (command: { id: string; title: string; description: string; category: string; priority: Domain.Contexts.Operations.TeamOperation.TeamOperationPriority; assigneeId: string; assigneeDisplayName: string; assigneeEmail: string; teamName: string; dueAt?: Date }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 }
 
-export const TeamOperation = (dataSources: DataSources, passport: Passport, identity: { sub: string; email?: string; given_name?: string; family_name?: string }): TeamOperationApplicationService => {
+export const TeamOperation = (dataSources: DataSources, identity: { sub: string; email?: string; given_name?: string; family_name?: string }): TeamOperationApplicationService => {
 	const actorId = identity.email ?? identity.sub;
 	const actorName = `${identity.given_name ?? ''} ${identity.family_name ?? ''}`.trim() || actorId;
 	return {
-		myOperations: (command) => { if (!passport.canAccessOrganization(command.organizationId)) throw new Error('You do not have access to this organization'); return myOperations(dataSources)({ ...command, assigneeId: identity.sub }); },
-		teamOperations: teamOperations(dataSources, passport),
-		create: (command) => { if (!passport.canAccessOrganization(command.organizationId)) throw new Error('You do not have access to this organization'); return create(dataSources)({ ...command, createdBy: actorId }); },
+		myOperations: (command) => myOperations(dataSources)({ ...command, assigneeId: identity.sub }),
+		teamOperations: teamOperations(dataSources),
+		create: (command) => create(dataSources)({ ...command, createdBy: actorId }),
 		submit: (command) => submit(dataSources)({ ...command, actorId }),
 		confirm: (command) => confirm(dataSources)({ ...command, actorId }),
 		cancel: (command) => cancel(dataSources)({ ...command, actorId }),
@@ -39,10 +39,6 @@ export const TeamOperation = (dataSources: DataSources, passport: Passport, iden
 		update: async (command) => {
 			const operation = await dataSources.readonlyDataSource.Operations.TeamOperation.TeamOperationReadRepo.getById(command.id);
 			if (!operation) throw new Error('Team operation was not found');
-			if (!passport.operations.forTeamOperation(operation).determineIf((permissions) => permissions.canManageTeamOperations)) {
-				const team = (await dataSources.teamDataSource.list(operation.organizationId)).find((candidate) => candidate.name === operation.teamName);
-				if (!team?.teamLeadIds.includes(identity.sub)) throw new Error('Only a team lead or manager can edit team goals');
-			}
 			return mutate(dataSources, command.id, (entity) => entity.updateDetails({ ...command, dueAt: command.dueAt ?? null, changedBy: actorId }));
 		},
 	};

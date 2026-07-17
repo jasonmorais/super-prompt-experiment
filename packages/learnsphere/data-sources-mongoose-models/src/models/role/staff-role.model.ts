@@ -34,7 +34,7 @@ export interface StaffRolePermissions {
 }
 export interface StaffRole extends Role {
 	roleName: string;
-	enterpriseAppRole: string;
+	enterpriseAppRole: StaffEnterpriseAppRole;
 	isDefault: boolean;
 	permissions: StaffRolePermissions;
 }
@@ -66,7 +66,7 @@ const rolePermissions: SchemaDefinition<StaffRoleRolePermissions> = {
 const StaffRoleSchema = new Schema<StaffRole, Model<StaffRole>, StaffRole>({
 	schemaVersion: { type: String, default: '1.0.0', immutable: true },
 	roleName: { type: String, required: true, maxlength: 256 },
-	enterpriseAppRole: { type: String, required: true, maxlength: 256 },
+	enterpriseAppRole: { type: String, required: true, enum: StaffEnterpriseAppRoles, maxlength: 256 },
 	isDefault: { type: Boolean, required: true, default: false },
 	permissions: {
 		staffPortalPermissions: { type: portalPermissions, required: true, default: () => ({}) },

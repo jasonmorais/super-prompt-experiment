@@ -1,4 +1,5 @@
 import type { Team as TeamDocument, TeamMember } from '@learnsphere/data-sources-mongoose-models';
+import type { Domain } from '@learnsphere/domain';
 import type { ModelsContext } from '../../index.ts';
 
 export interface TeamRecord { id: string; schemaVersion: string; organizationId: string; name: string; members: TeamMember[]; teamLeadIds: string[]; createdBy: string; createdAt: Date; updatedAt: Date; }
@@ -25,13 +26,22 @@ const toRecord = (document: TeamDocument): TeamRecord => {
 
 export class TeamDataSourceImpl implements TeamDataSource {
 	private readonly models: ModelsContext;
-	constructor(models: ModelsContext) { this.models = models; }
-	async getById(id: string) { const document = await this.models.Team.findById(id).exec(); return document ? toRecord(document) : null; }
-	async list(organizationId: string) { const documents = await this.models.Team.find({ organizationId }).sort({ name: 1 }).exec(); return documents.map(toRecord); }
-	async create(input: { organizationId: string; name: string; createdBy: string }) { const document = await this.models.Team.create({ ...input, members: [], teamLeadIds: [] }); return toRecord(document); }
+	private readonly passport: Domain.Passport;
+	constructor(models: ModelsContext, passport: Domain.Passport) { this.models = models; this.passport = passport; }
+	private requireView(organizationId: string): void {
+		if (!this.passport.canAccessOrganization(organizationId) || !this.passport.canViewTeamLearning) throw new Error('You do not have access to team learning in this organization');
+	}
+	private requireManage(organizationId: string): void {
+		this.requireView(organizationId);
+		if (!this.passport.canManageTeams) throw new Error('Manager role required');
+	}
+	async getById(id: string) { const document = await this.models.Team.findById(id).exec(); if (document) this.requireView(document.organizationId); return document ? toRecord(document) : null; }
+	async list(organizationId: string) { this.requireView(organizationId); const documents = await this.models.Team.find({ organizationId }).sort({ name: 1 }).exec(); return documents.map(toRecord); }
+	async create(input: { organizationId: string; name: string; createdBy: string }) { this.requireManage(input.organizationId); const document = await this.models.Team.create({ ...input, members: [], teamLeadIds: [] }); return toRecord(document); }
 	async rename(id: string, name: string) {
 		const current = await this.models.Team.findById(id).exec();
 		if (!current) throw new Error('Team was not found');
+		this.requireManage(current.organizationId);
 		const oldName = current.name;
 		current.name = name.trim();
 		await current.save();
@@ -42,17 +52,21 @@ export class TeamDataSourceImpl implements TeamDataSource {
 	async remove(id: string) {
 		const current = await this.models.Team.findById(id).exec();
 		if (!current) return;
+		this.requireManage(current.organizationId);
 		await this.models.LearningRecord.updateMany({ organizationId: current.organizationId, teamName: current.name }, { $set: { teamName: 'Unassigned' } }).exec();
 		await this.models.TeamOperation.updateMany({ organizationId: current.organizationId, teamName: current.name }, { $set: { teamName: 'Unassigned' } }).exec();
 		await this.models.Team.deleteOne({ _id: id }).exec();
 	}
 	async setMembers(id: string, members: readonly TeamMember[]) {
+		const current = await this.models.Team.findById(id).exec();
+		if (!current) throw new Error('Team was not found');
+		this.requireManage(current.organizationId);
 		const validMembers = members.filter(isUsableMember).map((member) => ({ learnerId: member.learnerId.trim(), displayName: member.displayName.trim(), email: member.email.trim() }));
 		const document = await this.models.Team.findByIdAndUpdate(id, { $set: { members: validMembers }, $pull: { teamLeadIds: { $nin: validMembers.map((member) => member.learnerId) } } }, { new: true }).exec();
 		if (!document) throw new Error('Team was not found');
 		return toRecord(document);
 	}
-	async setTeamLeads(id: string, teamLeadIds: readonly string[]) { const document = await this.models.Team.findByIdAndUpdate(id, { $set: { teamLeadIds: [...new Set(teamLeadIds.filter(Boolean))] } }, { new: true }).exec(); if (!document) throw new Error('Team was not found'); return toRecord(document); }
+	async setTeamLeads(id: string, teamLeadIds: readonly string[]) { const current = await this.models.Team.findById(id).exec(); if (!current) throw new Error('Team was not found'); this.requireManage(current.organizationId); const validMemberIds = new Set(current.members.filter(isUsableMember).map((member) => member.learnerId)); const document = await this.models.Team.findByIdAndUpdate(id, { $set: { teamLeadIds: [...new Set(teamLeadIds.filter((teamLeadId) => validMemberIds.has(teamLeadId)))] } }, { new: true }).exec(); if (!document) throw new Error('Team was not found'); return toRecord(document); }
 }
 
-export const getTeamDataSource = (models: ModelsContext): TeamDataSource => new TeamDataSourceImpl(models);
+export const getTeamDataSource = (models: ModelsContext, passport: Domain.Passport): TeamDataSource => new TeamDataSourceImpl(models, passport);

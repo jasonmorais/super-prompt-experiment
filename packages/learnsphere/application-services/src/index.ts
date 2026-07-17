@@ -79,12 +79,12 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 			get verifiedUser() {
 				return verifiedUser;
 			},
-			Learning: Learning(dataSources, passport, identity.sub),
-			Delivery: Delivery(dataSources, passport, identity),
-			Operations: Operations(dataSources, passport, { sub: identity.sub, ...(identity.email ? { email: identity.email } : {}), ...(identity.given_name ? { given_name: identity.given_name } : {}), ...(identity.family_name ? { family_name: identity.family_name } : {}) }),
-			Teams: Teams(dataSources, passport, identity),
-			User: User(dataSources, passport),
-			Organization: Organization(dataSources, passport, identity.sub, accessibleOrganizationIds),
+			Learning: Learning(dataSources, identity.sub),
+			Delivery: Delivery(dataSources, identity),
+			Operations: Operations(dataSources, identity),
+			Teams: Teams(dataSources, identity),
+			User: User(dataSources),
+			Organization: Organization(dataSources, identity.sub, accessibleOrganizationIds),
 		};
 	},
 });
