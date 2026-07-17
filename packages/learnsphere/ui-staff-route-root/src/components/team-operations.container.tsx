@@ -9,14 +9,12 @@ import {
 	StaffTeamOperationsContainerCancelTeamOperationDocument,
 	StaffTeamOperationsContainerCommentTeamOperationDocument,
 	StaffTeamOperationsContainerConfirmTeamOperationDocument,
-	StaffTeamOperationsContainerCreateTeamOperationDocument,
 	StaffTeamOperationsContainerTeamOperationsDocument,
-	StaffTeamOperationsContainerUpdateTeamOperationDocument,
 	type StaffTeamOperationsContainerTeamOperationsQuery,
 } from '../generated.tsx';
 import { TeamOperations } from './team-operations.tsx';
 import { StaffTeamGoalDetail } from './team-operations/team-goal-detail.tsx';
-import type { CreateValues, Operation, UpdateValues } from './team-operations/types.ts';
+import type { Operation } from './team-operations/types.ts';
 import { useStaffAuthorization } from '../staff-authorization.tsx';
 
 export const TeamOperationsContainer = () => {
@@ -28,47 +26,10 @@ export const TeamOperationsContainer = () => {
 	const organizationId = identity.organizationId;
 	const canConfirm = capabilities.canConfirmTeamOperations;
 	const { data, loading, error, refetch } = useQuery<StaffTeamOperationsContainerTeamOperationsQuery>(StaffTeamOperationsContainerTeamOperationsDocument, { variables: { organizationId, teamName: null }, skip: !organizationId });
-	const [createOperation, creating] = useMutation(StaffTeamOperationsContainerCreateTeamOperationDocument);
 	const [confirmOperation, confirming] = useMutation(StaffTeamOperationsContainerConfirmTeamOperationDocument);
 	const [cancelOperation, cancelling] = useMutation(StaffTeamOperationsContainerCancelTeamOperationDocument);
 	const [commentOperation, commenting] = useMutation(StaffTeamOperationsContainerCommentTeamOperationDocument);
 	const [attachOperation, attaching] = useMutation(StaffTeamOperationsContainerAttachTeamOperationDocument);
-	const [updateOperation, updating] = useMutation(StaffTeamOperationsContainerUpdateTeamOperationDocument);
-	const learners = [
-		...new Map(
-			[
-				...(data?.teamLearning ?? []),
-				...(data?.teams.flatMap((team) => team.members.map((member) => ({ learnerId: member.learnerId, learnerDisplayName: member.displayName, learnerEmail: member.email, teamName: team.name }))) ?? []),
-			].map((learner) => [learner.learnerId, learner]),
-		).values(),
-	];
-	const create = async (values: CreateValues) => {
-		const learner = learners.find((candidate) => candidate.learnerId === values.assigneeId);
-		if (!learner) return;
-		const result = await createOperation({
-			variables: {
-				input: {
-					organizationId,
-					title: values.title,
-					description: values.description,
-					category: values.category,
-					priority: values.priority,
-					assigneeId: learner.learnerId,
-					assigneeDisplayName: learner.learnerDisplayName,
-					assigneeEmail: learner.learnerEmail,
-					teamName: learner.teamName,
-					dueAt: values.dueAt?.toISOString(),
-				},
-			},
-		});
-		const status = result.data?.teamOperationCreate.status;
-		if (!status?.success) {
-			message.error(status?.errorMessage ?? 'The operation could not be created');
-			return;
-		}
-		message.success(`Operation assigned to ${learner.learnerDisplayName}`);
-		await refetch();
-	};
 	const confirm = async (operation: Operation, note?: string) => {
 		const result = await confirmOperation({ variables: { input: { id: operation.id, note } } });
 		const status = result.data?.teamOperationConfirm.status;
@@ -118,27 +79,6 @@ export const TeamOperationsContainer = () => {
 		message.success('File attached to the thread');
 		await refetch();
 	};
-	const update = async (operation: Operation, values: UpdateValues) => {
-		const result = await updateOperation({
-			variables: {
-				input: {
-					id: operation.id,
-					title: values.title,
-					description: values.description,
-					category: values.category,
-					priority: values.priority,
-					...(values.dueAt ? { dueAt: new Date(`${values.dueAt}T00:00:00`).toISOString() } : {}),
-				},
-			},
-		});
-		const status = result.data?.teamOperationUpdate.status;
-		if (!status?.success) {
-			message.error(status?.errorMessage ?? 'The team goal could not be updated');
-			return;
-		}
-		message.success('Team goal updated.');
-		await refetch();
-	};
 	const operation = data?.teamOperations.find((candidate) => candidate.id === operationId);
 	const view = operationId ? (
 		operation ? (
@@ -169,18 +109,15 @@ export const TeamOperationsContainer = () => {
 	) : (
 		<TeamOperations
 			operations={data?.teamOperations ?? []}
-			learners={learners}
 			canConfirm={canConfirm}
 			loading={false}
-			creating={creating.loading}
 			confirming={confirming.loading}
 			cancelling={cancelling.loading}
-			updating={updating.loading}
-			onCreate={(values) => void create(values)}
 			onConfirm={(operation, note) => void confirm(operation, note)}
 			onCancel={(operation, reason) => void cancel(operation, reason)}
-			onUpdate={(operation, values) => void update(operation, values)}
 			onOpenGoal={(id) => navigate(`/staff/operations/${id}`)}
+			onCreateOperation={() => navigate('/staff/operations/new')}
+			onEditOperation={(id) => navigate(`/staff/operations/${id}/edit`)}
 		/>
 	);
 	return (

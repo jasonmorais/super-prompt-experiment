@@ -1,15 +1,3 @@
-fragment StaffTeamOperationsContainerTeamMemberFields on TeamMember {
-	learnerId
-	displayName
-	email
-}
-
-fragment StaffTeamOperationsContainerTeamFields on Team {
-	id
-	name
-	members { ...StaffTeamOperationsContainerTeamMemberFields }
-}
-
 fragment StaffTeamOperationsContainerTeamOperationFields on TeamOperation {
 	id
 	title
@@ -38,24 +26,8 @@ fragment StaffTeamOperationsContainerTeamOperationFields on TeamOperation {
 	}
 }
 
-fragment StaffTeamOperationsContainerLearningRecordFields on LearningRecord {
-	learnerId
-	learnerDisplayName
-	learnerEmail
-	teamName
-}
-
 query StaffTeamOperationsContainerTeamOperations($organizationId: String!, $teamName: String) {
-	teams(organizationId: $organizationId) { ...StaffTeamOperationsContainerTeamFields }
 	teamOperations(organizationId: $organizationId, teamName: $teamName) { ...StaffTeamOperationsContainerTeamOperationFields }
-	teamLearning(organizationId: $organizationId, teamName: $teamName) { ...StaffTeamOperationsContainerLearningRecordFields }
-}
-
-mutation StaffTeamOperationsContainerCreateTeamOperation($input: TeamOperationCreateInput!) {
-	teamOperationCreate(input: $input) {
-		status { success errorMessage }
-		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
-	}
 }
 
 mutation StaffTeamOperationsContainerConfirmTeamOperation($input: TeamOperationConfirmInput!) {
@@ -67,13 +39,6 @@ mutation StaffTeamOperationsContainerConfirmTeamOperation($input: TeamOperationC
 
 mutation StaffTeamOperationsContainerCancelTeamOperation($input: TeamOperationCancelInput!) {
 	teamOperationCancel(input: $input) {
-		status { success errorMessage }
-		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
-	}
-}
-
-mutation StaffTeamOperationsContainerUpdateTeamOperation($input: TeamOperationUpdateInput!) {
-	teamOperationUpdate(input: $input) {
 		status { success errorMessage }
 		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
 	}

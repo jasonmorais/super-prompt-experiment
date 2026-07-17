@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { assign } from '../delivery/learning-record/assign.ts';
 import type { TeamsServiceDependencies } from './types.ts';
-import { actorName, requireTeamManagement } from './types.ts';
+import { actorName, requireOrganizationAccess, requireTeamManagement } from './types.ts';
 
 export interface TeamCourseAssignmentResult {
 	assignmentId: string;
@@ -13,6 +13,7 @@ export const assignCourse = ({ dataSources, passport, identity }: TeamsServiceDe
 	requireTeamManagement(passport);
 	const team = await dataSources.teamDataSource.getById(input.teamId);
 	if (!team) throw new Error('Team was not found');
+	requireOrganizationAccess(passport, team.organizationId);
 	if (team.members.length === 0) throw new Error('Add people to the team before assigning a course');
 
 	const assignmentId = crypto.randomUUID();

@@ -13,6 +13,9 @@ query CurrentStaffUserAndCreateIfNotExists {
 					canManageTeams
 					canManageTeamOperations
 					canConfirmTeamOperations
+					canManageAssessments
+					canViewOrganization
+					canManageOrganizationStructure
 				}
 			}
 		}

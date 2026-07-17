@@ -80,8 +80,8 @@ const requiredText = (value: string, field: string, maxLength: number): string =
 export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps> extends AggregateRoot<Props, Passport> implements TeamOperationEntityReference {
 	static getNewInstance<Props extends TeamOperationProps = TeamOperationProps>(props: Props, input: import('./team-operation.repository.ts').NewTeamOperationInput, passport: Passport): TeamOperation<Props> {
 		const operation = new TeamOperation(props, passport);
-		if (!passport.operations.forTeamOperation(operation).determineIf((permissions) => permissions.canManageTeamOperations)) throw new PermissionError('You do not have permission to create team operations');
 		props.organizationId = requiredText(input.organizationId, 'Organization', 100);
+		if (!passport.operations.forTeamOperation(operation).determineIf((permissions) => permissions.canManageTeamOperations)) throw new PermissionError('You do not have permission to create team operations');
 		props.title = requiredText(input.title, 'Title', 180);
 		props.description = requiredText(input.description, 'Description', 10000);
 		props.category = requiredText(input.category, 'Category', 100);
@@ -186,7 +186,7 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		this.appendStatus('CANCELLED', actorId, reason.trim());
 	}
 
-	updateDetails(input: { title: string; description: string; category: string; priority: TeamOperationPriority; dueAt: Date | null }): void {
+	updateDetails(input: { title: string; description: string; category: string; priority: TeamOperationPriority; dueAt: Date | null; assigneeId: string; assigneeDisplayName: string; assigneeEmail: string; teamName: string; changedBy: string }): void {
 		if (!this.visa.determineIf((permissions) => permissions.canEditTeamOperations || permissions.canManageTeamOperations)) throw new PermissionError('Only a team lead or manager can edit team goals');
 		this.requireOpen();
 		this.props.title = requiredText(input.title, 'Title', 180);
@@ -194,6 +194,17 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		this.props.category = requiredText(input.category, 'Category', 100);
 		this.props.priority = input.priority;
 		this.props.dueAt = input.dueAt;
+		const reassigned = this.props.assigneeId !== input.assigneeId;
+		if (reassigned && this.props.status === 'SUBMITTED') throw new Error('Submitted operations must be confirmed or returned before reassignment');
+		this.props.assigneeId = requiredText(input.assigneeId, 'Assignee', 180);
+		this.props.assigneeDisplayName = requiredText(input.assigneeDisplayName, 'Assignee name', 180);
+		this.props.assigneeEmail = requiredText(input.assigneeEmail, 'Assignee email', 254).toLowerCase();
+		this.props.teamName = requiredText(input.teamName, 'Team', 120);
+		if (reassigned) {
+			this.props.assignedAt = new Date();
+			this.props.startedAt = null;
+			this.appendStatus('ASSIGNED', input.changedBy, `Reassigned to ${this.props.assigneeDisplayName}`);
+		}
 	}
 
 	private requireDiscussionAccess(): void {

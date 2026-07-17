@@ -21,8 +21,13 @@ fragment LearnerCourseContainerCourseFields on Course {
 			title
 			type
 			content
+			videoUrl
 			estimatedMinutes
 			required
+			assessment {
+				id title description passingScore maxAttempts
+				questions { key prompt type points options { key text } }
+			}
 		}
 	}
 }
@@ -64,4 +69,8 @@ mutation LearnerCourseContainerCompleteActivity($input: RecordActivityInput!) {
 			...LearnerCourseContainerLearningRecordFields
 		}
 	}
+}
+
+mutation LearnerCourseContainerSubmitAssessment($input: AssessmentSubmitInput!) {
+	assessmentSubmit(input: $input) { status { success errorMessage } attempt { id score passed attemptNumber submittedAt } }
 }

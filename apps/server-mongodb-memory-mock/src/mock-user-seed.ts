@@ -38,6 +38,11 @@ const staffRoleIdFor = (user: MockOidcUser): ObjectId => {
 export const seedMockUsers = async (db: Db, repoRoot: string): Promise<void> => {
 	const [learnerUsers, staffUsers] = await Promise.all([readMockUsers(repoRoot, 'ui-portal'), readMockUsers(repoRoot, 'ui-staff')]);
 	const now = new Date();
+	await db.collection('organizations').insertMany([
+		{ _id: new ObjectId('66f000000000000000000001'), externalId: 'simnova', name: 'SimNova', parentOrganizationId: null, ancestorOrganizationIds: [], createdBy: 'system', schemaVersion: '1.0.0', createdAt: now, updatedAt: now },
+		{ _id: new ObjectId('66f000000000000000000002'), externalId: 'simnova-product', name: 'Product Experience', parentOrganizationId: 'simnova', ancestorOrganizationIds: ['simnova'], createdBy: 'system', schemaVersion: '1.0.0', createdAt: now, updatedAt: now },
+		{ _id: new ObjectId('66f000000000000000000003'), externalId: 'simnova-data', name: 'Data & Insights', parentOrganizationId: 'simnova', ancestorOrganizationIds: ['simnova'], createdBy: 'system', schemaVersion: '1.0.0', createdAt: now, updatedAt: now },
+	]);
 
 	await db.collection('roles').insertMany([
 		{
@@ -47,7 +52,7 @@ export const seedMockUsers = async (db: Db, repoRoot: string): Promise<void> => 
 			enterpriseAppRole: 'Staff.Manager',
 			isDefault: true,
 			permissions: {
-				staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: true, canPublishCourses: true, canDeleteCourses: true, canManageTeams: true, canManageTeamOperations: true, canConfirmTeamOperations: true },
+				staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: true, canPublishCourses: true, canDeleteCourses: true, canManageTeams: true, canManageTeamOperations: true, canConfirmTeamOperations: true, canManageAssessments: true, canViewOrganization: true, canManageOrganizationStructure: true },
 				userPermissions: { canManageUsers: true, canAssignStaffRoles: true, canViewStaffUsers: true },
 				staffRolePermissions: { canViewRoles: true, canAddRole: false, canEditRole: false, canRemoveRole: false },
 			},
@@ -62,7 +67,7 @@ export const seedMockUsers = async (db: Db, repoRoot: string): Promise<void> => 
 			enterpriseAppRole: 'Staff.TeamLead',
 			isDefault: true,
 			permissions: {
-				staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: false, canPublishCourses: false, canDeleteCourses: false, canManageTeams: false, canManageTeamOperations: true, canConfirmTeamOperations: false },
+				staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: false, canPublishCourses: false, canDeleteCourses: false, canManageTeams: false, canManageTeamOperations: true, canConfirmTeamOperations: false, canManageAssessments: false, canViewOrganization: true, canManageOrganizationStructure: false },
 				userPermissions: { canManageUsers: false, canAssignStaffRoles: false, canViewStaffUsers: false },
 				staffRolePermissions: { canViewRoles: false, canAddRole: false, canEditRole: false, canRemoveRole: false },
 			},
@@ -108,6 +113,7 @@ export const seedMockUsers = async (db: Db, repoRoot: string): Promise<void> => 
 				tags: [],
 				role: staffRoleIdFor(user),
 				activityLog: [],
+				organizationScopes: [{ organizationId: 'simnova', includeDescendants: roleClaims(user).some((role) => ['manager', 'staffmanager'].includes(normalizedClaim(role))) }],
 				schemaVersion: '1.0.0',
 				createdAt: now,
 				updatedAt: now,

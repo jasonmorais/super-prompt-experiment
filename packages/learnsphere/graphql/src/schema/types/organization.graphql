@@ -1,0 +1,6 @@
+type Organization implements MongoBase { id: ObjectID! schemaVersion: String! createdAt: DateTime! updatedAt: DateTime! externalId: String! name: String! parentOrganizationId: String ancestorOrganizationIds: [String!]! createdBy: String! }
+input OrganizationCreateInput { externalId: String! name: String! parentOrganizationId: String! }
+input OrganizationRenameInput { externalId: String! name: String! }
+type OrganizationMutationResult { status: MutationStatus! organization: Organization }
+extend type Query { accessibleOrganizations: [Organization!]! }
+extend type Mutation { organizationCreate(input: OrganizationCreateInput!): OrganizationMutationResult! organizationRename(input: OrganizationRenameInput!): OrganizationMutationResult! }

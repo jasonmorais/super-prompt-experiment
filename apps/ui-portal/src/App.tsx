@@ -1,27 +1,59 @@
 import { RequireAuth } from '@cellix/ui-core';
-import { Catalog, Course, Login, Operations, Root, TeamGoal, useLearnerAuthorization } from '@learnsphere/ui-route-root';
-import { Spin } from 'antd';
+import { AppLayout } from '@learnsphere/ui-shared';
+import { Catalog, Course, Leaderboard, Login, Operations, Root, TeamGoal, useLearnerAuthorization } from '@learnsphere/ui-route-root';
+import { Alert, Button, Spin } from 'antd';
+import { useEffect, useRef } from 'react';
 import { useAuth } from 'react-oidc-context';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
+
+const Reauthenticate = () => {
+	const auth = useAuth();
+	const started = useRef(false);
+	useEffect(() => {
+		if (started.current) return;
+		started.current = true;
+		const redirectTo = `${globalThis.location.pathname}${globalThis.location.search}`;
+		void (async () => {
+			await auth.removeUser();
+			globalThis.sessionStorage.setItem('redirectTo', redirectTo);
+			await auth.signinRedirect();
+		})();
+	}, [auth]);
+	return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}><Spin size="large" tip="Refreshing your session" /></div>;
+};
 
 const Authenticated = ({ children }: { children: React.JSX.Element }) => {
 	const auth = useAuth();
 	const learner = useLearnerAuthorization();
-	if (auth.isLoading || auth.activeNavigator)
+	if (auth.isLoading || auth.activeNavigator || (auth.isAuthenticated && learner.loading))
 		return (
 			<div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
 				<Spin size="large" />
 			</div>
 		);
-	return auth.isAuthenticated && !learner.loading ? (
-		children
-	) : (
+	if (!auth.isAuthenticated)
+		return (
 		<Navigate
 			to="/login"
 			replace
 		/>
 	);
+	if (learner.error)
+		if (learner.error.message.toLowerCase().includes('unauthorized')) return <Reauthenticate />;
+	if (learner.error)
+		return (
+			<div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24 }}>
+				<Alert
+					type="error"
+					showIcon
+					message="Your learner workspace could not be initialized"
+					description={learner.error.message}
+					action={<Button onClick={() => void learner.refetch()}>Try again</Button>}
+				/>
+			</div>
+		);
+	return children;
 };
 
 const Entry = () => {
@@ -67,40 +99,15 @@ export default function App() {
 						</RequireAuth>
 					}
 				/>
-				<Route
-					path="/dashboard"
-					element={
-						<Authenticated>
-							<Root />
-						</Authenticated>
-					}
-				/>
-				<Route
-					path="/catalog"
-					element={
-						<Authenticated>
-							<Catalog />
-						</Authenticated>
-					}
-				/>
-				<Route
-					path="/courses/:courseId"
-					element={
-						<Authenticated>
-							<Course />
-						</Authenticated>
-					}
-				/>
-				<Route
-					path="/courses/:courseId/activities/:activityKey"
-					element={
-						<Authenticated>
-							<Course />
-						</Authenticated>
-					}
-				/>
-				<Route path="/operations/:operationId" element={<Authenticated><TeamGoal /></Authenticated>} />
-				<Route path="/operations" element={<Authenticated><Operations /></Authenticated>} />
+				<Route element={<Authenticated><AppLayout><Outlet /></AppLayout></Authenticated>}>
+					<Route path="/dashboard" element={<Root />} />
+					<Route path="/catalog" element={<Catalog />} />
+					<Route path="/courses/:courseId" element={<Course />} />
+					<Route path="/courses/:courseId/activities/:activityKey" element={<Course />} />
+					<Route path="/operations/:operationId" element={<TeamGoal />} />
+					<Route path="/operations" element={<Operations />} />
+					<Route path="/leaderboard" element={<Leaderboard />} />
+				</Route>
 				<Route
 					path="*"
 					element={

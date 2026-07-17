@@ -1,4 +1,4 @@
-import { BookOutlined, CompassOutlined, HomeFilled, LogoutOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { BookOutlined, CompassOutlined, HomeFilled, LogoutOutlined, ThunderboltOutlined, TrophyOutlined } from '@ant-design/icons';
 import { Avatar, Button, Layout, Menu, Space, Typography, type MenuProps } from 'antd';
 import type { ReactNode } from 'react';
 import { useAuth } from 'react-oidc-context';
@@ -20,11 +20,12 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 	const organizationName = identity.organizationName;
 	const displayName = `${identity.givenName} ${identity.familyName}`.trim() || identity.email || 'Learner';
 	const initials = `${identity.givenName[0] ?? ''}${identity.familyName[0] ?? ''}` || displayName.slice(0, 2).toUpperCase();
-	const selectedKey = location.pathname.startsWith('/catalog') ? 'catalog' : location.pathname.startsWith('/operations') ? 'operations' : 'dashboard';
+	const selectedKey = location.pathname.startsWith('/catalog') ? 'catalog' : location.pathname.startsWith('/operations') ? 'operations' : location.pathname.startsWith('/leaderboard') ? 'leaderboard' : 'dashboard';
 	const menuItems: MenuProps['items'] = [
 		{ key: 'dashboard', icon: <HomeFilled />, label: 'My learning' },
 		{ key: 'catalog', icon: <CompassOutlined />, label: 'Discover' },
 		{ key: 'operations', icon: <ThunderboltOutlined />, label: 'Team operations' },
+		{ key: 'leaderboard', icon: <TrophyOutlined />, label: 'Leaderboard' },
 	];
 	const logout = () => {
 		void auth.removeUser();
@@ -46,7 +47,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 				<Menu
 					mode="inline"
 					selectedKeys={[selectedKey]}
-					onClick={({ key }) => navigate(key === 'catalog' ? '/catalog' : key === 'operations' ? '/operations' : '/dashboard')}
+					onClick={({ key }) => navigate(key === 'catalog' ? '/catalog' : key === 'operations' ? '/operations' : key === 'leaderboard' ? '/leaderboard' : '/dashboard')}
 					items={menuItems}
 					className="border-0 bg-transparent text-[#c5d5d1]"
 					theme="dark"

@@ -1,0 +1,23 @@
+import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Col, Form, Input, Row, Select, Space, Tag, Typography } from 'antd';
+import type { StaffTeamOperationEditorDataQuery } from '../generated.tsx';
+
+type Operation = StaffTeamOperationEditorDataQuery['teamOperations'][number];
+type Team = StaffTeamOperationEditorDataQuery['teams'][number];
+export interface TeamOperationEditorValues { title: string; description: string; category: string; priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'; assigneeId: string; dueAt?: string; }
+const { Title, Paragraph, Text } = Typography;
+
+export const TeamOperationEditor = ({ operation, teams, saving, onSave, onCancel }: { operation?: Operation; teams: Team[]; saving: boolean; onSave: (values: TeamOperationEditorValues) => void; onCancel: () => void }) => {
+	const learners = teams.flatMap((team) => team.members.map((member) => ({ ...member, teamName: team.name })));
+	const closed = Boolean(operation && ['COMPLETED', 'CANCELLED'].includes(operation.status));
+	return <>
+		<Button type="text" icon={<ArrowLeftOutlined />} onClick={onCancel} className="mb-4 pl-0">Back to team operations</Button>
+		<div className="mb-7 flex items-start justify-between gap-5"><div><Text className="text-xs font-bold uppercase tracking-[.08em] text-[#6d4aff]">Team operation</Text><Title className="my-[6px]">{operation ? 'Edit team operation' : 'Assign a team operation'}</Title><Paragraph type="secondary" className="m-0">Manage the outcome, ownership, priority, and due date in one workspace.</Paragraph></div>{operation && <Tag color={operation.status === 'COMPLETED' ? 'green' : operation.status === 'SUBMITTED' ? 'gold' : 'blue'}>{operation.status.replaceAll('_', ' ')}</Tag>}</div>
+		{closed && <Alert type="info" showIcon message="This operation is closed" description="Completed and cancelled operations remain available as an audit record and cannot be edited." className="mb-5" />}
+		<Form<TeamOperationEditorValues> layout="vertical" disabled={closed} initialValues={operation ? { title: operation.title, description: operation.description, category: operation.category, priority: operation.priority, assigneeId: operation.assigneeId, dueAt: operation.dueAt ? new Date(operation.dueAt).toISOString().slice(0, 10) : undefined } : { priority: 'MEDIUM' }} onFinish={onSave}>
+			<Row gutter={[20, 20]}><Col xs={24} xl={16}><Card title="Operation details"><Form.Item name="title" label="Title" rules={[{ required: true, min: 4, max: 180 }]}><Input placeholder="Prepare the quarterly customer research readout" /></Form.Item><Form.Item name="description" label="Expected outcome and acceptance criteria" rules={[{ required: true, min: 20, max: 10000 }]}><Input.TextArea rows={9} placeholder="Describe what should be delivered, what good looks like, and any constraints." /></Form.Item><Row gutter={16}><Col span={12}><Form.Item name="category" label="Category" rules={[{ required: true, max: 100 }]}><Input placeholder="Planning, delivery, customer work…" /></Form.Item></Col><Col span={12}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select options={['LOW', 'MEDIUM', 'HIGH', 'URGENT'].map((value) => ({ value, label: value.toLowerCase() }))} /></Form.Item></Col></Row></Card></Col>
+			<Col xs={24} xl={8}><Space direction="vertical" size="large" className="w-full"><Card title="Ownership and schedule"><Form.Item name="assigneeId" label="Assigned learner" rules={[{ required: true }]}><Select showSearch optionFilterProp="label" options={learners.map((learner) => ({ value: learner.learnerId, label: `${learner.displayName} · ${learner.teamName}` }))} /></Form.Item><Form.Item name="dueAt" label="Due date"><Input type="date" /></Form.Item>{operation && <><Text type="secondary">Assigned {new Date(operation.assignedAt).toLocaleDateString()}</Text><br /><Text type="secondary">Created by {operation.createdBy}</Text></>}</Card>{operation && <Card title="Workflow history"><Space direction="vertical" className="w-full">{operation.statusHistory.toReversed().map((event, index) => <div key={`${event.changedAt}-${index}`}><Text strong>{event.status.replaceAll('_', ' ')}</Text><div><Text type="secondary">{new Date(event.changedAt).toLocaleString()} · {event.changedBy}</Text></div>{event.note && <Paragraph className="mb-0 mt-1">{event.note}</Paragraph>}</div>)}</Space></Card>}</Space></Col></Row>
+			{!closed && <div className="mt-5 flex justify-end gap-3"><Button onClick={onCancel}>Cancel</Button><Button htmlType="submit" type="primary" icon={<SaveOutlined />} loading={saving}>{operation ? 'Save operation' : 'Assign operation'}</Button></div>}
+		</Form>
+	</>;
+};

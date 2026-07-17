@@ -1,0 +1,18 @@
+query StaffCourseEditorCourse($id: ObjectID!) {
+	courseById(id: $id) {
+		id updatedAt organizationId title summary description status level category tags skills discoverability requiresCompletionScreenshot
+		modules { key title description order lessons { key title type content videoUrl estimatedMinutes required assessment { id title status } } }
+	}
+}
+
+mutation StaffCourseEditorCreate($input: CourseCreateInput!) {
+	courseCreate(input: $input) { status { success errorMessage } course { id } }
+}
+
+mutation StaffCourseEditorUpdate($input: CourseUpdateInput!) {
+	courseUpdate(input: $input) { status { success errorMessage } course { id } }
+}
+
+mutation StaffCourseEditorReplaceStructure($input: CourseReplaceStructureInput!) {
+	courseReplaceStructure(input: $input) { status { success errorMessage } course { id modules { key lessons { key } } } }
+}

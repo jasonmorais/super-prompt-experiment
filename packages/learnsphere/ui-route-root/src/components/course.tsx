@@ -1,13 +1,51 @@
 import { ArrowLeftOutlined, BookOutlined, CheckCircleFilled, CheckOutlined, ClockCircleOutlined, FileTextOutlined, PlayCircleOutlined, UploadOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Col, Divider, Progress, Row, Space, Tag, Typography } from 'antd';
+import { Alert, Button, Card, Checkbox, Col, Divider, Progress, Radio, Row, Space, Tag, Typography } from 'antd';
+import { useState } from 'react';
 import type { LearnerCourseContainerCourseExperienceQuery } from '../generated.tsx';
 
 const { Title, Paragraph, Text } = Typography;
 type Course = NonNullable<LearnerCourseContainerCourseExperienceQuery['courseById']>;
 type Lesson = Course['modules'][number]['lessons'][number];
 type LearningRecord = LearnerCourseContainerCourseExperienceQuery['myLearning'][number];
+type AssessmentResponse = { questionKey: string; selectedOptionKeys: string[] };
+
+const AssessmentActivity = ({ lesson, loading, onSubmit }: { lesson: Lesson; loading: boolean; onSubmit: (responses: AssessmentResponse[]) => void }) => {
+	const [answers, setAnswers] = useState<Record<string, string[]>>({});
+	const assessment = lesson.assessment;
+	if (!assessment) return <Alert type="error" message="Assessment definition is unavailable" />;
+	return <div><Alert type="info" showIcon message={`${assessment.passingScore}% required to pass`} description={`You may submit up to ${assessment.maxAttempts} attempts.`} className="mb-5" />
+		<Space direction="vertical" size="large" className="w-full">{assessment.questions.map((question, index) => <Card key={question.key} size="small" title={`${index + 1}. ${question.prompt}`}>
+			{question.type === 'MULTI_SELECT' ? <Checkbox.Group options={question.options.map((option) => ({ label: option.text, value: option.key }))} value={answers[question.key] ?? []} onChange={(values) => setAnswers((current) => ({ ...current, [question.key]: values.map(String) }))} /> : <Radio.Group options={question.options.map((option) => ({ label: option.text, value: option.key }))} value={answers[question.key]?.[0]} onChange={(event) => setAnswers((current) => ({ ...current, [question.key]: [String(event.target.value)] }))} />}
+		</Card>)}</Space>
+		<Button type="primary" size="large" loading={loading} disabled={assessment.questions.some((question) => !answers[question.key]?.length)} onClick={() => onSubmit(assessment.questions.map((question) => ({ questionKey: question.key, selectedOptionKeys: answers[question.key] ?? [] })))} className="mt-5">Submit assessment</Button>
+	</div>;
+};
 
 const activityIcon = (type: string) => (type === 'VIDEO' ? <PlayCircleOutlined /> : type === 'ARTICLE' || type === 'RESOURCE' ? <FileTextOutlined /> : <BookOutlined />);
+
+const videoSource = (url: string): { kind: 'video' | 'embed'; src: string } => {
+	const parsed = new URL(url);
+	const host = parsed.hostname.replace(/^www\./, '');
+	if (host === 'youtu.be') return { kind: 'embed', src: `https://www.youtube-nocookie.com/embed/${parsed.pathname.slice(1)}` };
+	if (host === 'youtube.com' || host === 'm.youtube.com') {
+		const id = parsed.searchParams.get('v') ?? parsed.pathname.match(/^\/embed\/([^/]+)/)?.[1];
+		if (id) return { kind: 'embed', src: `https://www.youtube-nocookie.com/embed/${id}` };
+	}
+	if (host === 'vimeo.com') {
+		const id = parsed.pathname.match(/^\/(\d+)/)?.[1];
+		if (id) return { kind: 'embed', src: `https://player.vimeo.com/video/${id}` };
+	}
+	return /\.(mp4|webm|ogg)(?:$|\?)/i.test(url) ? { kind: 'video', src: url } : { kind: 'embed', src: url };
+};
+
+const EmbeddedVideo = ({ url, title }: { url: string; title: string }) => {
+	const source = videoSource(url);
+	if (source.kind === 'video') {
+		// biome-ignore lint/a11y/useMediaCaption: Course authors control externally hosted media and its caption tracks.
+		return <video controls preload="metadata" src={source.src} className="mb-6 aspect-video w-full rounded-xl bg-black" />;
+	}
+	return <iframe title={title} src={source.src} allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" className="mb-6 aspect-video w-full rounded-xl border-0 bg-black" />;
+};
 
 export interface CourseProps {
 	course: Course;
@@ -21,9 +59,11 @@ export interface CourseProps {
 	completionScreenshotSelected: boolean;
 	onSelectScreenshot: (file: File | undefined) => void;
 	onComplete: () => void;
+	onSubmitAssessment: (responses: AssessmentResponse[]) => void;
+	assessmentLoading: boolean;
 }
 
-export const Course = ({ course, record, selectedLesson, completedKeys, mutationLoading, completionScreenshotRequired, completionScreenshotSelected, onSelectScreenshot, onBack, onSelectLesson, onComplete }: CourseProps) => (
+export const Course = ({ course, record, selectedLesson, completedKeys, mutationLoading, completionScreenshotRequired, completionScreenshotSelected, onSelectScreenshot, onBack, onSelectLesson, onComplete, onSubmitAssessment, assessmentLoading }: CourseProps) => (
 	<>
 		<Button
 			type="text"
@@ -155,6 +195,7 @@ export const Course = ({ course, record, selectedLesson, completedKeys, mutation
 							{selectedLesson.title}
 						</Title>
 						<Divider />
+						{selectedLesson.type === 'VIDEO' && selectedLesson.videoUrl && <EmbeddedVideo url={selectedLesson.videoUrl} title={selectedLesson.title} />}
 						<div style={{ maxWidth: 820 }}>
 							{selectedLesson.content.split(/\n\n+/).map((paragraph) => (
 								<Paragraph
@@ -166,7 +207,7 @@ export const Course = ({ course, record, selectedLesson, completedKeys, mutation
 							))}
 						</div>
 						<Divider />
-						{completedKeys.has(selectedLesson.key) ? (
+						{selectedLesson.type === 'ASSESSMENT' && !completedKeys.has(selectedLesson.key) ? <AssessmentActivity lesson={selectedLesson} loading={assessmentLoading} onSubmit={onSubmitAssessment} /> : completedKeys.has(selectedLesson.key) ? (
 							<Alert
 								type="success"
 								showIcon

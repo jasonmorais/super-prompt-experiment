@@ -1,11 +1,28 @@
 import { RequireAuth } from '@cellix/ui-core';
 import type { LearnSphereStaffCapabilities } from '@learnsphere/ui-shared';
-import { CourseManagement, getDefaultStaffPath, StaffLayout, StaffLogin, TeamDashboard, TeamOperations, useStaffAuthorization } from '@learnsphere/ui-staff-route-root';
+import { AssessmentAuthoring, CourseEditor, CourseManagement, getDefaultStaffPath, StaffLayout, StaffLogin, TeamDashboard, TeamOperationEditor, TeamOperations, useStaffAuthorization } from '@learnsphere/ui-staff-route-root';
 import { TeamManagementContainer } from '@learnsphere/ui-staff-route-team-management';
-import { Spin } from 'antd';
+import { Alert, Button, Spin } from 'antd';
+import { useEffect, useRef } from 'react';
 import { useAuth } from 'react-oidc-context';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { ApolloConnection } from './components/ui/organisms/apollo-connection/index.tsx';
+
+const Reauthenticate = () => {
+	const auth = useAuth();
+	const started = useRef(false);
+	useEffect(() => {
+		if (started.current) return;
+		started.current = true;
+		const redirectTo = `${globalThis.location.pathname}${globalThis.location.search}`;
+		void (async () => {
+			await auth.removeUser();
+			globalThis.sessionStorage.setItem('staffRedirectTo', redirectTo);
+			await auth.signinRedirect();
+		})();
+	}, [auth]);
+	return <div className="grid min-h-screen place-items-center"><Spin size="large" tip="Refreshing your session" /></div>;
+};
 
 interface ProtectedProps {
 	children: React.JSX.Element;
@@ -31,6 +48,7 @@ const Protected = ({ children, required }: ProtectedProps) => {
 				replace
 			/>
 		);
+	if (authorization.error?.message.toLowerCase().includes('unauthorized')) return <Reauthenticate />;
 	return authorization.loading ? <Spin size="large" /> : authorization.roleName && (!required || authorization.capabilities[required]) ? (
 		children
 	) : (
@@ -45,6 +63,27 @@ const StaffEntry = () => {
 	const authorization = useStaffAuthorization();
 	if (authorization.loading) return <Spin size="large" />;
 	return <Navigate to={getDefaultStaffPath(authorization.capabilities)} replace />;
+};
+
+const Unauthorized = () => {
+	const auth = useAuth();
+	const authorization = useStaffAuthorization();
+	if (auth.isLoading || authorization.loading) return <div className="grid min-h-screen place-items-center"><Spin size="large" /></div>;
+	if (!auth.isAuthenticated) return <Navigate to="/login" replace />;
+	if (authorization.error?.message.toLowerCase().includes('unauthorized')) return <Reauthenticate />;
+	const recoveryPath = getDefaultStaffPath(authorization.capabilities);
+	if (authorization.roleName && recoveryPath !== '/unauthorized') return <Navigate to={recoveryPath} replace />;
+	return (
+		<div className="grid min-h-screen place-items-center bg-slate-50 p-6">
+			<Alert
+				type="error"
+				showIcon
+				message="Staff access could not be initialized"
+				description={authorization.error?.message ?? 'Your signed-in identity does not have a recognized staff role.'}
+				action={<Button onClick={() => { void auth.removeUser(); void auth.signoutRedirect({ post_logout_redirect_uri: `${globalThis.location.origin}/login` }); }}>Sign in again</Button>}
+			/>
+		</div>
+	);
 };
 
 export default function App() {
@@ -75,59 +114,23 @@ export default function App() {
 						</RequireAuth>
 					}
 				/>
-				<Route
-					path="/staff"
-					element={
-						<Protected>
-							<StaffEntry />
-						</Protected>
-					}
-				/>
-				<Route
-					path="/staff/overview"
-					element={
-						<Protected required="canViewTeamLearning">
-							<TeamDashboard />
-						</Protected>
-					}
-				/>
-				<Route
-					path="/staff/courses"
-					element={
-						<Protected required="canManageCourses">
-							<CourseManagement />
-						</Protected>
-					}
-				/>
-				<Route
-					path="/staff/operations/:operationId"
-					element={
-						<Protected required="canManageTeamOperations">
-							<TeamOperations />
-						</Protected>
-					}
-				/>
-				<Route
-					path="/staff/operations"
-					element={
-						<Protected required="canManageTeamOperations">
-							<TeamOperations />
-						</Protected>
-					}
-				/>
-				<Route
-					path="/staff/teams"
-					element={
-						<Protected required="canManageTeams">
-							<StaffLayout>
-								<TeamManagementContainer />
-							</StaffLayout>
-						</Protected>
-					}
-				/>
+				<Route path="/staff" element={<Protected><StaffLayout><Outlet /></StaffLayout></Protected>}>
+					<Route index element={<StaffEntry />} />
+					<Route path="overview" element={<Protected required="canViewTeamLearning"><TeamDashboard /></Protected>} />
+					<Route path="courses" element={<Protected required="canManageCourses"><CourseManagement /></Protected>} />
+					<Route path="courses/new" element={<Protected required="canManageCourses"><CourseEditor /></Protected>} />
+					<Route path="courses/:courseId/edit" element={<Protected required="canManageCourses"><CourseEditor /></Protected>} />
+					<Route path="courses/:courseId/assessments/new" element={<Protected required="canManageAssessments"><AssessmentAuthoring /></Protected>} />
+					<Route path="courses/:courseId/assessments/:assessmentId/edit" element={<Protected required="canManageAssessments"><AssessmentAuthoring /></Protected>} />
+					<Route path="operations/:operationId" element={<Protected required="canManageTeamOperations"><TeamOperations /></Protected>} />
+					<Route path="operations/new" element={<Protected required="canManageTeamOperations"><TeamOperationEditor /></Protected>} />
+					<Route path="operations/:operationId/edit" element={<Protected required="canManageTeamOperations"><TeamOperationEditor /></Protected>} />
+					<Route path="operations" element={<Protected required="canManageTeamOperations"><TeamOperations /></Protected>} />
+					<Route path="teams" element={<Protected required="canManageTeams"><TeamManagementContainer /></Protected>} />
+				</Route>
 				<Route
 					path="/unauthorized"
-					element={<div className="grid min-h-screen place-items-center">You are not authorized to view this area.</div>}
+					element={<Unauthorized />}
 				/>
 				<Route
 					path="*"

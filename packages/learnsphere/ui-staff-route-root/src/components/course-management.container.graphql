@@ -49,6 +49,7 @@ fragment StaffCourseManagementContainerCourseFields on Course {
 			content
 			estimatedMinutes
 			required
+			assessment { id title status }
 		}
 	}
 }
@@ -57,20 +58,6 @@ query StaffCourseManagementContainerCourseManagement($organizationId: String!) {
 	teams(organizationId: $organizationId) { ...StaffCourseManagementContainerTeamFields }
 	teamLearning(organizationId: $organizationId) { ...StaffCourseManagementContainerLearningRecordFields }
 	courses(organizationId: $organizationId, limit: 100) { ...StaffCourseManagementContainerCourseFields }
-}
-
-mutation StaffCourseManagementContainerCreateCourse($input: CourseCreateInput!) {
-	courseCreate(input: $input) {
-		status { success errorMessage }
-		course { ...StaffCourseManagementContainerCourseFields }
-	}
-}
-
-mutation StaffCourseManagementContainerAddCourseModule($input: CourseAddModuleInput!) {
-	courseAddModule(input: $input) {
-		status { success errorMessage }
-		course { ...StaffCourseManagementContainerCourseFields }
-	}
 }
 
 mutation StaffCourseManagementContainerSubmitCourse($id: ObjectID!) {
@@ -87,12 +74,6 @@ mutation StaffCourseManagementContainerPublishCourse($id: ObjectID!) {
 	}
 }
 
-mutation StaffCourseManagementContainerUpdateCourse($input: CourseUpdateInput!) {
-	courseUpdate(input: $input) {
-		status { success errorMessage }
-		course { ...StaffCourseManagementContainerCourseFields }
-	}
-}
 
 mutation StaffCourseManagementContainerDeleteCourse($id: ObjectID!) {
 	courseDelete(id: $id) {

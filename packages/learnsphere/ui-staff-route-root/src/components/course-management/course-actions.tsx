@@ -13,30 +13,20 @@ export interface CourseActionsProps {
 	canDelete: boolean;
 	canPublish: boolean;
 	onEdit: () => void;
-	onAddContent: () => void;
 	onAssign: () => void;
 	onDelete: () => void;
 	onTransition: () => void;
 }
 
-export const CourseActions = ({ course, deleting, submitting, publishing, canDelete, canPublish, onEdit, onAddContent, onAssign, onDelete, onTransition }: CourseActionsProps) => (
+export const CourseActions = ({ course, deleting, submitting, publishing, canDelete, canPublish, onEdit, onAssign, onDelete, onTransition }: CourseActionsProps) => (
 	<Space className={styles['actions']}>
-		{course.status === 'DRAFT' && (
-			<Button
-				className={styles['secondary']}
-				icon={<EditOutlined />}
-				onClick={onAddContent}
-			>
-				Add content
-			</Button>
-		)}
 		{course.status !== 'ARCHIVED' && (
 			<Button
 				className={styles['secondary']}
 				icon={<EditOutlined />}
 				onClick={onEdit}
 			>
-				Edit details
+				Edit course
 			</Button>
 		)}
 		{course.status === 'PUBLISHED' && canPublish && (

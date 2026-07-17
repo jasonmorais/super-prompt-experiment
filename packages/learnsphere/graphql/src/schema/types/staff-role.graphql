@@ -6,6 +6,9 @@ type StaffRolePortalPermissions {
 	canManageTeams: Boolean!
 	canManageTeamOperations: Boolean!
 	canConfirmTeamOperations: Boolean!
+	canManageAssessments: Boolean!
+	canViewOrganization: Boolean!
+	canManageOrganizationStructure: Boolean!
 }
 type StaffRoleUserPermissions {
 	canManageUsers: Boolean!
@@ -47,6 +50,9 @@ input StaffRolePortalPermissionsInput {
 	canManageTeams: Boolean
 	canManageTeamOperations: Boolean
 	canConfirmTeamOperations: Boolean
+	canManageAssessments: Boolean
+	canViewOrganization: Boolean
+	canManageOrganizationStructure: Boolean
 }
 input StaffRoleUserPermissionsInput {
 	canManageUsers: Boolean

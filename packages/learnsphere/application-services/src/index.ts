@@ -6,6 +6,7 @@ import { Learning, type LearningContextApplicationService } from './contexts/lea
 import { Operations, type OperationsContextApplicationService } from './contexts/operations/index.ts';
 import { Teams, type TeamsApplicationService } from './contexts/teams/index.ts';
 import { User, type UserContextApplicationService } from './contexts/user/index.ts';
+import { Organization, type OrganizationApplicationService } from './contexts/organization/index.ts';
 
 export type { AssignLearningCommand } from './contexts/delivery/learning-record/assign.ts';
 export type { CourseCreateCommand } from './contexts/learning/course/create.ts';
@@ -27,6 +28,7 @@ export interface VerifiedUser {
 	hints?: PrincipalHints;
 	staffUser?: Domain.Contexts.User.StaffUser.StaffUserEntityReference;
 	learnerUser?: Domain.Contexts.User.LearnerUser.LearnerUserEntityReference;
+	accessibleOrganizationIds?: string[];
 }
 
 export type PrincipalHints = { organizationId?: string; learnerId?: string };
@@ -38,6 +40,7 @@ export interface ApplicationServices {
 	Operations: OperationsContextApplicationService;
 	Teams: TeamsApplicationService;
 	User: UserContextApplicationService;
+	Organization: OrganizationApplicationService;
 }
 
 export interface AppServicesHost<S> {
@@ -57,28 +60,31 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 		let passport = Domain.PassportFactory.forGuest();
 		let staffUser: Domain.Contexts.User.StaffUser.StaffUserEntityReference | undefined;
 		let learnerUser: Domain.Contexts.User.LearnerUser.LearnerUserEntityReference | undefined;
+		let accessibleOrganizationIds: string[] = [];
 		if (tokenValidationResult?.openIdConfigKey === 'StaffPortal') {
 			const systemDataSources = context.dataSourcesFactory.withSystemPassport();
 			staffUser = await systemDataSources.readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(identity.sub) ?? undefined;
-			if (staffUser) passport = Domain.PassportFactory.forStaffUser(staffUser);
+			if (staffUser) { accessibleOrganizationIds = await systemDataSources.readonlyDataSource.Organization.OrganizationReadRepo.resolveAccessibleIds(staffUser.organizationScopes); passport = Domain.PassportFactory.forStaffUser(staffUser, accessibleOrganizationIds); }
 		} else if (verifiedJwt) {
 			const systemDataSources = context.dataSourcesFactory.withSystemPassport();
 			learnerUser = await systemDataSources.readonlyDataSource.User.LearnerUser.LearnerUserReadRepo.getByExternalId(verifiedJwt.sub) ?? undefined;
-			passport = learnerUser ? Domain.PassportFactory.forLearnerUser(learnerUser) : Domain.PassportFactory.forLearner(verifiedJwt.sub);
+			accessibleOrganizationIds = verifiedJwt.tid ? [verifiedJwt.tid] : [];
+			passport = learnerUser ? Domain.PassportFactory.forLearnerUser(learnerUser, verifiedJwt.tid) : Domain.PassportFactory.forLearner(verifiedJwt.sub, verifiedJwt.tid);
 		}
 		const dataSources: DataSources = context.dataSourcesFactory.withPassport(passport);
 		const verifiedUser: VerifiedUser | null = tokenValidationResult
-			? { ...tokenValidationResult, ...(hints ? { hints } : {}), ...(staffUser ? { staffUser } : {}), ...(learnerUser ? { learnerUser } : {}) }
+			? { ...tokenValidationResult, ...(hints ? { hints } : {}), ...(staffUser ? { staffUser } : {}), ...(learnerUser ? { learnerUser } : {}), accessibleOrganizationIds }
 			: null;
 		return {
 			get verifiedUser() {
 				return verifiedUser;
 			},
-			Learning: Learning(dataSources, identity.sub),
+			Learning: Learning(dataSources, passport, identity.sub),
 			Delivery: Delivery(dataSources, passport, identity),
 			Operations: Operations(dataSources, passport, { sub: identity.sub, ...(identity.email ? { email: identity.email } : {}), ...(identity.given_name ? { given_name: identity.given_name } : {}), ...(identity.family_name ? { family_name: identity.family_name } : {}) }),
 			Teams: Teams(dataSources, passport, identity),
 			User: User(dataSources, passport),
+			Organization: Organization(dataSources, passport, identity.sub, accessibleOrganizationIds),
 		};
 	},
 });

@@ -91,7 +91,7 @@ input TeamOperationCreateInput {
 input TeamOperationSubmitInput { id: ObjectID! completionNote: String! completionEvidence: String }
 input TeamOperationConfirmInput { id: ObjectID! note: String }
 input TeamOperationCancelInput { id: ObjectID! reason: String! }
-input TeamOperationUpdateInput { id: ObjectID! title: String! description: String! category: String! priority: TeamOperationPriority! dueAt: DateTime }
+input TeamOperationUpdateInput { id: ObjectID! title: String! description: String! category: String! priority: TeamOperationPriority! assigneeId: String! assigneeDisplayName: String! assigneeEmail: String! teamName: String! dueAt: DateTime }
 input TeamOperationCommentInput { id: ObjectID! body: String! }
 input TeamOperationAttachInput { id: ObjectID! fileName: String! contentType: String! contentBase64: String! }
 type TeamOperationMutationResult { status: MutationStatus! teamOperation: TeamOperation }

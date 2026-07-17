@@ -1,0 +1,9 @@
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { AssessmentAttempt as AttemptDocument } from '@learnsphere/data-sources-mongoose-models';
+import { Domain } from '@learnsphere/domain';
+import type { AssessmentAttemptDomainAdapter } from './assessment-attempt.domain-adapter.ts';
+export class AssessmentAttemptRepository extends MongooseSeedwork.MongoRepositoryBase<AttemptDocument, AssessmentAttemptDomainAdapter, Domain.Passport, Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttempt<AssessmentAttemptDomainAdapter>> implements Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttemptRepository<AssessmentAttemptDomainAdapter> {
+	override async save(item: Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttempt<AssessmentAttemptDomainAdapter>) { const saved = await super.save(item); const document = await this.model.findById(saved.id).populate('assessment').exec(); if (!document) throw new Error('Assessment attempt was not found after save'); return this.typeConverter.toDomain(document, this.passport); }
+	getNewInstance(input: { assessment: Domain.Contexts.Learning.Assessment.AssessmentEntityReference; learnerId: string; courseId: string; activityKey: string; responses: Domain.Contexts.Learning.Assessment.AssessmentResponse[]; result: Domain.Contexts.Learning.Assessment.AssessmentScore; attemptNumber: number }) { const adapter = this.typeConverter.toAdapter(new this.model()); return Promise.resolve(Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttempt.getNewInstance(adapter, input, this.passport)); }
+	countAttempts(input: { assessmentId: string; learnerId: string; courseId: string; activityKey: string }) { return this.model.countDocuments({ assessment: input.assessmentId, learnerId: input.learnerId, courseId: input.courseId, activityKey: input.activityKey }).exec(); }
+}

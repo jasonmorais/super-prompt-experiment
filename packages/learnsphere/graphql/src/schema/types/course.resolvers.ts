@@ -55,9 +55,13 @@ const course: Resolvers = {
 		courseAddModule: (_parent, args, context) => {
 			requireUser(context);
 			return mutation(
-				context.applicationServices.Learning.Course.addModule({ courseId: args.input.courseId, module: { ...args.input.module, lessons: args.input.module.lessons as Domain.Contexts.Learning.Course.Lesson[] } }),
+				context.applicationServices.Learning.Course.addModule({ courseId: args.input.courseId, module: { ...args.input.module, lessons: args.input.module.lessons.map((lesson) => ({ key: lesson.key, title: lesson.title, type: lesson.type as Domain.Contexts.Learning.Course.LessonType, content: lesson.content, ...(lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}), estimatedMinutes: lesson.estimatedMinutes, required: lesson.required, ...(lesson.assessmentId ? { assessmentId: String(lesson.assessmentId) } : {}) })) } }),
 				'course',
 			);
+		},
+		courseReplaceStructure: (_parent, args, context) => {
+			requireUser(context);
+			return mutation(context.applicationServices.Learning.Course.replaceStructure({ courseId: String(args.input.courseId), modules: args.input.modules.map((module) => ({ key: module.key, title: module.title, description: module.description, lessons: module.lessons.map((lesson) => ({ key: lesson.key, title: lesson.title, type: lesson.type as Domain.Contexts.Learning.Course.LessonType, content: lesson.content, ...(lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}), estimatedMinutes: lesson.estimatedMinutes, required: lesson.required, ...(lesson.assessmentId ? { assessmentId: String(lesson.assessmentId) } : {}) })) })) }), 'course');
 		},
 		courseSubmitForReview: (_parent, args, context) => {
 			requireUser(context);

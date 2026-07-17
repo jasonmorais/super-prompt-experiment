@@ -7,6 +7,10 @@ import type { LearningRecordReadRepository } from './delivery/learning-record/in
 import { OperationsContext } from './operations/index.ts';
 import type { TeamOperationReadRepository } from './operations/index.ts';
 import { UserContext } from './user/index.ts';
+import { OrganizationContext } from './organization/index.ts';
+import type { AssessmentReadRepository } from './learning/assessment/index.ts';
+import type { AssessmentAttemptReadRepository } from './delivery/assessment-attempt/index.ts';
+import type { OrganizationReadRepository } from './organization/index.ts';
 import type * as LearnerUser from './user/learner-user/index.ts';
 import type * as StaffRole from './user/staff-role/index.ts';
 import type * as StaffUser from './user/staff-user/index.ts';
@@ -17,9 +21,10 @@ export interface ReadonlyDataSource {
 		StaffRole: { StaffRoleReadRepo: StaffRole.StaffRoleReadRepository };
 		StaffUser: { StaffUserReadRepo: StaffUser.StaffUserReadRepository };
 	};
-	Delivery: { LearningRecord: { LearningRecordReadRepo: LearningRecordReadRepository } };
-	Learning: { Course: { CourseReadRepo: CourseReadRepository } };
+	Delivery: { LearningRecord: { LearningRecordReadRepo: LearningRecordReadRepository }; AssessmentAttempt: { AssessmentAttemptReadRepo: AssessmentAttemptReadRepository } };
+	Learning: { Course: { CourseReadRepo: CourseReadRepository }; Assessment: { AssessmentReadRepo: AssessmentReadRepository } };
 	Operations: { TeamOperation: { TeamOperationReadRepo: TeamOperationReadRepository } };
+	Organization: { OrganizationReadRepo: OrganizationReadRepository };
 }
 
 export type { CourseListOptions, CourseReadRepository, LearningRecordReadRepository, TeamOperationReadRepository };
@@ -28,5 +33,6 @@ export const ReadonlyDataSourceImplementation = (models: ModelsContext, passport
 	Delivery: DeliveryContext(models, passport),
 	Learning: LearningContext(models, passport),
 	Operations: OperationsContext(models, passport),
+	Organization: OrganizationContext(models, passport),
 	User: UserContext(models, passport),
 });

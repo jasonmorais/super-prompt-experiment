@@ -2,6 +2,12 @@ import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { TeamOperation as TeamOperationDocument } from '@learnsphere/data-sources-mongoose-models';
 import { Domain } from '@learnsphere/domain';
 
+interface LegacyCommentFields {
+	body?: unknown;
+	text?: unknown;
+	message?: unknown;
+}
+
 export class TeamOperationConverter extends MongooseSeedwork.MongoTypeConverter<TeamOperationDocument, TeamOperationDomainAdapter, Domain.Passport, Domain.Contexts.Operations.TeamOperation.TeamOperation<TeamOperationDomainAdapter>> {
 	constructor() { super(TeamOperationDomainAdapter, Domain.Contexts.Operations.TeamOperation.TeamOperation); }
 }
@@ -52,7 +58,21 @@ export class TeamOperationDomainAdapter extends MongooseSeedwork.MongooseDomainA
 	}
 	set statusHistory(v) { this.doc.statusHistory = v; }
 	get comments(): Domain.Contexts.Operations.TeamOperation.TeamOperationComment[] {
-		return (this.doc.comments ?? []).map((comment, index) => ({ ...comment, id: typeof comment.id === 'string' && comment.id.trim() ? comment.id.trim() : `legacy-comment-${String(this.doc._id)}-${index}` }));
+		return (this.doc.comments ?? []).flatMap((comment, index) => {
+			const legacy = comment as unknown as LegacyCommentFields;
+			const body = [legacy.body, legacy.text, legacy.message].find((value): value is string => typeof value === 'string' && Boolean(value.trim()))?.trim();
+			if (!body) return [];
+			const authorId = typeof comment.authorId === 'string' && comment.authorId.trim() ? comment.authorId.trim() : 'legacy-user';
+			const authorName = typeof comment.authorName === 'string' && comment.authorName.trim() ? comment.authorName.trim() : authorId;
+			const createdAt = comment.createdAt instanceof Date && !Number.isNaN(comment.createdAt.getTime()) ? comment.createdAt : this.doc.createdAt;
+			return [{
+				id: typeof comment.id === 'string' && comment.id.trim() ? comment.id.trim() : `legacy-comment-${String(this.doc._id)}-${index}`,
+				body,
+				authorId,
+				authorName,
+				createdAt,
+			}];
+		});
 	}
 	set comments(v) { this.doc.comments = v; }
 	get attachments(): Domain.Contexts.Operations.TeamOperation.TeamOperationAttachment[] { return (this.doc.attachments ?? []).map((attachment, index) => ({ ...attachment, id: typeof attachment.id === 'string' && attachment.id.trim() ? attachment.id.trim() : `legacy-attachment-${String(this.doc._id)}-${index}` })); }

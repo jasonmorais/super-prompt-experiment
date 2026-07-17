@@ -6,6 +6,7 @@ export interface LearningRecordReadRepository {
 	getById(id: string): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference | null>;
 	getByLearner(organizationId: string, learnerId: string): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]>;
 	listByOrganization(organizationId: string, teamName?: string): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]>;
+	getTrainingLeaderboard(organizationId: string, limit?: number): Promise<Domain.Contexts.Delivery.LearningRecord.TrainingLeaderboardEntry[]>;
 }
 
 export class LearningRecordReadRepositoryImpl implements LearningRecordReadRepository {
@@ -33,6 +34,35 @@ export class LearningRecordReadRepositoryImpl implements LearningRecordReadRepos
 			.sort({ teamName: 1, learnerDisplayName: 1, updatedAt: -1 })
 			.exec();
 		return documents.map((document) => this.converter.toDomain(document, this.passport));
+	}
+
+	async getTrainingLeaderboard(organizationId: string, limit = 100): Promise<Domain.Contexts.Delivery.LearningRecord.TrainingLeaderboardEntry[]> {
+		type AggregateEntry = Omit<Domain.Contexts.Delivery.LearningRecord.TrainingLeaderboardEntry, 'rank'> & { _id: string };
+		const entries = await this.models.LearningRecord.aggregate<AggregateEntry>([
+			{ $match: { organizationId } },
+			{ $sort: { updatedAt: -1 } },
+			{
+				$group: {
+					_id: '$learnerId',
+					learnerId: { $first: '$learnerId' },
+					learnerDisplayName: { $first: '$learnerDisplayName' },
+					teamName: { $first: '$teamName' },
+					completedTrainings: { $sum: { $cond: [{ $eq: ['$status', 'COMPLETED'] }, 1, 0] } },
+					totalTrainings: { $sum: 1 },
+					totalLearningMinutes: { $sum: { $sum: '$activityProgress.timeSpentMinutes' } },
+					lastCompletedAt: { $max: { $cond: [{ $eq: ['$status', 'COMPLETED'] }, '$completedAt', null] } },
+				},
+			},
+			{ $sort: { completedTrainings: -1, totalLearningMinutes: -1, learnerDisplayName: 1 } },
+			{ $limit: Math.min(Math.max(limit, 1), 100) },
+		]).exec();
+		let displayedRank = 0;
+		let previousCompleted: number | undefined;
+		return entries.map(({ _id: _ignored, ...entry }, index) => {
+			if (entry.completedTrainings !== previousCompleted) displayedRank = index + 1;
+			previousCompleted = entry.completedTrainings;
+			return { ...entry, rank: displayedRank };
+		});
 	}
 }
 

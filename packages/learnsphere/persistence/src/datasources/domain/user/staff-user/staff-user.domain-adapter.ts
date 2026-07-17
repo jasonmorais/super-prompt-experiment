@@ -18,6 +18,7 @@ export class StaffUserDomainAdapter extends MongooseSeedwork.MongooseDomainAdapt
 	override get createdAt() { return this.doc.createdAt as Date; }
 	override get updatedAt() { return this.doc.updatedAt as Date; }
 	get activityLog(): Domain.Contexts.User.StaffUser.StaffUserProps['activityLog'] { return new MongooseSeedwork.MongoosePropArray(this.doc.activityLog, StaffUserActivityLogDomainAdapter); }
+	get organizationScopes() { return (this.doc.organizationScopes ?? []).map((scope) => ({ organizationId: scope.organizationId, includeDescendants: scope.includeDescendants })); } set organizationScopes(value) { this.doc.organizationScopes = value; }
 }
 
 class StaffUserActivityLogDomainAdapter implements Domain.Contexts.User.StaffUser.StaffUserActivityLogProps {

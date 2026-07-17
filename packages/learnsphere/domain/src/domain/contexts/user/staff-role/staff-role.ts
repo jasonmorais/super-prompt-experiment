@@ -16,6 +16,9 @@ export interface StaffPortalPermissionsProps {
 	canManageTeams: boolean;
 	canManageTeamOperations: boolean;
 	canConfirmTeamOperations: boolean;
+	canManageAssessments: boolean;
+	canViewOrganization: boolean;
+	canManageOrganizationStructure: boolean;
 }
 export type StaffPortalPermissionsEntityReference = Readonly<StaffPortalPermissionsProps>;
 
@@ -38,7 +41,7 @@ export interface StaffRoleProps extends DomainEntityProps {
 }
 export type StaffRoleEntityReference = Readonly<Omit<StaffRoleProps, 'permissions'>> & { readonly permissions: StaffRolePermissionsEntityReference };
 
-const emptyPortalPermissions = (): StaffPortalPermissionsProps => ({ canViewTeamLearning: false, canManageCourses: false, canPublishCourses: false, canDeleteCourses: false, canManageTeams: false, canManageTeamOperations: false, canConfirmTeamOperations: false });
+const emptyPortalPermissions = (): StaffPortalPermissionsProps => ({ canViewTeamLearning: false, canManageCourses: false, canPublishCourses: false, canDeleteCourses: false, canManageTeams: false, canManageTeamOperations: false, canConfirmTeamOperations: false, canManageAssessments: false, canViewOrganization: false, canManageOrganizationStructure: false });
 const emptyUserPermissions = (): StaffRoleUserPermissionsProps => ({ canManageUsers: false, canAssignStaffRoles: false, canViewStaffUsers: false });
 const emptyRolePermissions = (): StaffRoleRolePermissionsProps => ({ canViewRoles: false, canAddRole: false, canEditRole: false, canRemoveRole: false });
 export const emptyStaffRolePermissions = (): StaffRolePermissionsProps => ({ staffPortalPermissions: emptyPortalPermissions(), userPermissions: emptyUserPermissions(), staffRolePermissions: emptyRolePermissions() });
@@ -62,6 +65,9 @@ export class StaffPortalPermissions extends PermissionGroup<StaffPortalPermissio
 	get canManageTeams() { return this.get('canManageTeams'); } set canManageTeams(v) { this.set('canManageTeams', v); }
 	get canManageTeamOperations() { return this.get('canManageTeamOperations'); } set canManageTeamOperations(v) { this.set('canManageTeamOperations', v); }
 	get canConfirmTeamOperations() { return this.get('canConfirmTeamOperations'); } set canConfirmTeamOperations(v) { this.set('canConfirmTeamOperations', v); }
+	get canManageAssessments() { return this.get('canManageAssessments'); } set canManageAssessments(v) { this.set('canManageAssessments', v); }
+	get canViewOrganization() { return this.get('canViewOrganization'); } set canViewOrganization(v) { this.set('canViewOrganization', v); }
+	get canManageOrganizationStructure() { return this.get('canManageOrganizationStructure'); } set canManageOrganizationStructure(v) { this.set('canManageOrganizationStructure', v); }
 }
 export class StaffRoleUserPermissions extends PermissionGroup<StaffRoleUserPermissionsProps> implements StaffRoleUserPermissionsEntityReference {
 	get canManageUsers() { return this.get('canManageUsers'); } set canManageUsers(v) { this.set('canManageUsers', v); }
@@ -92,11 +98,11 @@ export class StaffRole<props extends StaffRoleProps = StaffRoleProps> extends Ag
 	}
 	static getNewDefaultManagerInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
 		const role = StaffRole.getNewInstance(newProps, passport, 'Manager', true); role.enterpriseAppRole = 'Staff.Manager';
-		role.props.permissions = { staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: true, canPublishCourses: true, canDeleteCourses: true, canManageTeams: true, canManageTeamOperations: true, canConfirmTeamOperations: true }, userPermissions: { canManageUsers: true, canAssignStaffRoles: true, canViewStaffUsers: true }, staffRolePermissions: { canViewRoles: true, canAddRole: false, canEditRole: false, canRemoveRole: false } }; return role;
+		role.props.permissions = { staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: true, canPublishCourses: true, canDeleteCourses: true, canManageTeams: true, canManageTeamOperations: true, canConfirmTeamOperations: true, canManageAssessments: true, canViewOrganization: true, canManageOrganizationStructure: true }, userPermissions: { canManageUsers: true, canAssignStaffRoles: true, canViewStaffUsers: true }, staffRolePermissions: { canViewRoles: true, canAddRole: false, canEditRole: false, canRemoveRole: false } }; return role;
 	}
 	static getNewDefaultTeamLeadInstance<props extends StaffRoleProps>(newProps: props, passport: Passport): StaffRole<props> {
 		const role = StaffRole.getNewInstance(newProps, passport, 'Team Lead', true); role.enterpriseAppRole = 'Staff.TeamLead';
-		role.props.permissions = { staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: false, canPublishCourses: false, canDeleteCourses: false, canManageTeams: false, canManageTeamOperations: true, canConfirmTeamOperations: false }, userPermissions: emptyUserPermissions(), staffRolePermissions: emptyRolePermissions() }; return role;
+		role.props.permissions = { staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: false, canPublishCourses: false, canDeleteCourses: false, canManageTeams: false, canManageTeamOperations: true, canConfirmTeamOperations: false, canManageAssessments: false, canViewOrganization: true, canManageOrganizationStructure: false }, userPermissions: emptyUserPermissions(), staffRolePermissions: emptyRolePermissions() }; return role;
 	}
 	private validateManagement(): void { if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to update staff roles'); }
 	override get id() { return this.props.id; }

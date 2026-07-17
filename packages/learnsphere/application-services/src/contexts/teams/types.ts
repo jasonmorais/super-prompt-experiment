@@ -33,4 +33,6 @@ export const requireTeamManagement = (passport: Passport): void => {
 	if (!passport.canManageTeams) throw new Error('Manager role required');
 };
 
+export const requireOrganizationAccess = (passport: Passport, organizationId: string): void => { if (!passport.canAccessOrganization(organizationId)) throw new Error('You do not have access to this organization'); };
+
 export const actorName = (identity: TeamsIdentity): string => `${identity.given_name ?? ''} ${identity.family_name ?? ''}`.trim() || identity.email || identity.sub;

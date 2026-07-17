@@ -6,7 +6,7 @@ export const defaultStaffRoleDefinitions: ReadonlyArray<{ name: string; appRole:
 		name: 'Manager',
 		appRole: 'Staff.Manager',
 		permissions: {
-			staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: true, canPublishCourses: true, canDeleteCourses: true, canManageTeams: true, canManageTeamOperations: true, canConfirmTeamOperations: true },
+			staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: true, canPublishCourses: true, canDeleteCourses: true, canManageTeams: true, canManageTeamOperations: true, canConfirmTeamOperations: true, canManageAssessments: true, canViewOrganization: true, canManageOrganizationStructure: true },
 			userPermissions: { canManageUsers: true, canAssignStaffRoles: true, canViewStaffUsers: true },
 			staffRolePermissions: { canViewRoles: true, canAddRole: false, canEditRole: false, canRemoveRole: false },
 		},
@@ -15,7 +15,7 @@ export const defaultStaffRoleDefinitions: ReadonlyArray<{ name: string; appRole:
 		name: 'Team Lead',
 		appRole: 'Staff.TeamLead',
 		permissions: {
-			staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: false, canPublishCourses: false, canDeleteCourses: false, canManageTeams: false, canManageTeamOperations: true, canConfirmTeamOperations: false },
+			staffPortalPermissions: { canViewTeamLearning: true, canManageCourses: false, canPublishCourses: false, canDeleteCourses: false, canManageTeams: false, canManageTeamOperations: true, canConfirmTeamOperations: false, canManageAssessments: false, canViewOrganization: true, canManageOrganizationStructure: false },
 			userPermissions: { canManageUsers: false, canAssignStaffRoles: false, canViewStaffUsers: false },
 			staffRolePermissions: { canViewRoles: false, canAddRole: false, canEditRole: false, canRemoveRole: false },
 		},
@@ -28,7 +28,9 @@ export const createDefaultStaffRoles = (dataSources: DataSources) => async (): P
 		let saved: Domain.Contexts.User.StaffRole.StaffRoleEntityReference | undefined;
 		await dataSources.domainDataSource.User.StaffRole.StaffRoleUnitOfWork.withTransaction(Domain.PassportFactory.forSystem(), async (repository) => {
 			try {
-				await repository.getDefaultRoleByEnterpriseAppRole(definition.appRole);
+				const existing = await repository.getDefaultRoleByEnterpriseAppRole(definition.appRole);
+				existing.updatePermissions(definition.permissions);
+				saved = await repository.save(existing);
 				return;
 			} catch (error) {
 				if (!(error instanceof Error) || !error.message.toLowerCase().includes('not found')) throw error;

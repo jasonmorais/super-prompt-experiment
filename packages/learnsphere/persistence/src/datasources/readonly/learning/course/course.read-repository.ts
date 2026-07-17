@@ -28,6 +28,7 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 	}
 
 	async getById(id: string, options?: { organizationId?: string; learnerId?: string }): Promise<Domain.Contexts.Learning.Course.CourseEntityReference | null> {
+		if (options?.organizationId && !this.passport.canAccessOrganization(options.organizationId)) return null;
 		const document = await this.models.Course.findOne({
 			_id: id,
 			...(options?.organizationId ? { organizationId: options.organizationId } : {}),
@@ -41,11 +42,12 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 					],
 				}
 				: {}),
-		}).exec();
-		return document ? this.converter.toDomain(document, this.passport) : null;
+		}).populate('modules.lessons.assessment').exec();
+		return document && this.passport.canAccessOrganization(document.organizationId) ? this.converter.toDomain(document, this.passport) : null;
 	}
 
 	async list(options: CourseListOptions): Promise<Domain.Contexts.Learning.Course.CourseEntityReference[]> {
+		if (!this.passport.canAccessOrganization(options.organizationId)) throw new Error('You do not have access to this organization');
 		const query: FilterQuery<CourseDocument> = { organizationId: options.organizationId };
 		if (options.status) query.status = options.status;
 		if (options.search?.trim()) query.$text = { $search: options.search.trim() };
@@ -56,6 +58,7 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 			];
 		}
 		const documents = await this.models.Course.find(query)
+			.populate('modules.lessons.assessment')
 			.sort({ updatedAt: -1 })
 			.limit(Math.min(options.limit ?? 30, 100))
 			.exec();

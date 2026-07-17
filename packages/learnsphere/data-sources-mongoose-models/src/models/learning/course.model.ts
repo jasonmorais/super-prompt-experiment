@@ -1,13 +1,16 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
-import { type Model, Schema } from 'mongoose';
+import { type Model, type ObjectId, type PopulatedDoc, Schema } from 'mongoose';
+import type { Assessment } from './assessment.model.ts';
 
 export interface Lesson {
 	key: string;
 	title: string;
-	type: 'ARTICLE' | 'VIDEO' | 'QUIZ' | 'PROJECT' | 'RESOURCE';
+	type: 'ARTICLE' | 'VIDEO' | 'QUIZ' | 'PROJECT' | 'RESOURCE' | 'ASSESSMENT';
 	content: string;
+	videoUrl?: string;
 	estimatedMinutes: number;
 	required: boolean;
+	assessment?: PopulatedDoc<Assessment> | ObjectId;
 }
 
 export interface CourseModule {
@@ -39,10 +42,12 @@ const LessonSchema = new Schema<Lesson>(
 	{
 		key: { type: String, required: true, maxlength: 80 },
 		title: { type: String, required: true, maxlength: 180 },
-		type: { type: String, required: true, enum: ['ARTICLE', 'VIDEO', 'QUIZ', 'PROJECT', 'RESOURCE'] },
+		type: { type: String, required: true, enum: ['ARTICLE', 'VIDEO', 'QUIZ', 'PROJECT', 'RESOURCE', 'ASSESSMENT'] },
 		content: { type: String, required: true, maxlength: 50000 },
+		videoUrl: { type: String, required: false, maxlength: 2000 },
 		estimatedMinutes: { type: Number, required: true, min: 1, max: 1440 },
 		required: { type: Boolean, required: true, default: true },
+		assessment: { type: Schema.Types.ObjectId, ref: 'Assessment', required: false },
 	},
 	{ _id: false },
 );

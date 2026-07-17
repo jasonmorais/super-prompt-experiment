@@ -6,6 +6,17 @@ import type { Passport } from '../../../passport-factory.ts';
 export type EnrollmentSource = 'SELF_ENROLLED' | 'MANAGER_ASSIGNED' | 'PROGRAM_ASSIGNED' | 'COMPLIANCE_ASSIGNED';
 export type LearningRecordStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE' | 'WAIVED';
 
+export interface TrainingLeaderboardEntry {
+	rank: number;
+	learnerId: string;
+	learnerDisplayName: string;
+	teamName: string;
+	completedTrainings: number;
+	totalTrainings: number;
+	totalLearningMinutes: number;
+	lastCompletedAt: Date | null;
+}
+
 export interface ActivityProgress {
 	activityKey: string;
 	completedAt: Date;
@@ -55,13 +66,13 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		passport: Passport,
 	) {
 		const record = new LearningRecord(props, passport);
+		props.organizationId = input.organizationId;
+		props.learnerId = input.learnerId;
 		const canEnroll = input.source === 'SELF_ENROLLED' ? record.visa.determineIf((permissions) => permissions.canSelfEnroll) : record.visa.determineIf((permissions) => permissions.canAssignLearning);
 		if (!canEnroll) throw new PermissionError('You do not have permission to create this learning assignment');
 		if (!input.organizationId.trim() || !input.learnerId.trim() || !input.learnerDisplayName.trim() || !input.learnerEmail.trim() || !input.teamName.trim() || !input.courseId.trim())
 			throw new Error('Organization, learner identity, team, and course are required');
 		if (input.requiredActivityKeys.length === 0) throw new Error('Published learning must contain required activities');
-		props.organizationId = input.organizationId;
-		props.learnerId = input.learnerId;
 		props.learnerDisplayName = input.learnerDisplayName.trim();
 		props.learnerEmail = input.learnerEmail.trim().toLowerCase();
 		props.teamName = input.teamName.trim();

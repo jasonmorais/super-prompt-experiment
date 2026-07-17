@@ -12,6 +12,9 @@ export interface StaffRolePortalPermissions {
 	canManageTeams: boolean;
 	canManageTeamOperations: boolean;
 	canConfirmTeamOperations: boolean;
+	canManageAssessments: boolean;
+	canViewOrganization: boolean;
+	canManageOrganizationStructure: boolean;
 }
 export interface StaffRoleUserPermissions {
 	canManageUsers: boolean;
@@ -44,6 +47,9 @@ const portalPermissions: SchemaDefinition<StaffRolePortalPermissions> = {
 	canManageTeams: { type: Boolean, required: true, default: false },
 	canManageTeamOperations: { type: Boolean, required: true, default: false },
 	canConfirmTeamOperations: { type: Boolean, required: true, default: false },
+	canManageAssessments: { type: Boolean, required: true, default: false },
+	canViewOrganization: { type: Boolean, required: true, default: false },
+	canManageOrganizationStructure: { type: Boolean, required: true, default: false },
 };
 const userPermissions: SchemaDefinition<StaffRoleUserPermissions> = {
 	canManageUsers: { type: Boolean, required: true, default: false },

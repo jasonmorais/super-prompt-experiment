@@ -27,6 +27,9 @@ export interface LearnSphereStaffCapabilities {
 	canManageTeams: boolean;
 	canManageTeamOperations: boolean;
 	canConfirmTeamOperations: boolean;
+	canManageAssessments: boolean;
+	canViewOrganization: boolean;
+	canManageOrganizationStructure: boolean;
 }
 
 /** The persisted StaffRole permission group returned by the staff API. */
@@ -38,6 +41,9 @@ export interface LearnSphereStaffPortalPermissions {
 	canManageTeams?: boolean;
 	canManageTeamOperations?: boolean;
 	canConfirmTeamOperations?: boolean;
+	canManageAssessments?: boolean;
+	canViewOrganization?: boolean;
+	canManageOrganizationStructure?: boolean;
 }
 
 const claimString = (profile: LearnSphereProfile | undefined, key: keyof LearnSphereProfile): string => {
@@ -75,5 +81,8 @@ export const getStaffCapabilities = (permissions: LearnSphereStaffPortalPermissi
 		canManageTeams: enterpriseAppRole === 'Staff.Manager' && (permissions?.canManageTeams ?? false),
 		canManageTeamOperations: permissions?.canManageTeamOperations ?? false,
 		canConfirmTeamOperations: permissions?.canConfirmTeamOperations ?? false,
+		canManageAssessments: permissions?.canManageAssessments ?? false,
+		canViewOrganization: permissions?.canViewOrganization ?? false,
+		canManageOrganizationStructure: permissions?.canManageOrganizationStructure ?? false,
 	};
 };

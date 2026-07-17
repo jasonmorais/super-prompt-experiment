@@ -5,7 +5,7 @@ import { Alert, Button, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate, useParams } from 'react-router-dom';
-import { LearnerCourseContainerCompleteActivityDocument, LearnerCourseContainerCourseExperienceDocument, type LearnerCourseContainerCourseExperienceQuery } from '../generated.tsx';
+import { LearnerCourseContainerCompleteActivityDocument, LearnerCourseContainerCourseExperienceDocument, LearnerCourseContainerSubmitAssessmentDocument, type LearnerCourseContainerCourseExperienceQuery } from '../generated.tsx';
 import { Course } from './course.tsx';
 
 export const CourseContainer = () => {
@@ -15,6 +15,7 @@ export const CourseContainer = () => {
 	const organizationId = readLearnSphereIdentity(auth.user?.profile).organizationId;
 	const { data, loading, error, refetch } = useQuery<LearnerCourseContainerCourseExperienceQuery>(LearnerCourseContainerCourseExperienceDocument, { variables: { courseId, organizationId }, skip: !courseId || !organizationId });
 	const [recordActivity, mutation] = useMutation(LearnerCourseContainerCompleteActivityDocument);
+	const [submitAssessment, assessmentMutation] = useMutation(LearnerCourseContainerSubmitAssessmentDocument);
 	const [completionScreenshot, setCompletionScreenshot] = useState<string>();
 	const course = data?.courseById;
 	const record = data?.myLearning.find((candidate) => candidate.courseId === courseId);
@@ -57,6 +58,15 @@ export const CourseContainer = () => {
 			message.error(error instanceof Error ? error.message : 'Activity progress could not be saved');
 		}
 	};
+	const completeAssessment = async (responses: { questionKey: string; selectedOptionKeys: string[] }[]) => {
+		if (!record || !selectedLesson?.assessment) return;
+		const result = await submitAssessment({ variables: { input: { assessmentId: selectedLesson.assessment.id, learningRecordId: record.id, courseId, activityKey: selectedLesson.key, timeSpentMinutes: selectedLesson.estimatedMinutes, responses } } });
+		const attempt = result.data?.assessmentSubmit.attempt; const status = result.data?.assessmentSubmit.status;
+		if (!status?.success || !attempt) { message.error(status?.errorMessage ?? 'Assessment could not be submitted'); return; }
+		await refetch();
+		if (!attempt.passed) { message.warning(`Score: ${attempt.score}%. Review the material and try again.`); return; }
+		const nextLesson = lessons[lessons.findIndex((lesson) => lesson.key === selectedLesson.key) + 1]; message.success(`Assessment passed with ${attempt.score}%.`); if (nextLesson) navigate(`/courses/${courseId}/activities/${nextLesson.key}`);
+	};
 
 	const courseExperience =
 		course && record ? (
@@ -72,6 +82,8 @@ export const CourseContainer = () => {
 				onBack={() => navigate('/dashboard')}
 				onSelectLesson={(lessonKey) => navigate(`/courses/${course.id}/activities/${lessonKey}`)}
 				onComplete={() => void completeActivity()}
+				onSubmitAssessment={(responses) => void completeAssessment(responses)}
+				assessmentLoading={assessmentMutation.loading}
 			/>
 		) : null;
 	const noData = course ? (

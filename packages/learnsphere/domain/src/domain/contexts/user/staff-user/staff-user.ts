@@ -25,8 +25,10 @@ export interface StaffUserProps extends DomainEntityProps {
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 	activityLog: PropArray<StaffUserActivityLogProps>;
+	organizationScopes: StaffOrganizationScope[];
 }
-export interface StaffUserEntityReference extends Readonly<Omit<StaffUserProps, 'role' | 'setRoleRef' | 'activityLog'>> { readonly role: StaffRoleEntityReference | undefined; readonly activityLog: ReadonlyArray<StaffUserActivityLogEntityReference>; }
+export interface StaffOrganizationScope { organizationId: string; includeDescendants: boolean; }
+export interface StaffUserEntityReference extends Readonly<Omit<StaffUserProps, 'role' | 'setRoleRef' | 'activityLog' | 'organizationScopes'>> { readonly role: StaffRoleEntityReference | undefined; readonly activityLog: ReadonlyArray<StaffUserActivityLogEntityReference>; readonly organizationScopes: ReadonlyArray<Readonly<StaffOrganizationScope>>; }
 
 export class StaffUser<props extends StaffUserProps = StaffUserProps> extends AggregateRoot<props, Passport> implements StaffUserEntityReference {
 	private isNew = false;
@@ -34,7 +36,7 @@ export class StaffUser<props extends StaffUserProps = StaffUserProps> extends Ag
 	constructor(props: props, passport: Passport) { super(props, passport); this.visa = passport.user.forStaffUser(this); }
 
 	static getNewUser<props extends StaffUserProps>(newProps: props, passport: Passport, externalId: string, firstName: string, lastName: string, email: string): StaffUser<props> {
-		const user = new StaffUser(newProps, passport); user.isNew = true; user.externalId = externalId; user.firstName = firstName; user.lastName = lastName; user.email = email; user.displayName = `${firstName} ${lastName}`.trim(); user.accessBlocked = false; user.tags = []; user.isNew = false; return user;
+		const user = new StaffUser(newProps, passport); user.isNew = true; user.externalId = externalId; user.firstName = firstName; user.lastName = lastName; user.email = email; user.displayName = `${firstName} ${lastName}`.trim(); user.accessBlocked = false; user.tags = []; user.props.organizationScopes = []; user.isNew = false; return user;
 	}
 
 	private validateManagement(): void { if (!this.isNew && !this.visa.determineIf((permissions) => permissions.canManageStaffRolesAndPermissions || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to update staff users'); }
@@ -63,6 +65,9 @@ export class StaffUser<props extends StaffUserProps = StaffUserProps> extends Ag
 	get tags() { return [...this.props.tags]; }
 	set tags(value: string[]) { this.validateManagement(); this.props.tags = [...value]; }
 	get activityLog() { return this.props.activityLog.items.map((item) => ({ ...item })); }
+	get organizationScopes() { return this.props.organizationScopes.map((scope) => ({ ...scope })); }
+	grantOrganizationScope(scope: StaffOrganizationScope): void { this.validateManagement(); const organizationId = scope.organizationId.trim(); if (!organizationId) throw new Error('Organization scope is required'); this.props.organizationScopes = [...this.props.organizationScopes.filter((existing) => existing.organizationId !== organizationId), { organizationId, includeDescendants: scope.includeDescendants }]; this.addActivity('UPDATED', `Organization scope ${organizationId} granted`, this.id); }
+	revokeOrganizationScope(organizationId: string): void { this.validateManagement(); this.props.organizationScopes = this.props.organizationScopes.filter((scope) => scope.organizationId !== organizationId); this.addActivity('UPDATED', `Organization scope ${organizationId} revoked`, this.id); }
 	get userType() { return this.props.userType; }
 	get schemaVersion() { return this.props.schemaVersion; }
 	get createdAt() { return this.props.createdAt; }

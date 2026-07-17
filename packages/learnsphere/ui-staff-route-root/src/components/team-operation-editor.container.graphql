@@ -1,0 +1,17 @@
+fragment StaffTeamOperationEditorOperationFields on TeamOperation {
+	id title description category priority status assigneeId assigneeDisplayName assigneeEmail teamName createdBy assignedAt dueAt startedAt submittedAt completionNote confirmedAt confirmedBy
+	statusHistory { status changedAt changedBy note }
+}
+
+query StaffTeamOperationEditorData($organizationId: String!) {
+	teams(organizationId: $organizationId) { id name members { learnerId displayName email } }
+	teamOperations(organizationId: $organizationId) { ...StaffTeamOperationEditorOperationFields }
+}
+
+mutation StaffTeamOperationEditorCreate($input: TeamOperationCreateInput!) {
+	teamOperationCreate(input: $input) { status { success errorMessage } teamOperation { ...StaffTeamOperationEditorOperationFields } }
+}
+
+mutation StaffTeamOperationEditorUpdate($input: TeamOperationUpdateInput!) {
+	teamOperationUpdate(input: $input) { status { success errorMessage } teamOperation { ...StaffTeamOperationEditorOperationFields } }
+}

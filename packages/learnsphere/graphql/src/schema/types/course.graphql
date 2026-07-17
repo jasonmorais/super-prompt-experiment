@@ -6,6 +6,7 @@ extend type Query {
 extend type Mutation {
 	courseCreate(input: CourseCreateInput!): CourseMutationResult!
 	courseAddModule(input: CourseAddModuleInput!): CourseMutationResult!
+	courseReplaceStructure(input: CourseReplaceStructureInput!): CourseMutationResult!
 	courseSubmitForReview(id: ObjectID!): CourseMutationResult!
 	coursePublish(id: ObjectID!): CourseMutationResult!
 	courseUpdate(input: CourseUpdateInput!): CourseMutationResult!
@@ -15,7 +16,7 @@ extend type Mutation {
 enum CourseStatus { DRAFT IN_REVIEW PUBLISHED ARCHIVED }
 enum CourseLevel { FOUNDATIONAL INTERMEDIATE ADVANCED }
 enum CourseDiscoverability { CATALOG ASSIGNED_ONLY }
-enum LessonType { ARTICLE VIDEO QUIZ PROJECT RESOURCE }
+enum LessonType { ARTICLE VIDEO QUIZ PROJECT RESOURCE ASSESSMENT }
 
 type Course implements MongoBase {
 	id: ObjectID!
@@ -53,8 +54,10 @@ type Lesson {
 	title: String!
 	type: LessonType!
 	content: String!
+	videoUrl: String
 	estimatedMinutes: Int!
 	required: Boolean!
+	assessment: Assessment
 }
 
 input CourseCreateInput {
@@ -84,8 +87,9 @@ input CourseUpdateInput {
 }
 
 input CourseAddModuleInput { courseId: ObjectID! module: CourseModuleInput! }
+input CourseReplaceStructureInput { courseId: ObjectID! modules: [CourseModuleInput!]! }
 input CourseModuleInput { key: String! title: String! description: String! lessons: [LessonInput!]! }
-input LessonInput { key: String! title: String! type: LessonType! content: String! estimatedMinutes: Int! required: Boolean! }
+input LessonInput { key: String! title: String! type: LessonType! content: String! videoUrl: String estimatedMinutes: Int! required: Boolean! assessmentId: ObjectID }
 
 type CourseMutationResult {
 	status: MutationStatus!

@@ -13,7 +13,7 @@ export interface StaffAuthorization {
 
 export const useStaffAuthorization = (): StaffAuthorization => {
 	const auth = useAuth();
-	const result = useQuery(CurrentStaffUserAndCreateIfNotExistsDocument, { skip: !auth.isAuthenticated });
+	const result = useQuery(CurrentStaffUserAndCreateIfNotExistsDocument, { skip: !auth.isAuthenticated, fetchPolicy: 'network-only' });
 	const role = result.data?.currentStaffUserAndCreateIfNotExists.role;
 	return {
 		loading: result.loading,

@@ -3,67 +3,34 @@ import { ComponentQueryLoader } from '@cellix/ui-core';
 import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
 import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
+import { useNavigate } from 'react-router-dom';
 import {
-	StaffCourseManagementContainerAddCourseModuleDocument,
 	StaffCourseManagementContainerAssignCourseToLearnerDocument,
 	StaffCourseManagementContainerCourseManagementDocument,
 	type StaffCourseManagementContainerCourseManagementQuery,
-	StaffCourseManagementContainerCreateCourseDocument,
 	StaffCourseManagementContainerDeleteCourseDocument,
 	StaffCourseManagementContainerPublishCourseDocument,
 	StaffCourseManagementContainerSubmitCourseDocument,
 	StaffCourseManagementContainerUnassignLearningDocument,
-	StaffCourseManagementContainerUpdateCourseDocument,
 } from '../generated.tsx';
 import { CourseManagement } from './course-management.tsx';
-import type { AssignmentValues, Course, CourseValues, ModuleValues, Person } from './course-management/types.ts';
+import type { AssignmentValues, Course, Person } from './course-management/types.ts';
 import { useStaffAuthorization } from '../staff-authorization.tsx';
-const slug = (value: string) =>
-	value
-		.toLowerCase()
-		.trim()
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/(^-|-$)/g, '')
-		.slice(0, 70);
 
 export const CourseManagementContainer = () => {
 	const auth = useAuth();
+	const navigate = useNavigate();
 	const identity = readLearnSphereIdentity(auth.user?.profile);
 	const capabilities = useStaffAuthorization().capabilities;
 	const organizationId = identity.organizationId;
-	const { data, loading, error, refetch } = useQuery<StaffCourseManagementContainerCourseManagementQuery>(StaffCourseManagementContainerCourseManagementDocument, { variables: { organizationId }, skip: !organizationId });
-	const [createCourse, creating] = useMutation(StaffCourseManagementContainerCreateCourseDocument);
-	const [addModule, adding] = useMutation(StaffCourseManagementContainerAddCourseModuleDocument);
+	const { data, loading, error, refetch } = useQuery<StaffCourseManagementContainerCourseManagementQuery>(StaffCourseManagementContainerCourseManagementDocument, { variables: { organizationId }, skip: !organizationId, fetchPolicy: 'cache-and-network' });
 	const [submitCourse, submitting] = useMutation(StaffCourseManagementContainerSubmitCourseDocument);
 	const [publishCourse, publishing] = useMutation(StaffCourseManagementContainerPublishCourseDocument);
-	const [updateCourse, updating] = useMutation(StaffCourseManagementContainerUpdateCourseDocument);
 	const [deleteCourse, deleting] = useMutation(StaffCourseManagementContainerDeleteCourseDocument);
 	const [assignCourse, assigning] = useMutation(StaffCourseManagementContainerAssignCourseToLearnerDocument);
 	const [unassignCourse, unassigning] = useMutation(StaffCourseManagementContainerUnassignLearningDocument);
 	const people: Person[] = data?.teams.flatMap((team) => team.members.map((member) => ({ learnerId: member.learnerId, learnerDisplayName: member.displayName, learnerEmail: member.email, teamName: team.name }))) ?? [];
 	const assignments = data?.teamLearning.filter((record) => record.source !== 'SELF_ENROLLED') ?? [];
-	const create = async (values: CourseValues) => {
-		const result = await createCourse({ variables: { input: { organizationId, ...values, tags: values.tags ?? [], skills: values.skills ?? [] } } });
-		const status = result.data?.courseCreate.status;
-		if (!status?.success) {
-			message.error(status?.errorMessage ?? 'Course could not be created');
-			return;
-		}
-		message.success('Draft course created.');
-		await refetch();
-	};
-	const edit = async (id: string, values: CourseValues) => {
-		const result = await updateCourse({
-			variables: { input: { id, ...values, tags: values.tags ?? [], skills: values.skills ?? [], discoverability: values.discoverability, requiresCompletionScreenshot: values.requiresCompletionScreenshot } },
-		});
-		const status = result.data?.courseUpdate.status;
-		if (!status?.success) {
-			message.error(status?.errorMessage ?? 'Course could not be updated');
-			return;
-		}
-		message.success('Course details updated.');
-		await refetch();
-	};
 	const remove = async (id: string) => {
 		const result = await deleteCourse({ variables: { id } });
 		const status = result.data?.courseDelete.status;
@@ -109,29 +76,6 @@ export const CourseManagementContainer = () => {
 		message.success('Course assignment removed.');
 		await refetch();
 	};
-	const addContent = async (course: Course, values: ModuleValues) => {
-		const moduleKey = slug(values.moduleTitle);
-		const result = await addModule({
-			variables: {
-				input: {
-					courseId: course.id,
-					module: {
-						key: moduleKey,
-						title: values.moduleTitle,
-						description: values.moduleDescription,
-						lessons: [{ key: `${moduleKey}-${slug(values.lessonTitle)}`, title: values.lessonTitle, type: values.lessonType, content: values.lessonContent, estimatedMinutes: values.estimatedMinutes, required: values.required }],
-					},
-				},
-			},
-		});
-		const status = result.data?.courseAddModule.status;
-		if (!status?.success) {
-			message.error(status?.errorMessage ?? 'Course content could not be added');
-			return;
-		}
-		message.success('Module and learning activity added');
-		await refetch();
-	};
 	const transition = async (course: Course) => {
 		if (course.status === 'DRAFT') {
 			const result = await submitCourse({ variables: { id: course.id } });
@@ -155,11 +99,8 @@ export const CourseManagementContainer = () => {
 		<CourseManagement
 			courses={data?.courses ?? []}
 			loading={false}
-			creating={creating.loading}
-			adding={adding.loading}
 			submitting={submitting.loading}
 			publishing={publishing.loading}
-			updating={updating.loading}
 			deleting={deleting.loading}
 			assigning={assigning.loading}
 			unassigning={unassigning.loading}
@@ -167,12 +108,11 @@ export const CourseManagementContainer = () => {
 			canPublish={capabilities.canPublishCourses}
 			people={people}
 			assignments={assignments}
-			onCreate={(values) => void create(values)}
-			onEdit={(course, values) => void edit(course.id, values)}
+			onCreate={() => navigate('/staff/courses/new')}
+			onEdit={(course) => navigate(`/staff/courses/${course.id}/edit`)}
 			onDelete={(course) => void remove(course.id)}
 			onAssign={(course, values) => void assign(course, values)}
 			onUnassign={(id) => void unassign(id)}
-			onAddContent={(course, values) => void addContent(course, values)}
 			onTransition={(course) => void transition(course)}
 		/>
 	);

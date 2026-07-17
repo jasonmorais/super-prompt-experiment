@@ -26,6 +26,10 @@ const learningRecord: Resolvers = {
 			requireUser(context);
 			return context.applicationServices.Delivery.LearningRecord.teamLearning({ organizationId: args.organizationId, ...(args.teamName ? { teamName: args.teamName } : {}) });
 		},
+		trainingLeaderboard: (_parent, args, context) => {
+			requireUser(context);
+			return context.applicationServices.Delivery.LearningRecord.trainingLeaderboard({ organizationId: args.organizationId, ...(args.limit ? { limit: args.limit } : {}) });
+		},
 	},
 	Mutation: {
 		selfEnroll: (_parent, args, context) => {
@@ -54,7 +58,6 @@ const learningRecord: Resolvers = {
 					id: args.input.id,
 					activityKey: args.input.activityKey,
 					timeSpentMinutes: args.input.timeSpentMinutes,
-					...(args.input.assessmentScore !== null && args.input.assessmentScore !== undefined ? { assessmentScore: args.input.assessmentScore } : {}),
 					...(args.input.completionScreenshot ? { completionScreenshot: args.input.completionScreenshot } : {}),
 				}),
 			);

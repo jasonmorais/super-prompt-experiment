@@ -1,6 +1,8 @@
 import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import type { Course as CourseDocument } from '@learnsphere/data-sources-mongoose-models';
 import { Domain } from '@learnsphere/domain';
+import type { Assessment as AssessmentDocument } from '@learnsphere/data-sources-mongoose-models';
+import { AssessmentDomainAdapter } from '../assessment/assessment.domain-adapter.ts';
 
 export class CourseConverter extends MongooseSeedwork.MongoTypeConverter<CourseDocument, CourseDomainAdapter, Domain.Passport, Domain.Contexts.Learning.Course.Course<CourseDomainAdapter>> {
 	constructor() {
@@ -86,13 +88,15 @@ export class CourseDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
 				title: lesson.title,
 				type: lesson.type,
 				content: lesson.content,
+				...(lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}),
 				estimatedMinutes: lesson.estimatedMinutes,
 				required: lesson.required,
+				...(lesson.assessment ? { assessment: lesson.assessment instanceof MongooseSeedwork.ObjectId ? (() => { throw new Error('Assessment is not populated'); })() : new AssessmentDomainAdapter(lesson.assessment as AssessmentDocument) } : {}),
 			})),
 		}));
 	}
 	set modules(value) {
-		this.doc.modules = value;
+		this.doc.modules = value.map((module) => ({ ...module, lessons: module.lessons.map((lesson) => ({ ...lesson, ...(lesson.assessment ? { assessment: new MongooseSeedwork.ObjectId(lesson.assessment.id) } : {}) })) })) as typeof this.doc.modules;
 	}
 	get createdBy() {
 		return this.doc.createdBy;

@@ -27,7 +27,10 @@ export interface StaffUser extends User {
 	accessBlocked: boolean;
 	tags: string[];
 	activityLog: Types.DocumentArray<StaffUserActivityDetail>;
+	organizationScopes: { organizationId: string; includeDescendants: boolean }[];
 }
+
+const OrganizationScopeSchema = new Schema({ organizationId: { type: String, required: true, maxlength: 100 }, includeDescendants: { type: Boolean, required: true, default: false } }, { _id: false });
 
 const StaffUserSchema = new Schema<StaffUser, Model<StaffUser>, StaffUser>({
 	role: { type: Schema.Types.ObjectId, ref: 'staff-user-role' },
@@ -40,6 +43,7 @@ const StaffUserSchema = new Schema<StaffUser, Model<StaffUser>, StaffUser>({
 	accessBlocked: { type: Boolean, required: true, default: false },
 	tags: { type: [String], required: true, default: [] },
 	activityLog: { type: [StaffUserActivityDetailSchema], default: [] },
+	organizationScopes: { type: [OrganizationScopeSchema], required: true, default: [] },
 }, userOptions).index({ email: 1 }, { sparse: true });
 
 export const StaffUserModelName = 'staff-user';

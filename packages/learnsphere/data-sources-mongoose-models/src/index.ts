@@ -1,5 +1,8 @@
 import type { MongooseSeedwork } from '@cellix/mongoose-seedwork';
 import { CourseModelFactory } from './models/learning/course.model.ts';
+import { AssessmentModelFactory } from './models/learning/assessment.model.ts';
+import { AssessmentAttemptModelFactory } from './models/delivery/assessment-attempt.model.ts';
+import { OrganizationModelFactory } from './models/organization/organization.model.ts';
 import { LearningRecordModelFactory } from './models/delivery/learning-record.model.ts';
 import { TeamOperationModelFactory } from './models/operations/team-operation.model.ts';
 import { TeamModelFactory } from './models/teams/team.model.ts';
@@ -10,6 +13,9 @@ import { StaffUserModelFactory } from './models/user/staff-user.model.ts';
 import { UserModelFactory } from './models/user/user.model.ts';
 
 export type { Course, CourseModelType } from './models/learning/course.model.ts';
+export type { Assessment, AssessmentModelType, AssessmentOption, AssessmentQuestion, AssessmentQuestionType, AssessmentStatus } from './models/learning/assessment.model.ts';
+export type { AssessmentAttempt, AssessmentAttemptModelType, AssessmentResponse } from './models/delivery/assessment-attempt.model.ts';
+export type { Organization, OrganizationModelType } from './models/organization/organization.model.ts';
 export type { LearningRecord, LearningRecordModelType } from './models/delivery/learning-record.model.ts';
 export type { TeamOperation, TeamOperationModelType } from './models/operations/team-operation.model.ts';
 export type { Team, TeamMember, TeamModelType } from './models/teams/team.model.ts';
@@ -31,10 +37,13 @@ export const mongooseContextBuilder = (initializedService: MongooseSeedwork.Mong
 	const roleModel = RoleModelFactory(initializedService);
 	const userModel = UserModelFactory(initializedService);
 	return {
+		Assessment: AssessmentModelFactory(initializedService),
+		AssessmentAttempt: AssessmentAttemptModelFactory(initializedService),
 		Course: CourseModelFactory(initializedService),
 		LearningRecord: LearningRecordModelFactory(initializedService),
 		TeamOperation: TeamOperationModelFactory(initializedService),
 		Team: TeamModelFactory(initializedService),
+		Organization: OrganizationModelFactory(initializedService),
 		Role: roleModel,
 		StaffRole: StaffRoleModelFactory(roleModel),
 		User: userModel,

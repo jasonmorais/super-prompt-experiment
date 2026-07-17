@@ -19,7 +19,6 @@ export interface CourseTableProps {
 	canPublish: boolean;
 	onUnassign: (assignmentId: string) => void;
 	onEdit: (course: Course) => void;
-	onAddContent: (course: Course) => void;
 	onAssign: (course: Course) => void;
 	onDelete: (course: Course) => void;
 	onTransition: (course: Course) => void;
@@ -27,7 +26,7 @@ export interface CourseTableProps {
 
 const statusColor = (status: string) => (status === 'PUBLISHED' ? 'green' : status === 'IN_REVIEW' ? 'gold' : status === 'ARCHIVED' ? 'default' : 'blue');
 
-export const CourseTable = ({ courses, assignments, loading, unassigning, deleting, submitting, publishing, canDelete, canPublish, onUnassign, onEdit, onAddContent, onAssign, onDelete, onTransition }: CourseTableProps) => (
+export const CourseTable = ({ courses, assignments, loading, unassigning, deleting, submitting, publishing, canDelete, canPublish, onUnassign, onEdit, onAssign, onDelete, onTransition }: CourseTableProps) => (
 	<Card>
 		<Table<Course>
 			loading={loading}
@@ -169,7 +168,6 @@ export const CourseTable = ({ courses, assignments, loading, unassigning, deleti
 							canDelete={canDelete}
 							canPublish={canPublish}
 							onEdit={() => onEdit(course)}
-							onAddContent={() => onAddContent(course)}
 							onAssign={() => onAssign(course)}
 							onDelete={() => onDelete(course)}
 							onTransition={() => onTransition(course)}

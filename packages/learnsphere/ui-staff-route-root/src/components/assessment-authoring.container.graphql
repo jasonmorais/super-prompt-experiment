@@ -1,0 +1,31 @@
+query StaffAssessmentAuthoringContext($courseId: ObjectID!, $assessmentId: ObjectID!) {
+	courseById(id: $courseId) {
+		id organizationId title modules { key title description order lessons { key title type content estimatedMinutes required assessment { id title status } } }
+	}
+	assessmentForAuthoring(id: $assessmentId) {
+		id title description status passingScore maxAttempts
+		questions { key prompt type points explanation options { key text isCorrect } }
+	}
+}
+
+query StaffAssessmentCreationContext($courseId: ObjectID!) {
+	courseById(id: $courseId) {
+		id organizationId title modules { key title description order lessons { key title type content estimatedMinutes required assessment { id title status } } }
+	}
+}
+
+mutation StaffAssessmentAuthoringCreate($input: AssessmentCreateInput!) {
+	assessmentCreate(input: $input) { status { success errorMessage } assessment { id title status } }
+}
+
+mutation StaffAssessmentAuthoringUpdate($input: AssessmentUpdateInput!) {
+	assessmentUpdate(input: $input) { status { success errorMessage } assessment { id title status } }
+}
+
+mutation StaffAssessmentAuthoringPublish($id: ObjectID!) {
+	assessmentPublish(id: $id) { status { success errorMessage } assessment { id status } }
+}
+
+mutation StaffAssessmentAuthoringAttach($input: CourseReplaceStructureInput!) {
+	courseReplaceStructure(input: $input) { status { success errorMessage } course { id } }
+}
