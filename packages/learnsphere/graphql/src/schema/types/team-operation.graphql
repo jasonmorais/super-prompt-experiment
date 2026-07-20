@@ -13,8 +13,19 @@ extend type Mutation {
 	teamOperationAttach(input: TeamOperationAttachInput!): TeamOperationMutationResult!
 }
 
-enum TeamOperationPriority { LOW MEDIUM HIGH URGENT }
-enum TeamOperationStatus { ASSIGNED IN_PROGRESS SUBMITTED COMPLETED CANCELLED }
+enum TeamOperationPriority {
+	LOW
+	MEDIUM
+	HIGH
+	URGENT
+}
+enum TeamOperationStatus {
+	ASSIGNED
+	IN_PROGRESS
+	SUBMITTED
+	COMPLETED
+	CANCELLED
+}
 
 type TeamOperationStatusEvent {
 	status: TeamOperationStatus!
@@ -88,10 +99,42 @@ input TeamOperationCreateInput {
 	teamName: String!
 	dueAt: DateTime
 }
-input TeamOperationSubmitInput { id: ObjectID! completionNote: String! completionEvidence: String }
-input TeamOperationConfirmInput { id: ObjectID! note: String }
-input TeamOperationCancelInput { id: ObjectID! reason: String! }
-input TeamOperationUpdateInput { id: ObjectID! title: String! description: String! category: String! priority: TeamOperationPriority! assigneeId: String! assigneeDisplayName: String! assigneeEmail: String! teamName: String! dueAt: DateTime }
-input TeamOperationCommentInput { id: ObjectID! body: String! }
-input TeamOperationAttachInput { id: ObjectID! fileName: String! contentType: String! contentBase64: String! }
-type TeamOperationMutationResult { status: MutationStatus! teamOperation: TeamOperation }
+input TeamOperationSubmitInput {
+	id: ObjectID!
+	completionNote: String!
+	completionEvidence: String
+}
+input TeamOperationConfirmInput {
+	id: ObjectID!
+	note: String
+}
+input TeamOperationCancelInput {
+	id: ObjectID!
+	reason: String!
+}
+input TeamOperationUpdateInput {
+	id: ObjectID!
+	title: String!
+	description: String!
+	category: String!
+	priority: TeamOperationPriority!
+	assigneeId: String!
+	assigneeDisplayName: String!
+	assigneeEmail: String!
+	teamName: String!
+	dueAt: DateTime
+}
+input TeamOperationCommentInput {
+	id: ObjectID!
+	body: String!
+}
+input TeamOperationAttachInput {
+	id: ObjectID!
+	fileName: String!
+	contentType: String!
+	contentBase64: String!
+}
+type TeamOperationMutationResult {
+	status: MutationStatus!
+	teamOperation: TeamOperation
+}

@@ -91,12 +91,24 @@ export class CourseDomainAdapter extends MongooseSeedwork.MongooseDomainAdapter<
 				...(lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}),
 				estimatedMinutes: lesson.estimatedMinutes,
 				required: lesson.required,
-				...(lesson.assessment ? { assessment: lesson.assessment instanceof MongooseSeedwork.ObjectId ? (() => { throw new Error('Assessment is not populated'); })() : new AssessmentDomainAdapter(lesson.assessment as AssessmentDocument) } : {}),
+				...(lesson.assessment
+					? {
+							assessment:
+								lesson.assessment instanceof MongooseSeedwork.ObjectId
+									? (() => {
+											throw new Error('Assessment is not populated');
+										})()
+									: new AssessmentDomainAdapter(lesson.assessment as AssessmentDocument),
+						}
+					: {}),
 			})),
 		}));
 	}
 	set modules(value) {
-		this.doc.modules = value.map((module) => ({ ...module, lessons: module.lessons.map((lesson) => ({ ...lesson, ...(lesson.assessment ? { assessment: new MongooseSeedwork.ObjectId(lesson.assessment.id) } : {}) })) })) as typeof this.doc.modules;
+		this.doc.modules = value.map((module) => ({
+			...module,
+			lessons: module.lessons.map((lesson) => ({ ...lesson, ...(lesson.assessment ? { assessment: new MongooseSeedwork.ObjectId(lesson.assessment.id) } : {}) })),
+		})) as typeof this.doc.modules;
 	}
 	get createdBy() {
 		return this.doc.createdBy;

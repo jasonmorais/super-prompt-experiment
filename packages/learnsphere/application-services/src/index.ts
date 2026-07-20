@@ -63,11 +63,14 @@ export const buildApplicationServicesFactory = (context: ApiContextSpec): Applic
 		let accessibleOrganizationIds: string[] = [];
 		if (tokenValidationResult?.openIdConfigKey === 'StaffPortal') {
 			const systemDataSources = context.dataSourcesFactory.withSystemPassport();
-			staffUser = await systemDataSources.readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(identity.sub) ?? undefined;
-			if (staffUser) { accessibleOrganizationIds = await systemDataSources.readonlyDataSource.Organization.OrganizationReadRepo.resolveAccessibleIds(staffUser.organizationScopes); passport = Domain.PassportFactory.forStaffUser(staffUser, accessibleOrganizationIds); }
+			staffUser = (await systemDataSources.readonlyDataSource.User.StaffUser.StaffUserReadRepo.getByExternalId(identity.sub)) ?? undefined;
+			if (staffUser) {
+				accessibleOrganizationIds = await systemDataSources.readonlyDataSource.Organization.OrganizationReadRepo.resolveAccessibleIds(staffUser.organizationScopes);
+				passport = Domain.PassportFactory.forStaffUser(staffUser, accessibleOrganizationIds);
+			}
 		} else if (verifiedJwt) {
 			const systemDataSources = context.dataSourcesFactory.withSystemPassport();
-			learnerUser = await systemDataSources.readonlyDataSource.User.LearnerUser.LearnerUserReadRepo.getByExternalId(verifiedJwt.sub) ?? undefined;
+			learnerUser = (await systemDataSources.readonlyDataSource.User.LearnerUser.LearnerUserReadRepo.getByExternalId(verifiedJwt.sub)) ?? undefined;
 			accessibleOrganizationIds = verifiedJwt.tid ? [verifiedJwt.tid] : [];
 			passport = learnerUser ? Domain.PassportFactory.forLearnerUser(learnerUser, verifiedJwt.tid) : Domain.PassportFactory.forLearner(verifiedJwt.sub, verifiedJwt.tid);
 		}

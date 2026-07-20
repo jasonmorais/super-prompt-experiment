@@ -5,4 +5,5 @@ import type { Domain } from '@learnsphere/domain';
 import { LearnerUserConverter } from './learner-user.domain-adapter.ts';
 import { LearnerUserRepository } from './learner-user.repository.ts';
 
-export const getLearnerUserUnitOfWork = (model: LearnerUserModelType, passport: Domain.Passport): Domain.Contexts.User.LearnerUser.LearnerUserUnitOfWork => MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new LearnerUserConverter(), LearnerUserRepository), passport);
+export const getLearnerUserUnitOfWork = (model: LearnerUserModelType, passport: Domain.Passport): Domain.Contexts.User.LearnerUser.LearnerUserUnitOfWork =>
+	MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new LearnerUserConverter(), LearnerUserRepository), passport);

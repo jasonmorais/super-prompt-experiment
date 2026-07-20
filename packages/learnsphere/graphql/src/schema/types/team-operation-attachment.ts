@@ -16,7 +16,18 @@ export const attachTeamOperation = async (input: TeamOperationAttachInput, conte
 	const blobName = `team-operations/${input.id}/${crypto.randomUUID()}-${fileName}`;
 	try {
 		await context.blobStorageService.uploadData({ containerName: 'team-attachments', blobName, data: content, httpHeaders: { blobContentType: input.contentType || 'application/octet-stream' } });
-		const result = await context.applicationServices.Operations.TeamOperation.attach({ id: input.id, attachment: { id: crypto.randomUUID(), fileName, contentType: input.contentType || 'application/octet-stream', size: content.length, blobName, uploadedBy: context.applicationServices.verifiedUser?.verifiedJwt?.email ?? context.applicationServices.verifiedUser?.verifiedJwt?.sub ?? 'unknown', uploadedAt: new Date() } });
+		const result = await context.applicationServices.Operations.TeamOperation.attach({
+			id: input.id,
+			attachment: {
+				id: crypto.randomUUID(),
+				fileName,
+				contentType: input.contentType || 'application/octet-stream',
+				size: content.length,
+				blobName,
+				uploadedBy: context.applicationServices.verifiedUser?.verifiedJwt?.email ?? context.applicationServices.verifiedUser?.verifiedJwt?.sub ?? 'unknown',
+				uploadedAt: new Date(),
+			},
+		});
 		if (!result) throw new Error('The attachment could not be saved');
 		return { status: { success: true }, teamOperation: result };
 	} catch (error) {

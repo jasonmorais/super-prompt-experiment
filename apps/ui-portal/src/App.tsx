@@ -20,7 +20,14 @@ const Reauthenticate = () => {
 			await auth.signinRedirect();
 		})();
 	}, [auth]);
-	return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}><Spin size="large" tip="Refreshing your session" /></div>;
+	return (
+		<div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>
+			<Spin
+				size="large"
+				tip="Refreshing your session"
+			/>
+		</div>
+	);
 };
 
 const Authenticated = ({ children }: { children: React.JSX.Element }) => {
@@ -34,13 +41,12 @@ const Authenticated = ({ children }: { children: React.JSX.Element }) => {
 		);
 	if (!auth.isAuthenticated)
 		return (
-		<Navigate
-			to="/login"
-			replace
-		/>
-	);
-	if (learner.error)
-		if (learner.error.message.toLowerCase().includes('unauthorized')) return <Reauthenticate />;
+			<Navigate
+				to="/login"
+				replace
+			/>
+		);
+	if (learner.error) if (learner.error.message.toLowerCase().includes('unauthorized')) return <Reauthenticate />;
 	if (learner.error)
 		return (
 			<div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24 }}>
@@ -99,14 +105,43 @@ export default function App() {
 						</RequireAuth>
 					}
 				/>
-				<Route element={<Authenticated><AppLayout><Outlet /></AppLayout></Authenticated>}>
-					<Route path="/dashboard" element={<Root />} />
-					<Route path="/catalog" element={<Catalog />} />
-					<Route path="/courses/:courseId" element={<Course />} />
-					<Route path="/courses/:courseId/activities/:activityKey" element={<Course />} />
-					<Route path="/operations/:operationId" element={<TeamGoal />} />
-					<Route path="/operations" element={<Operations />} />
-					<Route path="/leaderboard" element={<Leaderboard />} />
+				<Route
+					element={
+						<Authenticated>
+							<AppLayout>
+								<Outlet />
+							</AppLayout>
+						</Authenticated>
+					}
+				>
+					<Route
+						path="/dashboard"
+						element={<Root />}
+					/>
+					<Route
+						path="/catalog"
+						element={<Catalog />}
+					/>
+					<Route
+						path="/courses/:courseId"
+						element={<Course />}
+					/>
+					<Route
+						path="/courses/:courseId/activities/:activityKey"
+						element={<Course />}
+					/>
+					<Route
+						path="/operations/:operationId"
+						element={<TeamGoal />}
+					/>
+					<Route
+						path="/operations"
+						element={<Operations />}
+					/>
+					<Route
+						path="/leaderboard"
+						element={<Leaderboard />}
+					/>
 				</Route>
 				<Route
 					path="*"

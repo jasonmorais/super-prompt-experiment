@@ -9,7 +9,10 @@ import { getTeamOperationUnitOfWork } from './operations/team-operation/team-ope
 import { UserContextPersistence } from './user/index.ts';
 
 export const DomainDataSourceImplementation = (models: ModelsContext, passport: Domain.Passport): DomainDataSource => ({
-	Delivery: { LearningRecord: { LearningRecordUnitOfWork: getLearningRecordUnitOfWork(models.LearningRecord, passport) }, AssessmentAttempt: { AssessmentAttemptUnitOfWork: getAssessmentAttemptUnitOfWork(models.AssessmentAttempt, passport) } },
+	Delivery: {
+		LearningRecord: { LearningRecordUnitOfWork: getLearningRecordUnitOfWork(models.LearningRecord, passport) },
+		AssessmentAttempt: { AssessmentAttemptUnitOfWork: getAssessmentAttemptUnitOfWork(models.AssessmentAttempt, passport) },
+	},
 	Learning: { Course: { CourseUnitOfWork: getCourseUnitOfWork(models.Course, passport) }, Assessment: { AssessmentUnitOfWork: getAssessmentUnitOfWork(models.Assessment, passport) } },
 	Operations: { TeamOperation: { TeamOperationUnitOfWork: getTeamOperationUnitOfWork(models.TeamOperation, passport) } },
 	Organization: { OrganizationUnitOfWork: getOrganizationUnitOfWork(models.Organization, passport) },

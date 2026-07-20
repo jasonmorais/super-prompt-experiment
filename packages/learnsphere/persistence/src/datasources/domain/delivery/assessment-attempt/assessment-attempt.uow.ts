@@ -1,2 +1,8 @@
-import { InProcEventBusInstance, NodeEventBusInstance } from '@cellix/event-bus-seedwork-node'; import { MongooseSeedwork } from '@cellix/mongoose-seedwork'; import type { AssessmentAttemptModelType } from '@learnsphere/data-sources-mongoose-models'; import type { Domain } from '@learnsphere/domain'; import { AssessmentAttemptConverter } from './assessment-attempt.domain-adapter.ts'; import { AssessmentAttemptRepository } from './assessment-attempt.repository.ts';
-export const getAssessmentAttemptUnitOfWork = (model: AssessmentAttemptModelType, passport: Domain.Passport): Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttemptUnitOfWork => MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new AssessmentAttemptConverter(), AssessmentAttemptRepository), passport);
+import { InProcEventBusInstance, NodeEventBusInstance } from '@cellix/event-bus-seedwork-node';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { AssessmentAttemptModelType } from '@learnsphere/data-sources-mongoose-models';
+import type { Domain } from '@learnsphere/domain';
+import { AssessmentAttemptConverter } from './assessment-attempt.domain-adapter.ts';
+import { AssessmentAttemptRepository } from './assessment-attempt.repository.ts';
+export const getAssessmentAttemptUnitOfWork = (model: AssessmentAttemptModelType, passport: Domain.Passport): Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttemptUnitOfWork =>
+	MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new AssessmentAttemptConverter(), AssessmentAttemptRepository), passport);

@@ -6,8 +6,5 @@
 		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
 	},
 	"include": ["src/**/*.ts"],
-	"references": [
-		{ "path": "../context-spec" },
-		{ "path": "../domain" }
-	]
+	"references": [{ "path": "../context-spec" }, { "path": "../domain" }]
 }

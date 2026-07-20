@@ -31,11 +31,30 @@ const teamOperation: Resolvers = {
 	Mutation: {
 		teamOperationCreate: (_parent, args, context) => {
 			requireUser(context);
-			return mutation(context.applicationServices.Operations.TeamOperation.create({ organizationId: args.input.organizationId, title: args.input.title, description: args.input.description, category: args.input.category, priority: args.input.priority as Domain.Contexts.Operations.TeamOperation.TeamOperationPriority, assigneeId: args.input.assigneeId, assigneeDisplayName: args.input.assigneeDisplayName, assigneeEmail: args.input.assigneeEmail, teamName: args.input.teamName, ...(args.input.dueAt ? { dueAt: args.input.dueAt } : {}) }));
+			return mutation(
+				context.applicationServices.Operations.TeamOperation.create({
+					organizationId: args.input.organizationId,
+					title: args.input.title,
+					description: args.input.description,
+					category: args.input.category,
+					priority: args.input.priority as Domain.Contexts.Operations.TeamOperation.TeamOperationPriority,
+					assigneeId: args.input.assigneeId,
+					assigneeDisplayName: args.input.assigneeDisplayName,
+					assigneeEmail: args.input.assigneeEmail,
+					teamName: args.input.teamName,
+					...(args.input.dueAt ? { dueAt: args.input.dueAt } : {}),
+				}),
+			);
 		},
 		teamOperationSubmit: (_parent, args, context) => {
 			requireUser(context);
-			return mutation(context.applicationServices.Operations.TeamOperation.submit({ id: args.input.id, completionNote: args.input.completionNote, ...(args.input.completionEvidence ? { completionEvidence: args.input.completionEvidence } : {}) }));
+			return mutation(
+				context.applicationServices.Operations.TeamOperation.submit({
+					id: args.input.id,
+					completionNote: args.input.completionNote,
+					...(args.input.completionEvidence ? { completionEvidence: args.input.completionEvidence } : {}),
+				}),
+			);
 		},
 		teamOperationConfirm: (_parent, args, context) => {
 			requireUser(context);
@@ -47,7 +66,20 @@ const teamOperation: Resolvers = {
 		},
 		teamOperationUpdate: (_parent, args, context) => {
 			requireUser(context);
-			return mutation(context.applicationServices.Operations.TeamOperation.update({ id: args.input.id, title: args.input.title, description: args.input.description, category: args.input.category, priority: args.input.priority as Domain.Contexts.Operations.TeamOperation.TeamOperationPriority, assigneeId: args.input.assigneeId, assigneeDisplayName: args.input.assigneeDisplayName, assigneeEmail: args.input.assigneeEmail, teamName: args.input.teamName, ...(args.input.dueAt ? { dueAt: args.input.dueAt } : {}) }));
+			return mutation(
+				context.applicationServices.Operations.TeamOperation.update({
+					id: args.input.id,
+					title: args.input.title,
+					description: args.input.description,
+					category: args.input.category,
+					priority: args.input.priority as Domain.Contexts.Operations.TeamOperation.TeamOperationPriority,
+					assigneeId: args.input.assigneeId,
+					assigneeDisplayName: args.input.assigneeDisplayName,
+					assigneeEmail: args.input.assigneeEmail,
+					teamName: args.input.teamName,
+					...(args.input.dueAt ? { dueAt: args.input.dueAt } : {}),
+				}),
+			);
 		},
 		teamOperationComment: (_parent, args, context) => {
 			requireUser(context);

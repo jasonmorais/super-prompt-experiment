@@ -1,6 +1,27 @@
-import type { Domain } from '@learnsphere/domain'; import type { ModelsContext } from '../../../../index.ts'; import { AssessmentAttemptConverter } from '../../../domain/delivery/assessment-attempt/assessment-attempt.domain-adapter.ts';
-export interface AssessmentAttemptReadRepository { listForLearner(input: { learnerId: string; assessmentId?: string; courseId?: string; activityKey?: string }): Promise<Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttemptEntityReference[]>; count(input: { organizationId: string; learnerId: string; assessmentId: string; courseId: string; activityKey: string }): Promise<number>; }
-export const getAssessmentAttemptReadRepository = (models: ModelsContext, passport: Domain.Passport): AssessmentAttemptReadRepository => { const converter = new AssessmentAttemptConverter(); return {
-	listForLearner: async (input) => (await models.AssessmentAttempt.find({ learnerId: input.learnerId, ...(input.assessmentId ? { assessment: input.assessmentId } : {}), ...(input.courseId ? { courseId: input.courseId } : {}), ...(input.activityKey ? { activityKey: input.activityKey } : {}) }).populate('assessment').sort({ submittedAt: -1 }).exec()).filter((document) => passport.canAccessOrganization(document.organizationId)).map((document) => converter.toDomain(document, passport)),
-	count: (input) => models.AssessmentAttempt.countDocuments({ organizationId: input.organizationId, learnerId: input.learnerId, assessment: input.assessmentId, courseId: input.courseId, activityKey: input.activityKey }).exec(),
-}; };
+import type { Domain } from '@learnsphere/domain';
+import type { ModelsContext } from '../../../../index.ts';
+import { AssessmentAttemptConverter } from '../../../domain/delivery/assessment-attempt/assessment-attempt.domain-adapter.ts';
+export interface AssessmentAttemptReadRepository {
+	listForLearner(input: { learnerId: string; assessmentId?: string; courseId?: string; activityKey?: string }): Promise<Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttemptEntityReference[]>;
+	count(input: { organizationId: string; learnerId: string; assessmentId: string; courseId: string; activityKey: string }): Promise<number>;
+}
+export const getAssessmentAttemptReadRepository = (models: ModelsContext, passport: Domain.Passport): AssessmentAttemptReadRepository => {
+	const converter = new AssessmentAttemptConverter();
+	return {
+		listForLearner: async (input) =>
+			(
+				await models.AssessmentAttempt.find({
+					learnerId: input.learnerId,
+					...(input.assessmentId ? { assessment: input.assessmentId } : {}),
+					...(input.courseId ? { courseId: input.courseId } : {}),
+					...(input.activityKey ? { activityKey: input.activityKey } : {}),
+				})
+					.populate('assessment')
+					.sort({ submittedAt: -1 })
+					.exec()
+			)
+				.filter((document) => passport.canAccessOrganization(document.organizationId))
+				.map((document) => converter.toDomain(document, passport)),
+		count: (input) => models.AssessmentAttempt.countDocuments({ organizationId: input.organizationId, learnerId: input.learnerId, assessment: input.assessmentId, courseId: input.courseId, activityKey: input.activityKey }).exec(),
+	};
+};

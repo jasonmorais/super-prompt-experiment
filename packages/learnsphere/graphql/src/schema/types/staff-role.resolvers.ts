@@ -26,12 +26,39 @@ const mapPermissions = (permissions: StaffRolePermissionsInput | null | undefine
 };
 const staffRole: Resolvers = {
 	Query: {
-		staffRoles: async (_parent, _args, context: GraphContext) => { requireJwt(context); await context.applicationServices.User.StaffRole.createDefaultRoles(); return context.applicationServices.User.StaffRole.list(); },
-		staffRoleById: (_parent, args: QueryStaffRoleByIdArgs, context: GraphContext) => { requireJwt(context); return context.applicationServices.User.StaffRole.queryById(String(args.id)); },
+		staffRoles: async (_parent, _args, context: GraphContext) => {
+			requireJwt(context);
+			await context.applicationServices.User.StaffRole.createDefaultRoles();
+			return context.applicationServices.User.StaffRole.list();
+		},
+		staffRoleById: (_parent, args: QueryStaffRoleByIdArgs, context: GraphContext) => {
+			requireJwt(context);
+			return context.applicationServices.User.StaffRole.queryById(String(args.id));
+		},
 	},
 	Mutation: {
-		staffRoleCreate: async (_parent, args: MutationStaffRoleCreateArgs, context: GraphContext) => { try { requireJwt(context); const input = args.input; const permissions = mapPermissions(input.permissions); const staffRole = await context.applicationServices.User.StaffRole.create({ roleName: input.roleName, enterpriseAppRole: input.enterpriseAppRole, ...(permissions ? { permissions } : {}) }); return { status: { success: true }, staffRole }; } catch (error) { return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'Unable to create staff role' }, staffRole: null }; } },
-		staffRoleUpdate: async (_parent, args: MutationStaffRoleUpdateArgs, context: GraphContext) => { try { requireJwt(context); const input = args.input; const permissions = mapPermissions(input.permissions); const staffRole = await context.applicationServices.User.StaffRole.update({ roleId: String(input.roleId), roleName: input.roleName, enterpriseAppRole: input.enterpriseAppRole, ...(permissions ? { permissions } : {}) }); return { status: { success: true }, staffRole }; } catch (error) { return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'Unable to update staff role' }, staffRole: null }; } },
+		staffRoleCreate: async (_parent, args: MutationStaffRoleCreateArgs, context: GraphContext) => {
+			try {
+				requireJwt(context);
+				const input = args.input;
+				const permissions = mapPermissions(input.permissions);
+				const staffRole = await context.applicationServices.User.StaffRole.create({ roleName: input.roleName, enterpriseAppRole: input.enterpriseAppRole, ...(permissions ? { permissions } : {}) });
+				return { status: { success: true }, staffRole };
+			} catch (error) {
+				return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'Unable to create staff role' }, staffRole: null };
+			}
+		},
+		staffRoleUpdate: async (_parent, args: MutationStaffRoleUpdateArgs, context: GraphContext) => {
+			try {
+				requireJwt(context);
+				const input = args.input;
+				const permissions = mapPermissions(input.permissions);
+				const staffRole = await context.applicationServices.User.StaffRole.update({ roleId: String(input.roleId), roleName: input.roleName, enterpriseAppRole: input.enterpriseAppRole, ...(permissions ? { permissions } : {}) });
+				return { status: { success: true }, staffRole };
+			} catch (error) {
+				return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'Unable to update staff role' }, staffRole: null };
+			}
+		},
 	},
 };
 export default staffRole;

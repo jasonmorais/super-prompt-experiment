@@ -24,13 +24,48 @@ type Team implements MongoBase {
 	createdBy: String!
 }
 
-type TeamMember { learnerId: String! displayName: String! email: String! }
-input TeamMemberInput { learnerId: String! displayName: String! email: String! }
-input TeamCreateInput { organizationId: String! name: String! }
-input TeamRenameInput { id: ObjectID! name: String! }
-input TeamSetMembersInput { id: ObjectID! members: [TeamMemberInput!]! }
-input TeamSetLeadsInput { id: ObjectID! teamLeadIds: [String!]! }
-input TeamAssignCourseInput { teamId: ObjectID! courseId: ObjectID! dueAt: DateTime }
-input TeamUnassignCourseInput { organizationId: String! assignmentId: String! }
-type TeamMutationResult { status: MutationStatus! team: Team }
-type TeamAssignmentMutationResult { status: MutationStatus! assignmentId: String! assignedCount: Int! completedCount: Int! }
+type TeamMember {
+	learnerId: String!
+	displayName: String!
+	email: String!
+}
+input TeamMemberInput {
+	learnerId: String!
+	displayName: String!
+	email: String!
+}
+input TeamCreateInput {
+	organizationId: String!
+	name: String!
+}
+input TeamRenameInput {
+	id: ObjectID!
+	name: String!
+}
+input TeamSetMembersInput {
+	id: ObjectID!
+	members: [TeamMemberInput!]!
+}
+input TeamSetLeadsInput {
+	id: ObjectID!
+	teamLeadIds: [String!]!
+}
+input TeamAssignCourseInput {
+	teamId: ObjectID!
+	courseId: ObjectID!
+	dueAt: DateTime
+}
+input TeamUnassignCourseInput {
+	organizationId: String!
+	assignmentId: String!
+}
+type TeamMutationResult {
+	status: MutationStatus!
+	team: Team
+}
+type TeamAssignmentMutationResult {
+	status: MutationStatus!
+	assignmentId: String!
+	assignedCount: Int!
+	completedCount: Int!
+}

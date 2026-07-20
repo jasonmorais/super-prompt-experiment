@@ -7,5 +7,6 @@ export interface TeamLearningCommand {
 }
 
 export const teamLearning =
-		(dataSources: DataSources): ((command: TeamLearningCommand) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]>) =>
-		(command) => dataSources.readonlyDataSource.Delivery.LearningRecord.LearningRecordReadRepo.listByOrganization(command.organizationId, command.teamName);
+	(dataSources: DataSources): ((command: TeamLearningCommand) => Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]>) =>
+	(command) =>
+		dataSources.readonlyDataSource.Delivery.LearningRecord.LearningRecordReadRepo.listByOrganization(command.organizationId, command.teamName);

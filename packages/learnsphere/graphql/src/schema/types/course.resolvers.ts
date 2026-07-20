@@ -22,7 +22,11 @@ const course: Resolvers = {
 		courseById: (_parent, args, context) => {
 			const user = requireUser(context);
 			const isStaffUser = Boolean(context.applicationServices.verifiedUser?.staffUser);
-			return context.applicationServices.Learning.Course.queryById({ id: args.id, ...(context.applicationServices.verifiedUser?.verifiedJwt?.tid ? { organizationId: context.applicationServices.verifiedUser.verifiedJwt.tid } : {}), ...(isStaffUser ? {} : { learnerId: user }) });
+			return context.applicationServices.Learning.Course.queryById({
+				id: args.id,
+				...(context.applicationServices.verifiedUser?.verifiedJwt?.tid ? { organizationId: context.applicationServices.verifiedUser.verifiedJwt.tid } : {}),
+				...(isStaffUser ? {} : { learnerId: user }),
+			});
 		},
 		courses: (_parent, args, context) => {
 			const user = requireUser(context);
@@ -55,13 +59,48 @@ const course: Resolvers = {
 		courseAddModule: (_parent, args, context) => {
 			requireUser(context);
 			return mutation(
-				context.applicationServices.Learning.Course.addModule({ courseId: args.input.courseId, module: { ...args.input.module, lessons: args.input.module.lessons.map((lesson) => ({ key: lesson.key, title: lesson.title, type: lesson.type as Domain.Contexts.Learning.Course.LessonType, content: lesson.content, ...(lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}), estimatedMinutes: lesson.estimatedMinutes, required: lesson.required, ...(lesson.assessmentId ? { assessmentId: String(lesson.assessmentId) } : {}) })) } }),
+				context.applicationServices.Learning.Course.addModule({
+					courseId: args.input.courseId,
+					module: {
+						...args.input.module,
+						lessons: args.input.module.lessons.map((lesson) => ({
+							key: lesson.key,
+							title: lesson.title,
+							type: lesson.type as Domain.Contexts.Learning.Course.LessonType,
+							content: lesson.content,
+							...(lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}),
+							estimatedMinutes: lesson.estimatedMinutes,
+							required: lesson.required,
+							...(lesson.assessmentId ? { assessmentId: String(lesson.assessmentId) } : {}),
+						})),
+					},
+				}),
 				'course',
 			);
 		},
 		courseReplaceStructure: (_parent, args, context) => {
 			requireUser(context);
-			return mutation(context.applicationServices.Learning.Course.replaceStructure({ courseId: String(args.input.courseId), modules: args.input.modules.map((module) => ({ key: module.key, title: module.title, description: module.description, lessons: module.lessons.map((lesson) => ({ key: lesson.key, title: lesson.title, type: lesson.type as Domain.Contexts.Learning.Course.LessonType, content: lesson.content, ...(lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}), estimatedMinutes: lesson.estimatedMinutes, required: lesson.required, ...(lesson.assessmentId ? { assessmentId: String(lesson.assessmentId) } : {}) })) })) }), 'course');
+			return mutation(
+				context.applicationServices.Learning.Course.replaceStructure({
+					courseId: String(args.input.courseId),
+					modules: args.input.modules.map((module) => ({
+						key: module.key,
+						title: module.title,
+						description: module.description,
+						lessons: module.lessons.map((lesson) => ({
+							key: lesson.key,
+							title: lesson.title,
+							type: lesson.type as Domain.Contexts.Learning.Course.LessonType,
+							content: lesson.content,
+							...(lesson.videoUrl ? { videoUrl: lesson.videoUrl } : {}),
+							estimatedMinutes: lesson.estimatedMinutes,
+							required: lesson.required,
+							...(lesson.assessmentId ? { assessmentId: String(lesson.assessmentId) } : {}),
+						})),
+					})),
+				}),
+				'course',
+			);
 		},
 		courseSubmitForReview: (_parent, args, context) => {
 			requireUser(context);
@@ -73,7 +112,21 @@ const course: Resolvers = {
 		},
 		courseUpdate: (_parent, args, context) => {
 			requireUser(context);
-			return mutation(context.applicationServices.Learning.Course.update({ id: args.input.id, title: args.input.title, summary: args.input.summary, description: args.input.description, level: args.input.level as Domain.Contexts.Learning.Course.CourseLevel, category: args.input.category, tags: [...(args.input.tags ?? [])], skills: [...(args.input.skills ?? [])], discoverability: args.input.discoverability as Domain.Contexts.Learning.Course.CourseDiscoverability, requiresCompletionScreenshot: args.input.requiresCompletionScreenshot }), 'course');
+			return mutation(
+				context.applicationServices.Learning.Course.update({
+					id: args.input.id,
+					title: args.input.title,
+					summary: args.input.summary,
+					description: args.input.description,
+					level: args.input.level as Domain.Contexts.Learning.Course.CourseLevel,
+					category: args.input.category,
+					tags: [...(args.input.tags ?? [])],
+					skills: [...(args.input.skills ?? [])],
+					discoverability: args.input.discoverability as Domain.Contexts.Learning.Course.CourseDiscoverability,
+					requiresCompletionScreenshot: args.input.requiresCompletionScreenshot,
+				}),
+				'course',
+			);
 		},
 		courseDelete: (_parent, args, context) => {
 			requireUser(context);

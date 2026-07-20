@@ -1,33 +1,133 @@
-enum AssessmentStatus { DRAFT PUBLISHED ARCHIVED }
-enum AssessmentQuestionType { SINGLE_SELECT MULTI_SELECT TRUE_FALSE }
-
-type AssessmentOption { key: String! text: String! }
-type AssessmentAuthoringOption { key: String! text: String! isCorrect: Boolean! }
-type AssessmentAuthoringQuestion { key: String! prompt: String! type: AssessmentQuestionType! options: [AssessmentAuthoringOption!]! points: Int! explanation: String! }
-type AssessmentAuthoringView implements MongoBase {
-	id: ObjectID! schemaVersion: String! createdAt: DateTime! updatedAt: DateTime!
-	organizationId: String! title: String! description: String! status: AssessmentStatus!
-	passingScore: Int! maxAttempts: Int! questions: [AssessmentAuthoringQuestion!]! createdBy: String! publishedAt: DateTime
+enum AssessmentStatus {
+	DRAFT
+	PUBLISHED
+	ARCHIVED
 }
-type AssessmentQuestion { key: String! prompt: String! type: AssessmentQuestionType! options: [AssessmentOption!]! points: Int! explanation: String! }
+enum AssessmentQuestionType {
+	SINGLE_SELECT
+	MULTI_SELECT
+	TRUE_FALSE
+}
+
+type AssessmentOption {
+	key: String!
+	text: String!
+}
+type AssessmentAuthoringOption {
+	key: String!
+	text: String!
+	isCorrect: Boolean!
+}
+type AssessmentAuthoringQuestion {
+	key: String!
+	prompt: String!
+	type: AssessmentQuestionType!
+	options: [AssessmentAuthoringOption!]!
+	points: Int!
+	explanation: String!
+}
+type AssessmentAuthoringView implements MongoBase {
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	organizationId: String!
+	title: String!
+	description: String!
+	status: AssessmentStatus!
+	passingScore: Int!
+	maxAttempts: Int!
+	questions: [AssessmentAuthoringQuestion!]!
+	createdBy: String!
+	publishedAt: DateTime
+}
+type AssessmentQuestion {
+	key: String!
+	prompt: String!
+	type: AssessmentQuestionType!
+	options: [AssessmentOption!]!
+	points: Int!
+	explanation: String!
+}
 type Assessment implements MongoBase {
-	id: ObjectID! schemaVersion: String! createdAt: DateTime! updatedAt: DateTime!
-	organizationId: String! title: String! description: String! status: AssessmentStatus!
-	passingScore: Int! maxAttempts: Int! questions: [AssessmentQuestion!]! createdBy: String! publishedAt: DateTime
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	organizationId: String!
+	title: String!
+	description: String!
+	status: AssessmentStatus!
+	passingScore: Int!
+	maxAttempts: Int!
+	questions: [AssessmentQuestion!]!
+	createdBy: String!
+	publishedAt: DateTime
 }
 type AssessmentAttempt implements MongoBase {
-	id: ObjectID! schemaVersion: String! createdAt: DateTime! updatedAt: DateTime!
-	organizationId: String! assessment: Assessment! learnerId: String! courseId: String! activityKey: String!
-	score: Float! passed: Boolean! attemptNumber: Int! submittedAt: DateTime!
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	organizationId: String!
+	assessment: Assessment!
+	learnerId: String!
+	courseId: String!
+	activityKey: String!
+	score: Float!
+	passed: Boolean!
+	attemptNumber: Int!
+	submittedAt: DateTime!
 }
-input AssessmentOptionInput { key: String! text: String! isCorrect: Boolean! }
-input AssessmentQuestionInput { key: String! prompt: String! type: AssessmentQuestionType! options: [AssessmentOptionInput!]! points: Int! explanation: String! }
-input AssessmentCreateInput { organizationId: String! title: String! description: String! passingScore: Int! maxAttempts: Int! questions: [AssessmentQuestionInput!]! }
-input AssessmentUpdateInput { id: ObjectID! title: String! description: String! passingScore: Int! maxAttempts: Int! questions: [AssessmentQuestionInput!]! }
-input AssessmentResponseInput { questionKey: String! selectedOptionKeys: [String!]! }
-input AssessmentSubmitInput { assessmentId: ObjectID! learningRecordId: ObjectID! courseId: ObjectID! activityKey: String! timeSpentMinutes: Int! responses: [AssessmentResponseInput!]! }
-type AssessmentMutationResult { status: MutationStatus! assessment: Assessment }
-type AssessmentAttemptMutationResult { status: MutationStatus! attempt: AssessmentAttempt }
+input AssessmentOptionInput {
+	key: String!
+	text: String!
+	isCorrect: Boolean!
+}
+input AssessmentQuestionInput {
+	key: String!
+	prompt: String!
+	type: AssessmentQuestionType!
+	options: [AssessmentOptionInput!]!
+	points: Int!
+	explanation: String!
+}
+input AssessmentCreateInput {
+	organizationId: String!
+	title: String!
+	description: String!
+	passingScore: Int!
+	maxAttempts: Int!
+	questions: [AssessmentQuestionInput!]!
+}
+input AssessmentUpdateInput {
+	id: ObjectID!
+	title: String!
+	description: String!
+	passingScore: Int!
+	maxAttempts: Int!
+	questions: [AssessmentQuestionInput!]!
+}
+input AssessmentResponseInput {
+	questionKey: String!
+	selectedOptionKeys: [String!]!
+}
+input AssessmentSubmitInput {
+	assessmentId: ObjectID!
+	learningRecordId: ObjectID!
+	courseId: ObjectID!
+	activityKey: String!
+	timeSpentMinutes: Int!
+	responses: [AssessmentResponseInput!]!
+}
+type AssessmentMutationResult {
+	status: MutationStatus!
+	assessment: Assessment
+}
+type AssessmentAttemptMutationResult {
+	status: MutationStatus!
+	attempt: AssessmentAttempt
+}
 
 extend type Query {
 	assessments(organizationId: String!): [Assessment!]!

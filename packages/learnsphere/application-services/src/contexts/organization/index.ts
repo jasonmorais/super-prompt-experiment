@@ -1,7 +1,33 @@
-import type { Domain } from '@learnsphere/domain'; import type { DataSources } from '@learnsphere/persistence';
+import type { Domain } from '@learnsphere/domain';
+import type { DataSources } from '@learnsphere/persistence';
 export const Organization = (dataSources: DataSources, createdBy: string, accessibleOrganizationIds: readonly string[]) => ({
 	listAccessible: async () => dataSources.readonlyDataSource.Organization.OrganizationReadRepo.listAccessible(accessibleOrganizationIds),
-	create: async (input: { externalId: string; name: string; parentOrganizationId: string }) => { const parent = await dataSources.readonlyDataSource.Organization.OrganizationReadRepo.getByExternalId(input.parentOrganizationId); if (!parent) throw new Error('Parent organization was not found'); let result: Domain.Contexts.Organization.OrganizationEntityReference | undefined; await dataSources.domainDataSource.Organization.OrganizationUnitOfWork.withScopedTransaction(async (repository) => { const organization = await repository.getNewInstance({ externalId: input.externalId, name: input.name, parentOrganizationId: parent.externalId, ancestorOrganizationIds: [...parent.ancestorOrganizationIds, parent.externalId], createdBy }); result = await repository.save(organization); }); if (!result) throw new Error('Organization was not created'); return result; },
-	rename: async (input: { externalId: string; name: string }) => { let result: Domain.Contexts.Organization.OrganizationEntityReference | undefined; await dataSources.domainDataSource.Organization.OrganizationUnitOfWork.withScopedTransaction(async (repository) => { const organization = await repository.getByExternalId(input.externalId); organization.name = input.name; result = await repository.save(organization); }); if (!result) throw new Error('Organization was not updated'); return result; },
+	create: async (input: { externalId: string; name: string; parentOrganizationId: string }) => {
+		const parent = await dataSources.readonlyDataSource.Organization.OrganizationReadRepo.getByExternalId(input.parentOrganizationId);
+		if (!parent) throw new Error('Parent organization was not found');
+		let result: Domain.Contexts.Organization.OrganizationEntityReference | undefined;
+		await dataSources.domainDataSource.Organization.OrganizationUnitOfWork.withScopedTransaction(async (repository) => {
+			const organization = await repository.getNewInstance({
+				externalId: input.externalId,
+				name: input.name,
+				parentOrganizationId: parent.externalId,
+				ancestorOrganizationIds: [...parent.ancestorOrganizationIds, parent.externalId],
+				createdBy,
+			});
+			result = await repository.save(organization);
+		});
+		if (!result) throw new Error('Organization was not created');
+		return result;
+	},
+	rename: async (input: { externalId: string; name: string }) => {
+		let result: Domain.Contexts.Organization.OrganizationEntityReference | undefined;
+		await dataSources.domainDataSource.Organization.OrganizationUnitOfWork.withScopedTransaction(async (repository) => {
+			const organization = await repository.getByExternalId(input.externalId);
+			organization.name = input.name;
+			result = await repository.save(organization);
+		});
+		if (!result) throw new Error('Organization was not updated');
+		return result;
+	},
 });
 export type OrganizationApplicationService = ReturnType<typeof Organization>;

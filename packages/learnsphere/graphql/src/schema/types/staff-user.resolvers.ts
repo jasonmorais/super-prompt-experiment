@@ -21,10 +21,24 @@ const staffUser = {
 	Query: {
 		currentStaffUserAndCreateIfNotExists: (_parent: unknown, _args: Record<string, never>, context: GraphContext) => {
 			const jwt = requireJwt(context);
-			return context.applicationServices.User.StaffUser.createIfNotExists({ externalId: jwt.sub, firstName: jwt.given_name ?? '', lastName: jwt.family_name ?? '', email: jwt.email ?? '', aadRoles: jwt.roles ?? [], organizationId: jwt.tid ?? '' });
+			return context.applicationServices.User.StaffUser.createIfNotExists({
+				externalId: jwt.sub,
+				firstName: jwt.given_name ?? '',
+				lastName: jwt.family_name ?? '',
+				email: jwt.email ?? '',
+				aadRoles: jwt.roles ?? [],
+				organizationId: jwt.tid ?? '',
+			});
 		},
-		staffUsers: (_parent: unknown, _args: Record<string, never>, context: GraphContext) => { requireJwt(context); return context.applicationServices.User.StaffUser.list(); },
-		staffUserById: async (_parent: unknown, args: QueryStaffUserByIdArgs, context: GraphContext) => { requireJwt(context); const users = await context.applicationServices.User.StaffUser.list(); return users.find((user) => user.id === args.id) ?? null; },
+		staffUsers: (_parent: unknown, _args: Record<string, never>, context: GraphContext) => {
+			requireJwt(context);
+			return context.applicationServices.User.StaffUser.list();
+		},
+		staffUserById: async (_parent: unknown, args: QueryStaffUserByIdArgs, context: GraphContext) => {
+			requireJwt(context);
+			const users = await context.applicationServices.User.StaffUser.list();
+			return users.find((user) => user.id === args.id) ?? null;
+		},
 	},
 	Mutation: {
 		staffUserAssignRole: async (_parent: unknown, args: MutationStaffUserAssignRoleArgs, context: GraphContext) => {

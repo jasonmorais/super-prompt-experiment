@@ -92,8 +92,12 @@ export class LearningRecordDomainAdapter extends MongooseSeedwork.MongooseDomain
 	set assignedBy(v) {
 		this.doc.assignedBy = v;
 	}
-	get assignmentId() { return this.doc.assignmentId; }
-	set assignmentId(v) { this.doc.assignmentId = v; }
+	get assignmentId() {
+		return this.doc.assignmentId;
+	}
+	set assignmentId(v) {
+		this.doc.assignmentId = v;
+	}
 	get assignedAt() {
 		return this.doc.assignedAt;
 	}

@@ -11,7 +11,13 @@ export const getLearnerUserReadRepository = (models: ModelsContext, passport: Do
 	const converter = new LearnerUserConverter();
 	return {
 		getAll: async () => (await models.LearnerUser.find({}).exec()).map((doc) => converter.toDomain(doc, passport)),
-		getById: async (id) => { const doc = await models.LearnerUser.findById(id).exec(); return doc ? converter.toDomain(doc, passport) : null; },
-		getByExternalId: async (externalId) => { const doc = await models.LearnerUser.findOne({ externalId }).exec(); return doc ? converter.toDomain(doc, passport) : null; },
+		getById: async (id) => {
+			const doc = await models.LearnerUser.findById(id).exec();
+			return doc ? converter.toDomain(doc, passport) : null;
+		},
+		getByExternalId: async (externalId) => {
+			const doc = await models.LearnerUser.findOne({ externalId }).exec();
+			return doc ? converter.toDomain(doc, passport) : null;
+		},
 	};
 };

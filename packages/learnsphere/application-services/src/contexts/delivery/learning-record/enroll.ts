@@ -16,7 +16,10 @@ export interface EnrollCommand {
 }
 
 export const enroll = async (dataSources: DataSources, command: EnrollCommand): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference> => {
-	const course = await dataSources.readonlyDataSource.Learning.Course.CourseReadRepo.getById(command.courseId, { organizationId: command.organizationId, ...(command.source === 'SELF_ENROLLED' ? { learnerId: command.learnerId } : {}) });
+	const course = await dataSources.readonlyDataSource.Learning.Course.CourseReadRepo.getById(command.courseId, {
+		organizationId: command.organizationId,
+		...(command.source === 'SELF_ENROLLED' ? { learnerId: command.learnerId } : {}),
+	});
 	if (!course) throw new Error(`Course ${command.courseId} was not found`);
 	if (course.status !== 'PUBLISHED') throw new Error('Only published courses can be assigned or enrolled');
 	if (course.discoverability === 'ASSIGNED_ONLY' && command.source === 'SELF_ENROLLED') throw new Error('This course is available by assignment only');

@@ -30,23 +30,40 @@ export class OtelBuilder {
 
 	buildProcessors(useSimpleProcessors = false, exporters: Exporters): Partial<NodeSDKConfiguration> {
 		if (useSimpleProcessors) return { spanProcessors: [new SimpleSpanProcessor(exporters.traceExporter)], logRecordProcessors: [new SimpleLogRecordProcessor(exporters.logExporter)] };
-		return { spanProcessors: [new BatchSpanProcessor(exporters.traceExporter, { exportTimeoutMillis: 15000, maxQueueSize: 1000 })], logRecordProcessors: [new BatchLogRecordProcessor(exporters.logExporter, { exportTimeoutMillis: 15000, maxQueueSize: 1000 })] };
+		return {
+			spanProcessors: [new BatchSpanProcessor(exporters.traceExporter, { exportTimeoutMillis: 15000, maxQueueSize: 1000 })],
+			logRecordProcessors: [new BatchLogRecordProcessor(exporters.logExporter, { exportTimeoutMillis: 15000, maxQueueSize: 1000 })],
+		};
 	}
 
-	buildMetricReader(exporters: Exporters) { return new PeriodicExportingMetricReader({ exporter: exporters.metricExporter, exportIntervalMillis: 60000 }); }
+	buildMetricReader(exporters: Exporters) {
+		return new PeriodicExportingMetricReader({ exporter: exporters.metricExporter, exportIntervalMillis: 60000 });
+	}
 
 	buildSampler(): Sampler {
 		const denylist = [/^graphql\.parseSchema$/, /^graphql\.parse$/, /^graphql\.validate$/];
 		class NameFilterSampler implements Sampler {
 			private readonly delegate: Sampler;
-			constructor(delegate: Sampler) { this.delegate = delegate; }
-			shouldSample(context: Context, traceId: string, spanName: string, spanKind: SpanKind, attributes: Attributes, links: Link[]) { return denylist.some((re) => re.test(spanName)) ? { decision: SamplingDecision.NOT_RECORD } : this.delegate.shouldSample(context, traceId, spanName, spanKind, attributes, links); }
-			toString() { return 'NameFilterSampler(deny: graphql.parse*, graphql.validate)'; }
+			constructor(delegate: Sampler) {
+				this.delegate = delegate;
+			}
+			shouldSample(context: Context, traceId: string, spanName: string, spanKind: SpanKind, attributes: Attributes, links: Link[]) {
+				return denylist.some((re) => re.test(spanName)) ? { decision: SamplingDecision.NOT_RECORD } : this.delegate.shouldSample(context, traceId, spanName, spanKind, attributes, links);
+			}
+			toString() {
+				return 'NameFilterSampler(deny: graphql.parse*, graphql.validate)';
+			}
 		}
 		return new ParentBasedSampler({ root: new NameFilterSampler(new AlwaysOnSampler()) });
 	}
 
 	buildInstrumentations() {
-		return [new HttpInstrumentation(httpInstrumentationConfig), new AzureFunctionsInstrumentation({ enabled: true }), new GraphQLInstrumentation({ allowValues: true, ignoreTrivialResolveSpans: true }), new DataloaderInstrumentation(), new MongooseInstrumentation()];
+		return [
+			new HttpInstrumentation(httpInstrumentationConfig),
+			new AzureFunctionsInstrumentation({ enabled: true }),
+			new GraphQLInstrumentation({ allowValues: true, ignoreTrivialResolveSpans: true }),
+			new DataloaderInstrumentation(),
+			new MongooseInstrumentation(),
+		];
 	}
 }

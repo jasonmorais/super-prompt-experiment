@@ -34,15 +34,17 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 			...(options?.organizationId ? { organizationId: options.organizationId } : {}),
 			...(options?.learnerId
 				? {
-					$or: [
-						// Older local seed data predates the discoverability field and was
-						// intended to be catalog-visible.
-						{ discoverability: { $in: ['CATALOG', null] } },
-						{ discoverability: 'ASSIGNED_ONLY', _id: { $in: await this.assignedCourseIds(options.organizationId, options.learnerId) } },
-					],
-				}
+						$or: [
+							// Older local seed data predates the discoverability field and was
+							// intended to be catalog-visible.
+							{ discoverability: { $in: ['CATALOG', null] } },
+							{ discoverability: 'ASSIGNED_ONLY', _id: { $in: await this.assignedCourseIds(options.organizationId, options.learnerId) } },
+						],
+					}
 				: {}),
-		}).populate('modules.lessons.assessment').exec();
+		})
+			.populate('modules.lessons.assessment')
+			.exec();
 		return document && this.passport.canAccessOrganization(document.organizationId) ? this.converter.toDomain(document, this.passport) : null;
 	}
 
@@ -52,10 +54,7 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 		if (options.status) query.status = options.status;
 		if (options.search?.trim()) query.$text = { $search: options.search.trim() };
 		if (options.learnerId) {
-			query.$or = [
-				{ discoverability: { $in: ['CATALOG', null] } },
-				{ discoverability: 'ASSIGNED_ONLY', _id: { $in: await this.assignedCourseIds(options.organizationId, options.learnerId) } },
-			];
+			query.$or = [{ discoverability: { $in: ['CATALOG', null] } }, { discoverability: 'ASSIGNED_ONLY', _id: { $in: await this.assignedCourseIds(options.organizationId, options.learnerId) } }];
 		}
 		const documents = await this.models.Course.find(query)
 			.populate('modules.lessons.assessment')
@@ -67,7 +66,10 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 
 	private async assignedCourseIds(organizationId: string | undefined, learnerId: string): Promise<string[]> {
 		if (!organizationId) return [];
-		const records = await this.models.LearningRecord.find({ organizationId, learnerId, source: { $ne: 'SELF_ENROLLED' } }).select({ courseId: 1 }).lean().exec();
+		const records = await this.models.LearningRecord.find({ organizationId, learnerId, source: { $ne: 'SELF_ENROLLED' } })
+			.select({ courseId: 1 })
+			.lean()
+			.exec();
 		return records.map((record) => record.courseId);
 	}
 }

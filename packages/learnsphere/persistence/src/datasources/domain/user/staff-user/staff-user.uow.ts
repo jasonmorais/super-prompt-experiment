@@ -5,4 +5,5 @@ import type { Domain } from '@learnsphere/domain';
 import { StaffUserConverter } from './staff-user.domain-adapter.ts';
 import { StaffUserRepository } from './staff-user.repository.ts';
 
-export const getStaffUserUnitOfWork = (model: StaffUserModelType, passport: Domain.Passport): Domain.Contexts.User.StaffUser.StaffUserUnitOfWork => MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new StaffUserConverter(), StaffUserRepository), passport);
+export const getStaffUserUnitOfWork = (model: StaffUserModelType, passport: Domain.Passport): Domain.Contexts.User.StaffUser.StaffUserUnitOfWork =>
+	MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new StaffUserConverter(), StaffUserRepository), passport);

@@ -4,4 +4,5 @@ import type { AssessmentModelType } from '@learnsphere/data-sources-mongoose-mod
 import type { Domain } from '@learnsphere/domain';
 import { AssessmentConverter } from './assessment.domain-adapter.ts';
 import { AssessmentRepository } from './assessment.repository.ts';
-export const getAssessmentUnitOfWork = (model: AssessmentModelType, passport: Domain.Passport): Domain.Contexts.Learning.Assessment.AssessmentUnitOfWork => MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new AssessmentConverter(), AssessmentRepository), passport);
+export const getAssessmentUnitOfWork = (model: AssessmentModelType, passport: Domain.Passport): Domain.Contexts.Learning.Assessment.AssessmentUnitOfWork =>
+	MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new AssessmentConverter(), AssessmentRepository), passport);

@@ -21,7 +21,18 @@ export interface TeamOperationApplicationService {
 	cancel: (command: { id: string; reason: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	comment: (command: { id: string; body: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	attach: (command: { id: string; attachment: Domain.Contexts.Operations.TeamOperation.TeamOperationAttachment }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
-	update: (command: { id: string; title: string; description: string; category: string; priority: Domain.Contexts.Operations.TeamOperation.TeamOperationPriority; assigneeId: string; assigneeDisplayName: string; assigneeEmail: string; teamName: string; dueAt?: Date }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
+	update: (command: {
+		id: string;
+		title: string;
+		description: string;
+		category: string;
+		priority: Domain.Contexts.Operations.TeamOperation.TeamOperationPriority;
+		assigneeId: string;
+		assigneeDisplayName: string;
+		assigneeEmail: string;
+		teamName: string;
+		dueAt?: Date;
+	}) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 }
 
 export const TeamOperation = (dataSources: DataSources, identity: { sub: string; email?: string; given_name?: string; family_name?: string }): TeamOperationApplicationService => {

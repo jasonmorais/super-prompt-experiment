@@ -27,7 +27,9 @@ export class LearningRecordReadRepositoryImpl implements LearningRecordReadRepos
 	async getByLearner(organizationId: string, learnerId: string): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]> {
 		if (!this.passport.canAccessOrganization(organizationId)) throw new Error('You do not have access to this organization');
 		const documents = await this.models.LearningRecord.find({ organizationId, learnerId }).sort({ updatedAt: -1 }).exec();
-		return documents.map((document) => this.converter.toDomain(document, this.passport)).filter((record) => this.passport.delivery.forLearningRecord(record).determineIf((permissions) => permissions.canRecordProgress || permissions.canViewTeamLearning));
+		return documents
+			.map((document) => this.converter.toDomain(document, this.passport))
+			.filter((record) => this.passport.delivery.forLearningRecord(record).determineIf((permissions) => permissions.canRecordProgress || permissions.canViewTeamLearning));
 	}
 
 	async listByOrganization(organizationId: string, teamName?: string): Promise<Domain.Contexts.Delivery.LearningRecord.LearningRecordEntityReference[]> {

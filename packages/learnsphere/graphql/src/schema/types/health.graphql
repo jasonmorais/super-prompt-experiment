@@ -1,1 +1,3 @@
-extend type Query { health: String! }
+extend type Query {
+	health: String!
+}

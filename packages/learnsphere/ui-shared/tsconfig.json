@@ -3,19 +3,12 @@
 	"compilerOptions": {
 		"noEmit": true,
 		"jsx": "react-jsx",
-		"lib": [
-			"ES2023",
-			"DOM",
-			"DOM.Iterable"
-		],
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"composite": false,
 		"exactOptionalPropertyTypes": false,
 		"skipLibCheck": true
 	},
-	"include": [
-		"src",
-		"env"
-	]
+	"include": ["src", "env"]
 }

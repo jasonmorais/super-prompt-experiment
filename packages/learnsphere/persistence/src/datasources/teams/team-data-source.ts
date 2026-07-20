@@ -2,7 +2,17 @@ import type { Team as TeamDocument, TeamMember } from '@learnsphere/data-sources
 import type { Domain } from '@learnsphere/domain';
 import type { ModelsContext } from '../../index.ts';
 
-export interface TeamRecord { id: string; schemaVersion: string; organizationId: string; name: string; members: TeamMember[]; teamLeadIds: string[]; createdBy: string; createdAt: Date; updatedAt: Date; }
+export interface TeamRecord {
+	id: string;
+	schemaVersion: string;
+	organizationId: string;
+	name: string;
+	members: TeamMember[];
+	teamLeadIds: string[];
+	createdBy: string;
+	createdAt: Date;
+	updatedAt: Date;
+}
 export interface TeamDataSource {
 	getById(id: string): Promise<TeamRecord | null>;
 	list(organizationId: string): Promise<TeamRecord[]>;
@@ -21,13 +31,26 @@ const isUsableMember = (member: Partial<TeamMember> | null | undefined): member 
 const toRecord = (document: TeamDocument): TeamRecord => {
 	const members = document.members.filter(isUsableMember).map((member) => ({ learnerId: member.learnerId, displayName: member.displayName, email: member.email }));
 	const memberIds = new Set(members.map((member) => member.learnerId));
-	return { id: String(document._id), schemaVersion: document.schemaVersion, organizationId: document.organizationId, name: document.name, members, teamLeadIds: document.teamLeadIds.filter((id) => memberIds.has(id)), createdBy: document.createdBy, createdAt: document.createdAt, updatedAt: document.updatedAt };
+	return {
+		id: String(document._id),
+		schemaVersion: document.schemaVersion,
+		organizationId: document.organizationId,
+		name: document.name,
+		members,
+		teamLeadIds: document.teamLeadIds.filter((id) => memberIds.has(id)),
+		createdBy: document.createdBy,
+		createdAt: document.createdAt,
+		updatedAt: document.updatedAt,
+	};
 };
 
 export class TeamDataSourceImpl implements TeamDataSource {
 	private readonly models: ModelsContext;
 	private readonly passport: Domain.Passport;
-	constructor(models: ModelsContext, passport: Domain.Passport) { this.models = models; this.passport = passport; }
+	constructor(models: ModelsContext, passport: Domain.Passport) {
+		this.models = models;
+		this.passport = passport;
+	}
 	private requireView(organizationId: string): void {
 		if (!this.passport.canAccessOrganization(organizationId) || !this.passport.canViewTeamLearning) throw new Error('You do not have access to team learning in this organization');
 	}
@@ -35,9 +58,21 @@ export class TeamDataSourceImpl implements TeamDataSource {
 		this.requireView(organizationId);
 		if (!this.passport.canManageTeams) throw new Error('Manager role required');
 	}
-	async getById(id: string) { const document = await this.models.Team.findById(id).exec(); if (document) this.requireView(document.organizationId); return document ? toRecord(document) : null; }
-	async list(organizationId: string) { this.requireView(organizationId); const documents = await this.models.Team.find({ organizationId }).sort({ name: 1 }).exec(); return documents.map(toRecord); }
-	async create(input: { organizationId: string; name: string; createdBy: string }) { this.requireManage(input.organizationId); const document = await this.models.Team.create({ ...input, members: [], teamLeadIds: [] }); return toRecord(document); }
+	async getById(id: string) {
+		const document = await this.models.Team.findById(id).exec();
+		if (document) this.requireView(document.organizationId);
+		return document ? toRecord(document) : null;
+	}
+	async list(organizationId: string) {
+		this.requireView(organizationId);
+		const documents = await this.models.Team.find({ organizationId }).sort({ name: 1 }).exec();
+		return documents.map(toRecord);
+	}
+	async create(input: { organizationId: string; name: string; createdBy: string }) {
+		this.requireManage(input.organizationId);
+		const document = await this.models.Team.create({ ...input, members: [], teamLeadIds: [] });
+		return toRecord(document);
+	}
 	async rename(id: string, name: string) {
 		const current = await this.models.Team.findById(id).exec();
 		if (!current) throw new Error('Team was not found');
@@ -66,7 +101,15 @@ export class TeamDataSourceImpl implements TeamDataSource {
 		if (!document) throw new Error('Team was not found');
 		return toRecord(document);
 	}
-	async setTeamLeads(id: string, teamLeadIds: readonly string[]) { const current = await this.models.Team.findById(id).exec(); if (!current) throw new Error('Team was not found'); this.requireManage(current.organizationId); const validMemberIds = new Set(current.members.filter(isUsableMember).map((member) => member.learnerId)); const document = await this.models.Team.findByIdAndUpdate(id, { $set: { teamLeadIds: [...new Set(teamLeadIds.filter((teamLeadId) => validMemberIds.has(teamLeadId)))] } }, { new: true }).exec(); if (!document) throw new Error('Team was not found'); return toRecord(document); }
+	async setTeamLeads(id: string, teamLeadIds: readonly string[]) {
+		const current = await this.models.Team.findById(id).exec();
+		if (!current) throw new Error('Team was not found');
+		this.requireManage(current.organizationId);
+		const validMemberIds = new Set(current.members.filter(isUsableMember).map((member) => member.learnerId));
+		const document = await this.models.Team.findByIdAndUpdate(id, { $set: { teamLeadIds: [...new Set(teamLeadIds.filter((teamLeadId) => validMemberIds.has(teamLeadId)))] } }, { new: true }).exec();
+		if (!document) throw new Error('Team was not found');
+		return toRecord(document);
+	}
 }
 
 export const getTeamDataSource = (models: ModelsContext, passport: Domain.Passport): TeamDataSource => new TeamDataSourceImpl(models, passport);
