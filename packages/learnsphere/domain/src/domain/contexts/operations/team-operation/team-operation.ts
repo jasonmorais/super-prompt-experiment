@@ -254,6 +254,11 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		this.appendStatus('CANCELLED', actorId, reason.trim());
 	}
 
+	delete(): void {
+		if (!this.visa.determineIf((permissions) => permissions.canManageTeamOperations)) throw new PermissionError('Only a manager can delete team operations');
+		super.isDeleted = true;
+	}
+
 	updateDetails(input: {
 		title: string;
 		description: string;

@@ -6,6 +6,7 @@ fragment LearnerDashboardContainerLearningRecordFields on LearningRecord {
 	source
 	assignedBy
 	status
+	isOverdue
 	progressPercent
 	completedActivityCount
 	assignedAt

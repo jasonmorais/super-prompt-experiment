@@ -33,6 +33,7 @@ export const LearningCard = ({ record, color, onOpen }: LearningCardProps) => (
 				>
 					{record.courseCategory}
 				</Tag>
+				{(record.isOverdue || record.status === 'OVERDUE') && <Tag bordered={false} color="red">Late</Tag>}
 				{record.source !== 'SELF_ENROLLED' && (
 					<Tag
 						bordered={false}
@@ -59,7 +60,7 @@ export const LearningCard = ({ record, color, onOpen }: LearningCardProps) => (
 			/>
 			<div className="flex justify-between text-xs text-[#6d7975]">
 				<span>{record.completedActivityCount} activities completed</span>
-				<span>{record.dueAt ? `Due ${new Date(record.dueAt).toLocaleDateString()}` : 'Self-paced'}</span>
+				<span className={record.isOverdue || record.status === 'OVERDUE' ? 'font-semibold text-[#c43d4b]' : ''}>{record.isOverdue || record.status === 'OVERDUE' ? `Late · due ${new Date(record.dueAt ?? '').toLocaleDateString()}` : record.dueAt ? `Due ${new Date(record.dueAt).toLocaleDateString()}` : 'Self-paced'}</span>
 			</div>
 			{record.source !== 'SELF_ENROLLED' && (
 				<Text

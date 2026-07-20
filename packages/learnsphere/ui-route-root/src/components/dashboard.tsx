@@ -173,6 +173,7 @@ export const Dashboard = ({ records, loading, givenName, onBrowseCatalog, onOpen
 						</div>
 						<Tag color={record.status === 'COMPLETED' ? 'green' : record.status === 'OVERDUE' ? 'red' : 'blue'}>{record.status.replaceAll('_', ' ')}</Tag>
 						<Text strong>{record.progressPercent}%</Text>
+						<Button type="link" className="p-0" onClick={() => onOpenCourse(record.courseId)}>View course</Button>
 					</div>
 				))}
 				{!loading && records.length === 0 && <Text type="secondary">No learning history yet.</Text>}

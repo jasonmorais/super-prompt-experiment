@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, DeleteOutlined, EditOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { Button, Card, Space, Statistic, Table, Tag, Typography, type TableProps } from 'antd';
+import { Button, Card, Modal, Space, Statistic, Table, Tag, Typography, type TableProps } from 'antd';
 import type { Operation } from './types.ts';
 
 const { Paragraph, Text } = Typography;
@@ -13,9 +13,11 @@ export interface OperationsTableProps {
 	onEdit: (operation: Operation) => void;
 	onConfirm: (operation: Operation) => void;
 	onCancel: (operation: Operation) => void;
+	onDelete: (operation: Operation) => void;
+	deleting: boolean;
 }
 
-export const OperationsTable = ({ operations, loading, canConfirm, onOpenGoal, onEdit, onConfirm, onCancel }: OperationsTableProps) => {
+export const OperationsTable = ({ operations, loading, canConfirm, deleting, onOpenGoal, onEdit, onConfirm, onCancel, onDelete }: OperationsTableProps) => {
 	const submitted = operations.filter((operation) => operation.status === 'SUBMITTED').length;
 	const overdue = operations.filter((operation) => operation.isOverdue).length;
 	const columns: TableProps<Operation>['columns'] = [
@@ -44,13 +46,15 @@ export const OperationsTable = ({ operations, loading, canConfirm, onOpenGoal, o
 					size={[8, 8]}
 					wrap
 				>
-					<Button
-						className="rounded-[10px] border-[#cfc5ff] bg-[#f7f4ff] font-semibold text-[#6d4aff]"
-						icon={<EditOutlined />}
-						onClick={() => onEdit(operation)}
-					>
-						Edit
-					</Button>
+					{!['COMPLETED', 'CANCELLED'].includes(operation.status) && (
+						<Button
+							className="rounded-[10px] border-[#cfc5ff] bg-[#f7f4ff] font-semibold text-[#6d4aff]"
+							icon={<EditOutlined />}
+							onClick={() => onEdit(operation)}
+						>
+							Edit
+						</Button>
+					)}
 					{canConfirm && operation.status === 'SUBMITTED' && (
 						<Button
 							type="primary"
@@ -69,6 +73,13 @@ export const OperationsTable = ({ operations, loading, canConfirm, onOpenGoal, o
 							Cancel
 						</Button>
 					)}
+					<Button
+						danger
+						loading={deleting}
+						onClick={() => Modal.confirm({ title: `Delete ${operation.title}?`, content: 'This permanently removes the team operation and its discussion history.', okText: 'Delete operation', okButtonProps: { danger: true }, onOk: () => onDelete(operation) })}
+					>
+						Delete
+					</Button>
 				</Space>
 			),
 		},

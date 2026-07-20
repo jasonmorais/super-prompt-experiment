@@ -9,6 +9,7 @@ import {
 	StaffTeamOperationsContainerCancelTeamOperationDocument,
 	StaffTeamOperationsContainerCommentTeamOperationDocument,
 	StaffTeamOperationsContainerConfirmTeamOperationDocument,
+	StaffTeamOperationsContainerDeleteTeamOperationDocument,
 	StaffTeamOperationsContainerTeamOperationsDocument,
 	type StaffTeamOperationsContainerTeamOperationsQuery,
 } from '../generated.tsx';
@@ -28,6 +29,7 @@ export const TeamOperationsContainer = () => {
 	const { data, loading, error, refetch } = useQuery<StaffTeamOperationsContainerTeamOperationsQuery>(StaffTeamOperationsContainerTeamOperationsDocument, { variables: { organizationId, teamName: null }, skip: !organizationId });
 	const [confirmOperation, confirming] = useMutation(StaffTeamOperationsContainerConfirmTeamOperationDocument);
 	const [cancelOperation, cancelling] = useMutation(StaffTeamOperationsContainerCancelTeamOperationDocument);
+	const [deleteOperation, deleting] = useMutation(StaffTeamOperationsContainerDeleteTeamOperationDocument);
 	const [commentOperation, commenting] = useMutation(StaffTeamOperationsContainerCommentTeamOperationDocument);
 	const [attachOperation, attaching] = useMutation(StaffTeamOperationsContainerAttachTeamOperationDocument);
 	const confirm = async (operation: Operation, note?: string) => {
@@ -49,6 +51,20 @@ export const TeamOperationsContainer = () => {
 		}
 		message.success('Operation cancelled.');
 		await refetch();
+	};
+	const remove = async (operation: Operation) => {
+		try {
+			const result = await deleteOperation({ variables: { id: operation.id } });
+			const status = result.data?.teamOperationDelete.status;
+			if (!status?.success) {
+				message.error(status?.errorMessage ?? 'The operation could not be deleted');
+				return;
+			}
+			message.success('Team operation permanently deleted.');
+			await refetch();
+		} catch (error) {
+			message.error(error instanceof Error ? error.message : 'The operation could not be deleted');
+		}
 	};
 	const comment = async (operation: Operation, body: string) => {
 		const result = await commentOperation({ variables: { input: { id: operation.id, body } } });
@@ -113,8 +129,10 @@ export const TeamOperationsContainer = () => {
 			loading={false}
 			confirming={confirming.loading}
 			cancelling={cancelling.loading}
+			deleting={deleting.loading}
 			onConfirm={(operation, note) => void confirm(operation, note)}
 			onCancel={(operation, reason) => void cancel(operation, reason)}
+			onDelete={(operation) => void remove(operation)}
 			onOpenGoal={(id) => navigate(`/staff/operations/${id}`)}
 			onCreateOperation={() => navigate('/staff/operations/new')}
 			onEditOperation={(id) => navigate(`/staff/operations/${id}/edit`)}

@@ -44,6 +44,12 @@ mutation StaffTeamOperationsContainerCancelTeamOperation($input: TeamOperationCa
 	}
 }
 
+mutation StaffTeamOperationsContainerDeleteTeamOperation($id: ObjectID!) {
+	teamOperationDelete(id: $id) {
+		status { success errorMessage }
+	}
+}
+
 mutation StaffTeamOperationsContainerCommentTeamOperation($input: TeamOperationCommentInput!) {
 	teamOperationComment(input: $input) {
 		status { success errorMessage }

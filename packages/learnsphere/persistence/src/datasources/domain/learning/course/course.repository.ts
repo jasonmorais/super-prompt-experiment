@@ -8,7 +8,7 @@ export class CourseRepository
 	implements Domain.Contexts.Learning.Course.CourseRepository<CourseDomainAdapter>
 {
 	override async get(id: string) {
-		const document = await this.model.findById(id).populate('modules.lessons.assessment').exec();
+		const document = await this.model.findById(id).populate('modules.lessons.assessment').session(this.session).exec();
 		if (!document) throw new Error(`Course with id ${id} not found`);
 		return this.typeConverter.toDomain(document, this.passport);
 	}

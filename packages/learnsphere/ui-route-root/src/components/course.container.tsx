@@ -18,7 +18,7 @@ export const CourseContainer = () => {
 	const [submitAssessment, assessmentMutation] = useMutation(LearnerCourseContainerSubmitAssessmentDocument);
 	const [completionScreenshot, setCompletionScreenshot] = useState<string>();
 	const course = data?.courseById;
-	const record = data?.myLearning.find((candidate) => candidate.courseId === courseId);
+	const record = data?.myLearning.find((candidate) => String(candidate.courseId) === String(courseId));
 	const lessons = course?.modules.toSorted((a, b) => a.order - b.order).flatMap((module) => module.lessons) ?? [];
 	const completedKeys = new Set(record?.activityProgress.map((progress) => progress.activityKey) ?? []);
 	const selectedLesson = lessons.find((lesson) => lesson.key === activityKey) ?? lessons.find((lesson) => !completedKeys.has(lesson.key)) ?? lessons[0];

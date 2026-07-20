@@ -88,6 +88,7 @@ export const Course = ({ course, record, selectedLesson, completedKeys, mutation
 					<Space wrap>
 						<Tag color="green">{course.category}</Tag>
 						<Tag>{course.level.toLowerCase()}</Tag>
+						{(record.isOverdue || record.status === 'OVERDUE') && <Tag color="red">Late</Tag>}
 					</Space>
 					<Title style={{ color: 'white', margin: '12px 0 8px' }}>{course.title}</Title>
 					<Paragraph style={{ color: '#d5e6e1', fontSize: 16, marginBottom: 16 }}>{course.summary}</Paragraph>
@@ -114,6 +115,7 @@ export const Course = ({ course, record, selectedLesson, completedKeys, mutation
 						strokeColor="#d3f36b"
 						trailColor="rgba(255,255,255,.2)"
 					/>
+					{(record.isOverdue || record.status === 'OVERDUE') && <Text style={{ color: '#ffd6d6', display: 'block' }}>This course is overdue{record.dueAt ? ` · due ${new Date(record.dueAt).toLocaleDateString()}` : ''}</Text>}
 					<Text style={{ color: '#d5e6e1' }}>
 						{record.completedActivityCount} of {course.lessonCount} activities
 					</Text>

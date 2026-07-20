@@ -4,6 +4,7 @@ import type { DataSources } from '@learnsphere/persistence';
 import { cancel } from './cancel.ts';
 import { confirm } from './confirm.ts';
 import { create, type TeamOperationCreateCommand } from './create.ts';
+import { deleteOperation } from './delete.ts';
 import { myOperations } from './my-operations.ts';
 import { submit } from './submit.ts';
 import { teamOperations } from './team-operations.ts';
@@ -19,6 +20,7 @@ export interface TeamOperationApplicationService {
 	submit: (command: { id: string; completionNote: string; completionEvidence?: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	confirm: (command: { id: string; note?: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	cancel: (command: { id: string; reason: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
+	delete: (command: { id: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	comment: (command: { id: string; body: string }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	attach: (command: { id: string; attachment: Domain.Contexts.Operations.TeamOperation.TeamOperationAttachment }) => Promise<Domain.Contexts.Operations.TeamOperation.TeamOperationEntityReference>;
 	update: (command: {
@@ -45,6 +47,7 @@ export const TeamOperation = (dataSources: DataSources, identity: { sub: string;
 		submit: (command) => submit(dataSources)({ ...command, actorId }),
 		confirm: (command) => confirm(dataSources)({ ...command, actorId }),
 		cancel: (command) => cancel(dataSources)({ ...command, actorId }),
+		delete: (command) => deleteOperation(dataSources)(command),
 		comment: (command) => mutateDiscussion(dataSources, command.id, (operation) => operation.addComment({ id: crypto.randomUUID(), body: command.body, authorId: actorId, authorName: actorName, createdAt: new Date() })),
 		attach: (command) => mutateDiscussion(dataSources, command.id, (operation) => operation.addAttachment(command.attachment)),
 		update: async (command) => {

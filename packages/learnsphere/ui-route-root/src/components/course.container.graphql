@@ -36,6 +36,8 @@ fragment LearnerCourseContainerLearningRecordFields on LearningRecord {
 	id
 	courseId
 	status
+	isOverdue
+	dueAt
 	progressPercent
 	completedActivityCount
 	requiredActivityKeys
@@ -54,7 +56,7 @@ query LearnerCourseContainerCourseExperience($courseId: ObjectID!, $organization
 	courseById(id: $courseId) {
 		...LearnerCourseContainerCourseFields
 	}
-	myLearning(organizationId: $organizationId) {
+		myLearning(organizationId: $organizationId) {
 		...LearnerCourseContainerLearningRecordFields
 	}
 }

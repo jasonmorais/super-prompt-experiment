@@ -130,6 +130,7 @@ export const CourseTable = ({ courses, assignments, loading, unassigning, deleti
 										key={assignment.id}
 										size={6}
 									>
+										{assignment.isOverdue && <Tag color="red">Late</Tag>}
 										<Tag
 											bordered={false}
 											color="blue"

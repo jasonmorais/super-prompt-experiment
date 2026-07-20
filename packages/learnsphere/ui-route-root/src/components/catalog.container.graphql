@@ -15,6 +15,7 @@ fragment LearnerCatalogContainerLearningRecordFields on LearningRecord {
 	id
 	courseId
 	status
+	isOverdue
 	assignedBy
 }
 

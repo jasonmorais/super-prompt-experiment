@@ -169,7 +169,10 @@ export const Operations = ({ operations, learnerId, loading, onOpenGoal }: Opera
 								<CheckCircleOutlined className={operation.status === 'COMPLETED' ? 'text-[#277f6c]' : 'text-[#9aa7a2]'} />
 								<span>{operation.title}</span>
 							</Space>
-							<Tag color={color(operation.status)}>{operation.status}</Tag>
+							<Space>
+								<Tag color={color(operation.status)}>{operation.status}</Tag>
+								<Button type="link" className="p-0 text-[#176c5b]" onClick={() => onOpenGoal(operation.id)}>View</Button>
+							</Space>
 						</div>
 					))}
 				</Card>

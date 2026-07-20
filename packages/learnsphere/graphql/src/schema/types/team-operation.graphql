@@ -8,6 +8,7 @@ extend type Mutation {
 	teamOperationSubmit(input: TeamOperationSubmitInput!): TeamOperationMutationResult!
 	teamOperationConfirm(input: TeamOperationConfirmInput!): TeamOperationMutationResult!
 	teamOperationCancel(input: TeamOperationCancelInput!): TeamOperationMutationResult!
+	teamOperationDelete(id: ObjectID!): TeamOperationMutationResult!
 	teamOperationUpdate(input: TeamOperationUpdateInput!): TeamOperationMutationResult!
 	teamOperationComment(input: TeamOperationCommentInput!): TeamOperationMutationResult!
 	teamOperationAttach(input: TeamOperationAttachInput!): TeamOperationMutationResult!

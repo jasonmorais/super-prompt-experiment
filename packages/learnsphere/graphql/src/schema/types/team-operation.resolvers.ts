@@ -64,6 +64,16 @@ const teamOperation: Resolvers = {
 			requireUser(context);
 			return mutation(context.applicationServices.Operations.TeamOperation.cancel({ id: args.input.id, reason: args.input.reason }));
 		},
+		teamOperationDelete: async (_parent, args, context) => {
+			requireUser(context);
+			try {
+				const operation = await context.applicationServices.Operations.TeamOperation.delete({ id: args.id });
+				await Promise.all(operation.attachments.map((attachment) => context.blobStorageService.deleteBlob({ containerName: 'team-attachments', blobName: attachment.blobName }).catch(() => undefined)));
+				return { status: { success: true }, teamOperation: operation };
+			} catch (error) {
+				return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'The request could not be completed' } };
+			}
+		},
 		teamOperationUpdate: (_parent, args, context) => {
 			requireUser(context);
 			return mutation(

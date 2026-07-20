@@ -66,7 +66,9 @@ export class CourseReadRepositoryImpl implements CourseReadRepository {
 
 	private async assignedCourseIds(organizationId: string | undefined, learnerId: string): Promise<string[]> {
 		if (!organizationId) return [];
-		const records = await this.models.LearningRecord.find({ organizationId, learnerId, source: { $ne: 'SELF_ENROLLED' } })
+		// An enrollment grants access even when the course is later made assigned-only
+		// or the learner originally enrolled from the catalog.
+		const records = await this.models.LearningRecord.find({ organizationId, learnerId })
 			.select({ courseId: 1 })
 			.lean()
 			.exec();
