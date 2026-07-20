@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsgo -p tsconfig.json && vite build",
-		"dev": "vite",
+		"dev": "pnpm exec portless staff.learnsphere.localhost --force vite",
+		"dev:worktree": "pnpm exec portless staff.learnsphere.${WORKTREE_NAME}.localhost --force node start-dev.ts",
 		"start": "vite preview --port 3002",
 		"lint": "biome lint",
 		"format": "biome format --write",
@@ -26,6 +27,8 @@
 	},
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
+		"@learnsphere/local-dev-config": "workspace:*",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
 		"@vitejs/plugin-react": "^6.0.1",

@@ -8,7 +8,7 @@ export class AssessmentAttemptRepository
 {
 	override async save(item: Domain.Contexts.Delivery.AssessmentAttempt.AssessmentAttempt<AssessmentAttemptDomainAdapter>) {
 		const saved = await super.save(item);
-		const document = await this.model.findById(saved.id).populate('assessment').exec();
+		const document = await this.model.findById(saved.id).populate('assessment').session(this.session).exec();
 		if (!document) throw new Error('Assessment attempt was not found after save');
 		return this.typeConverter.toDomain(document, this.passport);
 	}

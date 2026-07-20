@@ -90,9 +90,6 @@ catalogs:
     storybook:
       specifier: ^10.4.2
       version: 10.4.6
-    tsx:
-      specifier: ^4.21.0
-      version: 4.23.0
     typescript:
       specifier: 6.0.3
       version: 6.0.3
@@ -146,6 +143,9 @@ importers:
       concurrently:
         specifier: ^9.1.2
         version: 9.2.3
+      portless:
+        specifier: 0.15.4
+        version: 0.15.4
       rimraf:
         specifier: ^6.0.1
         version: 6.1.3
@@ -225,6 +225,15 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
+      '@learnsphere/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/learnsphere/local-dev-config
+      azurite:
+        specifier: ^3.35.0
+        version: 3.35.0(@types/node@22.20.0)(supports-color@8.1.1)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -239,7 +248,7 @@ importers:
         version: 6.21.0
       vitest:
         specifier: 'catalog:'
-        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@26.1.0)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.20.0)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))
 
   apps/docs:
     dependencies:
@@ -268,6 +277,9 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       '@docusaurus/module-type-aliases':
         specifier: ^3.10.1
         version: 3.10.1(esbuild@0.28.1)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -305,12 +317,12 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
-      tsx:
-        specifier: 'catalog:'
-        version: 4.23.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -330,15 +342,18 @@ importers:
       '@cellix/config-vitest':
         specifier: workspace:*
         version: link:../../packages/cellix/config-vitest
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
+      '@learnsphere/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/learnsphere/local-dev-config
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
-      tsx:
-        specifier: 'catalog:'
-        version: 4.23.0
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -379,6 +394,12 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
+      '@learnsphere/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/learnsphere/local-dev-config
       '@types/react':
         specifier: ^19.1.8
         version: 19.2.17
@@ -440,6 +461,12 @@ importers:
       '@cellix/config-typescript':
         specifier: workspace:*
         version: link:../../packages/cellix/config-typescript
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../packages/cellix/local-dev
+      '@learnsphere/local-dev-config':
+        specifier: workspace:*
+        version: link:../../packages/learnsphere/local-dev-config
       '@types/react':
         specifier: ^19.1.8
         version: 19.2.17
@@ -487,7 +514,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -531,7 +558,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -559,7 +586,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -599,7 +626,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -627,7 +654,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -637,6 +664,30 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@26.1.0)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))
+
+  packages/cellix/local-dev:
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.20.0
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.20.0)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))
 
   packages/cellix/mongoose-seedwork:
     dependencies:
@@ -655,7 +706,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       mongodb:
         specifier: 'catalog:'
         version: 6.18.0
@@ -728,7 +779,7 @@ importers:
         version: 19.2.17
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       playwright:
         specifier: 'catalog:'
         version: 1.59.0
@@ -793,7 +844,7 @@ importers:
         version: 5.0.6
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
@@ -824,7 +875,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       azurite:
         specifier: ^3.35.0
         version: 3.35.0(@types/node@22.20.0)(supports-color@8.1.1)
@@ -870,7 +921,7 @@ importers:
         version: link:../config-vitest
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       execa:
         specifier: ^9.6.0
         version: 9.6.1
@@ -940,7 +991,7 @@ importers:
         version: 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))(vitest@4.1.8)
       '@vitest/coverage-istanbul':
         specifier: 'catalog:'
-        version: 4.1.8(vitest@4.1.8)
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
@@ -1147,6 +1198,34 @@ importers:
         specifier: ^6.21.0
         version: 6.21.0
 
+  packages/learnsphere/local-dev-config:
+    dependencies:
+      '@cellix/local-dev':
+        specifier: workspace:*
+        version: link:../../cellix/local-dev
+    devDependencies:
+      '@cellix/config-typescript':
+        specifier: workspace:*
+        version: link:../../cellix/config-typescript
+      '@cellix/config-vitest':
+        specifier: workspace:*
+        version: link:../../cellix/config-vitest
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.20.0
+      '@vitest/coverage-istanbul':
+        specifier: 'catalog:'
+        version: 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.20.0)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))
+
   packages/learnsphere/persistence:
     dependencies:
       '@cellix/event-bus-seedwork-node':
@@ -1273,7 +1352,7 @@ importers:
     dependencies:
       '@azure/functions-opentelemetry-instrumentation':
         specifier: 0.1.0
-        version: 0.1.0(@opentelemetry/api@1.9.0)
+        version: 0.1.0(@opentelemetry/api@1.9.0)(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter':
         specifier: 1.0.0-beta.31
         version: 1.0.0-beta.31
@@ -9570,6 +9649,12 @@ packages:
     resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
     engines: {node: '>=14.19.0'}
 
+  portless@0.15.4:
+    resolution: {integrity: sha512-tOxEsdlDGuPHO6DPkuK3c3mMV5ctXEgVFm53Sa8nfZ2RsRGTq4By424C6z5+JWfNbd3ktR5SOd1FJBOlB1Woqg==}
+    engines: {node: '>=24'}
+    os: [darwin, linux, win32]
+    hasBin: true
+
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
@@ -12346,10 +12431,10 @@ snapshots:
 
   '@azure/functions-extensions-base@0.2.0': {}
 
-  '@azure/functions-opentelemetry-instrumentation@0.1.0(@opentelemetry/api@1.9.0)':
+  '@azure/functions-opentelemetry-instrumentation@0.1.0(@opentelemetry/api@1.9.0)(supports-color@8.1.1)':
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@opentelemetry/instrumentation': 0.52.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.52.1(@opentelemetry/api@1.9.0)(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -15478,7 +15563,7 @@ snapshots:
 
   '@happy-dom/global-registrator@20.10.6':
     dependencies:
-      '@types/node': 22.20.0
+      '@types/node': 26.1.0
       happy-dom: 20.10.1
     transitivePeerDependencies:
       - bufferutil
@@ -15916,7 +16001,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.25.1(@opentelemetry/api@1.9.0)
-      '@opentelemetry/instrumentation': 0.52.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.52.1(@opentelemetry/api@1.9.0)(supports-color@8.1.1)
       '@opentelemetry/semantic-conventions': 1.25.1
       semver: 7.8.5
     transitivePeerDependencies:
@@ -15937,7 +16022,7 @@ snapshots:
       '@opentelemetry/api-logs': 0.200.0
       '@types/shimmer': 1.2.0
       import-in-the-middle: 1.15.0
-      require-in-the-middle: 7.5.2
+      require-in-the-middle: 7.5.2(supports-color@8.1.1)
       shimmer: 1.2.1
     transitivePeerDependencies:
       - supports-color
@@ -15951,13 +16036,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0)':
+  '@opentelemetry/instrumentation@0.52.1(@opentelemetry/api@1.9.0)(supports-color@8.1.1)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.52.1
       '@types/shimmer': 1.2.0
       import-in-the-middle: 1.15.0
-      require-in-the-middle: 7.5.2
+      require-in-the-middle: 7.5.2(supports-color@8.1.1)
       semver: 7.8.5
       shimmer: 1.2.1
     transitivePeerDependencies:
@@ -15969,7 +16054,7 @@ snapshots:
       '@opentelemetry/api-logs': 0.57.2
       '@types/shimmer': 1.2.0
       import-in-the-middle: 1.15.0
-      require-in-the-middle: 7.5.2
+      require-in-the-middle: 7.5.2(supports-color@8.1.1)
       semver: 7.8.5
       shimmer: 1.2.1
     transitivePeerDependencies:
@@ -17711,22 +17796,6 @@ snapshots:
       obug: 2.1.3
       tinyrainbow: 3.1.0
       vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@22.20.0)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))
-    transitivePeerDependencies:
-      - supports-color
-
-  '@vitest/coverage-istanbul@4.1.8(vitest@4.1.8)':
-    dependencies:
-      '@babel/core': 7.29.7(supports-color@8.1.1)
-      '@istanbuljs/schema': 0.1.6
-      '@jridgewell/gen-mapping': 0.3.13
-      '@jridgewell/trace-mapping': 0.3.31
-      istanbul-lib-coverage: 3.2.2
-      istanbul-lib-report: 3.0.1
-      istanbul-reports: 3.2.0
-      magicast: 0.5.3
-      obug: 2.1.3
-      tinyrainbow: 3.1.0
-      vitest: 4.1.8(@opentelemetry/api@1.9.0)(@types/node@26.1.0)(@vitest/browser-playwright@4.1.8)(@vitest/coverage-istanbul@4.1.8)(happy-dom@20.10.1)(jsdom@26.1.0)(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))
     transitivePeerDependencies:
       - supports-color
 
@@ -22334,6 +22403,8 @@ snapshots:
 
   pngjs@7.0.0: {}
 
+  portless@0.15.4: {}
+
   possible-typed-array-names@1.1.0: {}
 
   postcss-attribute-case-insensitive@7.0.1(postcss@8.5.16):
@@ -23272,7 +23343,7 @@ snapshots:
 
   require-from-string@2.0.2: {}
 
-  require-in-the-middle@7.5.2:
+  require-in-the-middle@7.5.2(supports-color@8.1.1):
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
       module-details-from-path: 1.0.4
@@ -24242,6 +24313,7 @@ snapshots:
       esbuild: 0.28.1
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   tsyringe@4.10.0:
     dependencies:
@@ -24612,7 +24684,7 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@types/node': 26.1.0
       '@vitest/browser-playwright': 4.1.8(playwright@1.59.0)(vite@8.0.16(@types/node@26.1.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.0)(yaml@2.9.0))(vitest@4.1.8)
-      '@vitest/coverage-istanbul': 4.1.8(vitest@4.1.8)
+      '@vitest/coverage-istanbul': 4.1.8(supports-color@8.1.1)(vitest@4.1.8)
       happy-dom: 20.10.1
       jsdom: 26.1.0
     transitivePeerDependencies:

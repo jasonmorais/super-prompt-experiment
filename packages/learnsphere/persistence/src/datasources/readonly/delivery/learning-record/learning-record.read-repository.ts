@@ -41,7 +41,7 @@ export class LearningRecordReadRepositoryImpl implements LearningRecordReadRepos
 	}
 
 	async getTrainingLeaderboard(organizationId: string, limit = 100): Promise<Domain.Contexts.Delivery.LearningRecord.TrainingLeaderboardEntry[]> {
-		if (!this.passport.canAccessOrganization(organizationId) || !this.passport.canViewTeamLearning) throw new Error('You do not have access to team learning in this organization');
+		if (!this.passport.canAccessOrganization(organizationId)) throw new Error('You do not have access to this organization');
 		type AggregateEntry = Omit<Domain.Contexts.Delivery.LearningRecord.TrainingLeaderboardEntry, 'rank'> & { _id: string };
 		const entries = await this.models.LearningRecord.aggregate<AggregateEntry>([
 			{ $match: { organizationId } },

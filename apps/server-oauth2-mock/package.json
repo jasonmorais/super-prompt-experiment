@@ -7,7 +7,8 @@
 		"build": "tsgo --build",
 		"clean": "rimraf dist tsconfig.tsbuildinfo",
 		"start": "node dist/index.js",
-		"dev": "tsx src/index.ts",
+		"dev": "pnpm exec portless mock-auth.learnsphere.localhost --force node start-dev.ts",
+		"dev:worktree": "pnpm exec portless mock-auth.learnsphere.${WORKTREE_NAME}.localhost --force node start-dev.ts",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"test:watch": "vitest",
@@ -23,9 +24,10 @@
 	"devDependencies": {
 		"@cellix/config-typescript": "workspace:*",
 		"@cellix/config-vitest": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
+		"@learnsphere/local-dev-config": "workspace:*",
 		"@vitest/coverage-istanbul": "catalog:",
 		"rimraf": "catalog:",
-		"tsx": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
 	}
