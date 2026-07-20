@@ -1,14 +1,35 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { AssessmentCreatedEvent, type AssessmentCreatedProps } from '../../../events/types/assessment-created.ts';
+import { AssessmentPublishedEvent, type AssessmentPublishedProps } from '../../../events/types/assessment-published.ts';
 import type { Passport } from '../../../passport-factory.ts';
 
 export type AssessmentStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 export type AssessmentQuestionType = 'SINGLE_SELECT' | 'MULTI_SELECT' | 'TRUE_FALSE';
-export interface AssessmentOption { key: string; text: string; isCorrect: boolean; }
-export interface AssessmentQuestion { key: string; prompt: string; type: AssessmentQuestionType; options: AssessmentOption[]; points: number; explanation: string; }
-export interface AssessmentResponse { questionKey: string; selectedOptionKeys: string[]; }
-export interface AssessmentScore { score: number; passed: boolean; earnedPoints: number; availablePoints: number; }
+export interface AssessmentOption {
+	key: string;
+	text: string;
+	isCorrect: boolean;
+}
+export interface AssessmentQuestion {
+	key: string;
+	prompt: string;
+	type: AssessmentQuestionType;
+	options: AssessmentOption[];
+	points: number;
+	explanation: string;
+}
+export interface AssessmentResponse {
+	questionKey: string;
+	selectedOptionKeys: string[];
+}
+export interface AssessmentScore {
+	score: number;
+	passed: boolean;
+	earnedPoints: number;
+	availablePoints: number;
+}
 
 export interface AssessmentProps extends DomainEntityProps {
 	organizationId: string;
@@ -35,7 +56,11 @@ const requiredText = (value: string, field: string, maxLength: number): string =
 const sameKeys = (left: readonly string[], right: readonly string[]): boolean => left.length === right.length && [...left].sort().every((value, index) => value === [...right].sort()[index]);
 
 export class Assessment<Props extends AssessmentProps = AssessmentProps> extends AggregateRoot<Props, Passport> implements AssessmentEntityReference {
-	static getNewInstance<Props extends AssessmentProps>(props: Props, input: { organizationId: string; title: string; description: string; passingScore: number; maxAttempts: number; createdBy: string }, passport: Passport): Assessment<Props> {
+	static getNewInstance<Props extends AssessmentProps>(
+		props: Props,
+		input: { organizationId: string; title: string; description: string; passingScore: number; maxAttempts: number; createdBy: string },
+		passport: Passport,
+	): Assessment<Props> {
 		const assessment = new Assessment(props, passport);
 		assessment.props.organizationId = requiredText(input.organizationId, 'Organization', 100);
 		if (!assessment.visa.determineIf((permissions) => permissions.canManageAssessments || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to create assessments');
@@ -47,22 +72,72 @@ export class Assessment<Props extends AssessmentProps = AssessmentProps> extends
 		assessment.props.status = 'DRAFT';
 		assessment.props.questions = [];
 		assessment.props.publishedAt = null;
+		assessment.addIntegrationEvent<AssessmentCreatedProps, AssessmentCreatedEvent>(AssessmentCreatedEvent, {
+			assessmentId: assessment.props.id,
+			organizationId: assessment.props.organizationId,
+		});
 		return assessment;
 	}
-	private get visa() { return this.passport.learning.forAssessment(this); }
-	private requireManagement() { if (!this.visa.determineIf((permissions) => permissions.canManageAssessments || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to manage this assessment'); }
-	get organizationId() { return this.props.organizationId; }
-	get title() { return this.props.title; } set title(value: string) { this.requireManagement(); this.props.title = requiredText(value, 'Title', 180); }
-	get description() { return this.props.description; } set description(value: string) { this.requireManagement(); this.props.description = requiredText(value, 'Description', 10000); }
-	get status() { return this.props.status; }
-	get passingScore() { return this.props.passingScore; } set passingScore(value: number) { this.requireManagement(); if (!Number.isInteger(value) || value < 1 || value > 100) throw new Error('Passing score must be between 1 and 100'); this.props.passingScore = value; }
-	get maxAttempts() { return this.props.maxAttempts; } set maxAttempts(value: number) { this.requireManagement(); if (!Number.isInteger(value) || value < 1 || value > 100) throw new Error('Maximum attempts must be between 1 and 100'); this.props.maxAttempts = value; }
-	get questions() { return this.props.questions.map((question) => ({ ...question, options: question.options.map((option) => ({ ...option })) })); }
-	get createdBy() { return this.props.createdBy; }
-	get publishedAt() { return this.props.publishedAt; }
-	get createdAt() { return this.props.createdAt; }
-	get updatedAt() { return this.props.updatedAt; }
-	get schemaVersion() { return this.props.schemaVersion; }
+	private get visa() {
+		return this.passport.learning.forAssessment(this);
+	}
+	private requireManagement() {
+		if (!this.visa.determineIf((permissions) => permissions.canManageAssessments || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to manage this assessment');
+	}
+	get organizationId() {
+		return this.props.organizationId;
+	}
+	get title() {
+		return this.props.title;
+	}
+	set title(value: string) {
+		this.requireManagement();
+		this.props.title = requiredText(value, 'Title', 180);
+	}
+	get description() {
+		return this.props.description;
+	}
+	set description(value: string) {
+		this.requireManagement();
+		this.props.description = requiredText(value, 'Description', 10000);
+	}
+	get status() {
+		return this.props.status;
+	}
+	get passingScore() {
+		return this.props.passingScore;
+	}
+	set passingScore(value: number) {
+		this.requireManagement();
+		if (!Number.isInteger(value) || value < 1 || value > 100) throw new Error('Passing score must be between 1 and 100');
+		this.props.passingScore = value;
+	}
+	get maxAttempts() {
+		return this.props.maxAttempts;
+	}
+	set maxAttempts(value: number) {
+		this.requireManagement();
+		if (!Number.isInteger(value) || value < 1 || value > 100) throw new Error('Maximum attempts must be between 1 and 100');
+		this.props.maxAttempts = value;
+	}
+	get questions() {
+		return this.props.questions.map((question) => ({ ...question, options: question.options.map((option) => ({ ...option })) }));
+	}
+	get createdBy() {
+		return this.props.createdBy;
+	}
+	get publishedAt() {
+		return this.props.publishedAt;
+	}
+	get createdAt() {
+		return this.props.createdAt;
+	}
+	get updatedAt() {
+		return this.props.updatedAt;
+	}
+	get schemaVersion() {
+		return this.props.schemaVersion;
+	}
 	addQuestion(question: AssessmentQuestion): void {
 		this.requireManagement();
 		if (this.props.status === 'ARCHIVED') throw new Error('Archived assessments cannot be edited');
@@ -87,8 +162,22 @@ export class Assessment<Props extends AssessmentProps = AssessmentProps> extends
 		this.props.questions = [];
 		for (const question of input.questions) this.addQuestion(question);
 	}
-	publish(): void { this.requireManagement(); if (this.props.status !== 'DRAFT') throw new Error('Only draft assessments can be published'); if (this.props.questions.length === 0) throw new Error('An assessment must contain at least one question'); this.props.status = 'PUBLISHED'; this.props.publishedAt = new Date(); }
-	archive(): void { this.requireManagement(); if (this.props.status !== 'PUBLISHED') throw new Error('Only published assessments can be archived'); this.props.status = 'ARCHIVED'; }
+	publish(): void {
+		this.requireManagement();
+		if (this.props.status !== 'DRAFT') throw new Error('Only draft assessments can be published');
+		if (this.props.questions.length === 0) throw new Error('An assessment must contain at least one question');
+		this.props.status = 'PUBLISHED';
+		this.props.publishedAt = new Date();
+		this.addIntegrationEvent<AssessmentPublishedProps, AssessmentPublishedEvent>(AssessmentPublishedEvent, {
+			assessmentId: this.props.id,
+			organizationId: this.props.organizationId,
+		});
+	}
+	archive(): void {
+		this.requireManagement();
+		if (this.props.status !== 'PUBLISHED') throw new Error('Only published assessments can be archived');
+		this.props.status = 'ARCHIVED';
+	}
 	grade(responses: readonly AssessmentResponse[]): AssessmentScore {
 		if (!this.visa.determineIf((permissions) => permissions.canTakeAssessments || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to take this assessment');
 		if (this.props.status !== 'PUBLISHED') throw new Error('Only published assessments can be submitted');

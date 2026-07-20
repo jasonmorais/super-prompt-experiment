@@ -1,6 +1,7 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { LearnerUserCreatedEvent, type LearnerUserCreatedProps } from '../../../events/types/learner-user-created.ts';
 import type { Passport } from '../../passport.ts';
 import type { UserVisa } from '../user.visa.ts';
 
@@ -54,6 +55,10 @@ export class LearnerUser<props extends LearnerUserProps = LearnerUserProps> exte
 			user.displayName = lastName.trim();
 		}
 		user.isNew = false;
+		user.addIntegrationEvent<LearnerUserCreatedProps, LearnerUserCreatedEvent>(LearnerUserCreatedEvent, {
+			learnerUserId: user.props.id,
+			externalId: user.props.externalId,
+		});
 		return user;
 	}
 
@@ -63,20 +68,58 @@ export class LearnerUser<props extends LearnerUserProps = LearnerUserProps> exte
 		}
 	}
 
-	override get id() { return this.props.id; }
-	get personalInformation() { return this.props.personalInformation; }
-	get email() { return this.props.email; }
-	set email(value: string) { this.validateOwnAccount(); this.props.email = value.trim(); this.props.personalInformation.contactInformation.email = this.props.email; }
-	get displayName() { return this.props.displayName; }
-	set displayName(value: string) { this.validateOwnAccount(); this.props.displayName = normalizedText(value, 'Display name'); }
-	get externalId() { return this.props.externalId; }
-	private set externalId(value: string) { if (!this.isNew) throw new Error('External ID cannot be changed'); this.props.externalId = normalizedText(value, 'External ID'); }
-	get accessBlocked() { return this.props.accessBlocked; }
-	set accessBlocked(value: boolean) { if (!this.visa.determineIf((permissions) => permissions.canManageLearnerUsers || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to block this learner'); this.props.accessBlocked = value; }
-	get tags() { return [...this.props.tags]; }
-	set tags(value: string[]) { if (!this.visa.determineIf((permissions) => permissions.canManageLearnerUsers || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to update learner tags'); this.props.tags = [...value]; }
-	get userType() { return this.props.userType; }
-	get schemaVersion() { return this.props.schemaVersion; }
-	get createdAt() { return this.props.createdAt; }
-	get updatedAt() { return this.props.updatedAt; }
+	override get id() {
+		return this.props.id;
+	}
+	get personalInformation() {
+		return this.props.personalInformation;
+	}
+	get email() {
+		return this.props.email;
+	}
+	set email(value: string) {
+		this.validateOwnAccount();
+		this.props.email = value.trim();
+		this.props.personalInformation.contactInformation.email = this.props.email;
+	}
+	get displayName() {
+		return this.props.displayName;
+	}
+	set displayName(value: string) {
+		this.validateOwnAccount();
+		this.props.displayName = normalizedText(value, 'Display name');
+	}
+	get externalId() {
+		return this.props.externalId;
+	}
+	private set externalId(value: string) {
+		if (!this.isNew) throw new Error('External ID cannot be changed');
+		this.props.externalId = normalizedText(value, 'External ID');
+	}
+	get accessBlocked() {
+		return this.props.accessBlocked;
+	}
+	set accessBlocked(value: boolean) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageLearnerUsers || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to block this learner');
+		this.props.accessBlocked = value;
+	}
+	get tags() {
+		return [...this.props.tags];
+	}
+	set tags(value: string[]) {
+		if (!this.visa.determineIf((permissions) => permissions.canManageLearnerUsers || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to update learner tags');
+		this.props.tags = [...value];
+	}
+	get userType() {
+		return this.props.userType;
+	}
+	get schemaVersion() {
+		return this.props.schemaVersion;
+	}
+	get createdAt() {
+		return this.props.createdAt;
+	}
+	get updatedAt() {
+		return this.props.updatedAt;
+	}
 }

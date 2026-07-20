@@ -1,6 +1,9 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { CourseCreatedEvent, type CourseCreatedProps } from '../../../events/types/course-created.ts';
+import { CourseDeletedEvent, type CourseDeletedProps } from '../../../events/types/course-deleted.ts';
+import { CoursePublishedEvent, type CoursePublishedProps } from '../../../events/types/course-published.ts';
 import type { Passport } from '../../../passport-factory.ts';
 import type { AssessmentEntityReference } from '../assessment/assessment.ts';
 
@@ -25,7 +28,11 @@ const optionalVideoUrl = (value: string | undefined): string | undefined => {
 	if (!normalized) return undefined;
 	if (normalized.length > 2000) throw new Error('Video URL cannot exceed 2000 characters');
 	let parsed: URL;
-	try { parsed = new URL(normalized); } catch { throw new Error('Video URL must be a valid URL'); }
+	try {
+		parsed = new URL(normalized);
+	} catch {
+		throw new Error('Video URL must be a valid URL');
+	}
 	if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('Video URL must use HTTP or HTTPS');
 	return normalized;
 };
@@ -73,7 +80,11 @@ const requiredText = (value: string, field: string, maxLength: number): string =
 export class Course<Props extends CourseProps = CourseProps> extends AggregateRoot<Props, Passport> implements CourseEntityReference {
 	private isNew = false;
 
-	static getNewInstance<Props extends CourseProps>(props: Props, input: Pick<CourseProps, 'organizationId' | 'title' | 'summary' | 'description' | 'level' | 'category' | 'createdBy' | 'discoverability' | 'requiresCompletionScreenshot'>, passport: Passport): Course<Props> {
+	static getNewInstance<Props extends CourseProps>(
+		props: Props,
+		input: Pick<CourseProps, 'organizationId' | 'title' | 'summary' | 'description' | 'level' | 'category' | 'createdBy' | 'discoverability' | 'requiresCompletionScreenshot'>,
+		passport: Passport,
+	): Course<Props> {
 		const course = new Course(props, passport);
 		course.isNew = true;
 		course.organizationId = input.organizationId;
@@ -92,6 +103,10 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		course.props.modules = [];
 		course.props.publishedAt = null;
 		course.isNew = false;
+		course.addIntegrationEvent<CourseCreatedProps, CourseCreatedEvent>(CourseCreatedEvent, {
+			courseId: course.props.id,
+			organizationId: course.props.organizationId,
+		});
 		return course;
 	}
 
@@ -200,7 +215,17 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		this.props.skills = [...new Set(skills.map((skill) => skill.trim()).filter(Boolean))].slice(0, 20);
 	}
 
-	updateDetails(input: { title: string; summary: string; description: string; level: CourseLevel; category: string; tags: string[]; skills: string[]; discoverability: CourseDiscoverability; requiresCompletionScreenshot: boolean }): void {
+	updateDetails(input: {
+		title: string;
+		summary: string;
+		description: string;
+		level: CourseLevel;
+		category: string;
+		tags: string[];
+		skills: string[];
+		discoverability: CourseDiscoverability;
+		requiresCompletionScreenshot: boolean;
+	}): void {
 		this.requireManagement();
 		if (this.props.status === 'ARCHIVED') throw new Error('Archived courses cannot be edited');
 		this.title = input.title;
@@ -230,11 +255,20 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		// Mongoose-backed adapters return a defensive copy for nested arrays. Assign
 		// the new collection through the props setter so Mongoose marks `modules`
 		// modified and persists the complete aggregate change.
-		this.props.modules = [...this.props.modules, { ...module, title: requiredText(module.title, 'Module title', 180), description: module.description.trim(), order: this.props.modules.length + 1, lessons: module.lessons.map((lesson) => {
-			const videoUrl = lesson.type === 'VIDEO' ? optionalVideoUrl(lesson.videoUrl) : undefined;
-			const { videoUrl: _videoUrl, ...lessonWithoutVideo } = lesson;
-			return { ...lessonWithoutVideo, ...(videoUrl ? { videoUrl } : {}) };
-		}) }];
+		this.props.modules = [
+			...this.props.modules,
+			{
+				...module,
+				title: requiredText(module.title, 'Module title', 180),
+				description: module.description.trim(),
+				order: this.props.modules.length + 1,
+				lessons: module.lessons.map((lesson) => {
+					const videoUrl = lesson.type === 'VIDEO' ? optionalVideoUrl(lesson.videoUrl) : undefined;
+					const { videoUrl: _videoUrl, ...lessonWithoutVideo } = lesson;
+					return { ...lessonWithoutVideo, ...(videoUrl ? { videoUrl } : {}) };
+				}),
+			},
+		];
 	}
 
 	replaceStructure(modules: Array<Omit<CourseModule, 'order'>>): void {
@@ -277,11 +311,25 @@ export class Course<Props extends CourseProps = CourseProps> extends AggregateRo
 		if (this.props.modules.some((module) => module.lessons.some((lesson) => lesson.assessment && lesson.assessment.status !== 'PUBLISHED'))) throw new Error('Every attached assessment must be published before the course');
 		this.props.status = 'PUBLISHED';
 		this.props.publishedAt = new Date();
+		this.addIntegrationEvent<CoursePublishedProps, CoursePublishedEvent>(CoursePublishedEvent, {
+			courseId: this.props.id,
+			organizationId: this.props.organizationId,
+		});
 	}
 
 	delete(): void {
-		if (!this.visa.determineIf((permissions) => permissions.canDeleteCourses)) throw new PermissionError('You do not have permission to delete courses');
 		if (this.props.status === 'ARCHIVED') throw new Error('Archived courses cannot be deleted');
 		this.requestDelete();
+	}
+
+	public requestDelete(): void {
+		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canDeleteCourses)) {
+			throw new PermissionError('You do not have permission to delete courses');
+		}
+		super.isDeleted = true;
+		this.addIntegrationEvent<CourseDeletedProps, CourseDeletedEvent>(CourseDeletedEvent, {
+			courseId: this.props.id,
+			organizationId: this.props.organizationId,
+		});
 	}
 }

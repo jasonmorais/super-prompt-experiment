@@ -1,6 +1,8 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { TeamOperationCompletedEvent, type TeamOperationCompletedProps } from '../../../events/types/team-operation-completed.ts';
+import { TeamOperationCreatedEvent, type TeamOperationCreatedProps } from '../../../events/types/team-operation-created.ts';
 import type { Passport } from '../../../passport-factory.ts';
 
 export type TeamOperationPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -104,6 +106,11 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		props.statusHistory = [{ status: 'ASSIGNED', changedAt: new Date(), changedBy: input.createdBy, note: null }];
 		props.comments = [];
 		props.attachments = [];
+		operation.addIntegrationEvent<TeamOperationCreatedProps, TeamOperationCreatedEvent>(TeamOperationCreatedEvent, {
+			teamOperationId: operation.props.id,
+			organizationId: operation.props.organizationId,
+			assigneeId: operation.props.assigneeId,
+		});
 		return operation;
 	}
 
@@ -121,34 +128,90 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		this.props.statusHistory = [...this.props.statusHistory, { status, changedAt: new Date(), changedBy, note }];
 	}
 
-	get organizationId() { return this.props.organizationId; }
-	get title() { return this.props.title; }
-	get description() { return this.props.description; }
-	get category() { return this.props.category; }
-	get priority() { return this.props.priority; }
-	get status() { return this.props.status; }
-	get assigneeId() { return this.props.assigneeId; }
-	get assigneeDisplayName() { return this.props.assigneeDisplayName; }
-	get assigneeEmail() { return this.props.assigneeEmail; }
-	get teamName() { return this.props.teamName; }
-	get createdBy() { return this.props.createdBy; }
-	get assignedAt() { return this.props.assignedAt; }
-	get dueAt() { return this.props.dueAt; }
-	get startedAt() { return this.props.startedAt; }
-	get submittedAt() { return this.props.submittedAt; }
-	get submittedBy() { return this.props.submittedBy; }
-	get completionNote() { return this.props.completionNote; }
-	get completionEvidence() { return this.props.completionEvidence; }
-	get confirmedAt() { return this.props.confirmedAt; }
-	get confirmedBy() { return this.props.confirmedBy; }
-	get statusHistory() { return this.props.statusHistory.map((event) => ({ ...event })); }
-	get comments() { return this.props.comments.map((comment) => ({ ...comment })); }
-	get attachments() { return this.props.attachments.map((attachment) => ({ ...attachment })); }
-	get thread(): TeamOperationThread { return { comments: this.comments, attachments: this.attachments }; }
-	get createdAt() { return this.props.createdAt; }
-	get updatedAt() { return this.props.updatedAt; }
-	get schemaVersion() { return this.props.schemaVersion; }
-	get isOverdue() { return Boolean(this.props.dueAt && this.props.dueAt.getTime() < Date.now() && !['COMPLETED', 'CANCELLED'].includes(this.props.status)); }
+	get organizationId() {
+		return this.props.organizationId;
+	}
+	get title() {
+		return this.props.title;
+	}
+	get description() {
+		return this.props.description;
+	}
+	get category() {
+		return this.props.category;
+	}
+	get priority() {
+		return this.props.priority;
+	}
+	get status() {
+		return this.props.status;
+	}
+	get assigneeId() {
+		return this.props.assigneeId;
+	}
+	get assigneeDisplayName() {
+		return this.props.assigneeDisplayName;
+	}
+	get assigneeEmail() {
+		return this.props.assigneeEmail;
+	}
+	get teamName() {
+		return this.props.teamName;
+	}
+	get createdBy() {
+		return this.props.createdBy;
+	}
+	get assignedAt() {
+		return this.props.assignedAt;
+	}
+	get dueAt() {
+		return this.props.dueAt;
+	}
+	get startedAt() {
+		return this.props.startedAt;
+	}
+	get submittedAt() {
+		return this.props.submittedAt;
+	}
+	get submittedBy() {
+		return this.props.submittedBy;
+	}
+	get completionNote() {
+		return this.props.completionNote;
+	}
+	get completionEvidence() {
+		return this.props.completionEvidence;
+	}
+	get confirmedAt() {
+		return this.props.confirmedAt;
+	}
+	get confirmedBy() {
+		return this.props.confirmedBy;
+	}
+	get statusHistory() {
+		return this.props.statusHistory.map((event) => ({ ...event }));
+	}
+	get comments() {
+		return this.props.comments.map((comment) => ({ ...comment }));
+	}
+	get attachments() {
+		return this.props.attachments.map((attachment) => ({ ...attachment }));
+	}
+	get thread(): TeamOperationThread {
+		return { comments: this.comments, attachments: this.attachments };
+	}
+	get createdAt() {
+		return this.props.createdAt;
+	}
+	get updatedAt() {
+		return this.props.updatedAt;
+	}
+	get schemaVersion() {
+		return this.props.schemaVersion;
+	}
+	get isOverdue() {
+		return Boolean(this.props.dueAt && this.props.dueAt.getTime() < Date.now() && !['COMPLETED', 'CANCELLED'].includes(this.props.status));
+	}
 
 	start(actorId: string): void {
 		this.requireAssignedUser();
@@ -177,6 +240,11 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		this.props.confirmedAt = new Date();
 		this.props.confirmedBy = actorId;
 		this.appendStatus('COMPLETED', actorId, note?.trim() || null);
+		this.addIntegrationEvent<TeamOperationCompletedProps, TeamOperationCompletedEvent>(TeamOperationCompletedEvent, {
+			teamOperationId: this.props.id,
+			organizationId: this.props.organizationId,
+			assigneeId: this.props.assigneeId,
+		});
 	}
 
 	cancel(actorId: string, reason: string): void {
@@ -186,7 +254,18 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		this.appendStatus('CANCELLED', actorId, reason.trim());
 	}
 
-	updateDetails(input: { title: string; description: string; category: string; priority: TeamOperationPriority; dueAt: Date | null; assigneeId: string; assigneeDisplayName: string; assigneeEmail: string; teamName: string; changedBy: string }): void {
+	updateDetails(input: {
+		title: string;
+		description: string;
+		category: string;
+		priority: TeamOperationPriority;
+		dueAt: Date | null;
+		assigneeId: string;
+		assigneeDisplayName: string;
+		assigneeEmail: string;
+		teamName: string;
+		changedBy: string;
+	}): void {
 		if (!this.visa.determineIf((permissions) => permissions.canEditTeamOperations || permissions.canManageTeamOperations)) throw new PermissionError('Only a team lead or manager can edit team goals');
 		this.requireOpen();
 		this.props.title = requiredText(input.title, 'Title', 180);

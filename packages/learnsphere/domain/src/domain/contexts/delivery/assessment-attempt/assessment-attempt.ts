@@ -1,8 +1,9 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
-import { Assessment, type AssessmentEntityReference, type AssessmentProps, type AssessmentResponse, type AssessmentScore } from '../../learning/assessment/assessment.ts';
+import { AssessmentAttemptSubmittedEvent, type AssessmentAttemptSubmittedProps } from '../../../events/types/assessment-attempt-submitted.ts';
 import type { Passport } from '../../../passport-factory.ts';
+import { Assessment, type AssessmentEntityReference, type AssessmentProps, type AssessmentResponse, type AssessmentScore } from '../../learning/assessment/assessment.ts';
 
 export interface AssessmentAttemptProps extends DomainEntityProps {
 	organizationId: string;
@@ -20,11 +21,18 @@ export interface AssessmentAttemptProps extends DomainEntityProps {
 	readonly updatedAt: Date;
 	readonly schemaVersion: string;
 }
-export interface AssessmentAttemptEntityReference extends Readonly<Omit<AssessmentAttemptProps, 'assessment' | 'setAssessmentRef'>> { readonly assessment: AssessmentEntityReference; }
+export interface AssessmentAttemptEntityReference extends Readonly<Omit<AssessmentAttemptProps, 'assessment' | 'setAssessmentRef'>> {
+	readonly assessment: AssessmentEntityReference;
+}
 
 export class AssessmentAttempt<Props extends AssessmentAttemptProps = AssessmentAttemptProps> extends AggregateRoot<Props, Passport> implements AssessmentAttemptEntityReference {
-	static getNewInstance<Props extends AssessmentAttemptProps>(props: Props, input: { assessment: AssessmentEntityReference; learnerId: string; courseId: string; activityKey: string; responses: AssessmentResponse[]; result: AssessmentScore; attemptNumber: number }, passport: Passport): AssessmentAttempt<Props> {
-		if (!passport.learning.forAssessment(input.assessment).determineIf((permissions) => permissions.canTakeAssessments || permissions.isSystemAccount)) throw new PermissionError('You do not have permission to submit this assessment');
+	static getNewInstance<Props extends AssessmentAttemptProps>(
+		props: Props,
+		input: { assessment: AssessmentEntityReference; learnerId: string; courseId: string; activityKey: string; responses: AssessmentResponse[]; result: AssessmentScore; attemptNumber: number },
+		passport: Passport,
+	): AssessmentAttempt<Props> {
+		if (!passport.learning.forAssessment(input.assessment).determineIf((permissions) => permissions.canTakeAssessments || permissions.isSystemAccount))
+			throw new PermissionError('You do not have permission to submit this assessment');
 		const attempt = new AssessmentAttempt(props, passport);
 		props.organizationId = input.assessment.organizationId;
 		props.setAssessmentRef(input.assessment);
@@ -36,19 +44,52 @@ export class AssessmentAttempt<Props extends AssessmentAttemptProps = Assessment
 		props.passed = input.result.passed;
 		props.attemptNumber = input.attemptNumber;
 		props.submittedAt = new Date();
+		attempt.addIntegrationEvent<AssessmentAttemptSubmittedProps, AssessmentAttemptSubmittedEvent>(AssessmentAttemptSubmittedEvent, {
+			assessmentAttemptId: attempt.props.id,
+			organizationId: attempt.props.organizationId,
+			learnerId: attempt.props.learnerId,
+			courseId: attempt.props.courseId,
+			passed: attempt.props.passed,
+		});
 		return attempt;
 	}
-	get organizationId() { return this.props.organizationId; }
-	get assessment() { return new Assessment(this.props.assessment, this.passport); }
-	get learnerId() { return this.props.learnerId; }
-	get courseId() { return this.props.courseId; }
-	get activityKey() { return this.props.activityKey; }
-	get responses() { return this.props.responses.map((response) => ({ questionKey: response.questionKey, selectedOptionKeys: [...response.selectedOptionKeys] })); }
-	get score() { return this.props.score; }
-	get passed() { return this.props.passed; }
-	get attemptNumber() { return this.props.attemptNumber; }
-	get submittedAt() { return this.props.submittedAt; }
-	get createdAt() { return this.props.createdAt; }
-	get updatedAt() { return this.props.updatedAt; }
-	get schemaVersion() { return this.props.schemaVersion; }
+	get organizationId() {
+		return this.props.organizationId;
+	}
+	get assessment() {
+		return new Assessment(this.props.assessment, this.passport);
+	}
+	get learnerId() {
+		return this.props.learnerId;
+	}
+	get courseId() {
+		return this.props.courseId;
+	}
+	get activityKey() {
+		return this.props.activityKey;
+	}
+	get responses() {
+		return this.props.responses.map((response) => ({ questionKey: response.questionKey, selectedOptionKeys: [...response.selectedOptionKeys] }));
+	}
+	get score() {
+		return this.props.score;
+	}
+	get passed() {
+		return this.props.passed;
+	}
+	get attemptNumber() {
+		return this.props.attemptNumber;
+	}
+	get submittedAt() {
+		return this.props.submittedAt;
+	}
+	get createdAt() {
+		return this.props.createdAt;
+	}
+	get updatedAt() {
+		return this.props.updatedAt;
+	}
+	get schemaVersion() {
+		return this.props.schemaVersion;
+	}
 }

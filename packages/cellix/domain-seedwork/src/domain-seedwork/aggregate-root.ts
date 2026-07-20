@@ -18,9 +18,6 @@ export abstract class AggregateRoot<PropType extends DomainEntityProps, Passport
 	public get isDeleted(): boolean {
 		return this._isDeleted;
 	}
-	public requestDelete(): void {
-		this.isDeleted = true;
-	}
 	protected set isDeleted(value: boolean) {
 		this._isDeleted = value;
 	}

@@ -1,6 +1,9 @@
 import { AggregateRoot } from '@cellix/domain-seedwork/aggregate-root';
 import type { DomainEntityProps } from '@cellix/domain-seedwork/domain-entity';
 import { PermissionError } from '@cellix/domain-seedwork/domain-entity';
+import { LearningRecordCompletedEvent, type LearningRecordCompletedProps } from '../../../events/types/learning-record-completed.ts';
+import { LearningRecordCreatedEvent, type LearningRecordCreatedProps } from '../../../events/types/learning-record-created.ts';
+import { LearningRecordUnassignedEvent, type LearningRecordUnassignedProps } from '../../../events/types/learning-record-unassigned.ts';
 import type { Passport } from '../../../passport-factory.ts';
 
 export type EnrollmentSource = 'SELF_ENROLLED' | 'MANAGER_ASSIGNED' | 'PROGRAM_ASSIGNED' | 'COMPLIANCE_ASSIGNED';
@@ -62,7 +65,10 @@ export interface LearningRecordEntityReference extends Readonly<LearningRecordPr
 export class LearningRecord<Props extends LearningRecordProps = LearningRecordProps> extends AggregateRoot<Props, Passport> implements LearningRecordEntityReference {
 	static getNewInstance<Props extends LearningRecordProps>(
 		props: Props,
-		input: Omit<LearningRecordProps, keyof DomainEntityProps | 'status' | 'assignedAt' | 'startedAt' | 'completedAt' | 'waivedAt' | 'waiverReason' | 'activityProgress' | 'createdAt' | 'updatedAt' | 'schemaVersion' | 'assignmentId'> & { assignmentId?: string | null },
+		input: Omit<
+			LearningRecordProps,
+			keyof DomainEntityProps | 'status' | 'assignedAt' | 'startedAt' | 'completedAt' | 'waivedAt' | 'waiverReason' | 'activityProgress' | 'createdAt' | 'updatedAt' | 'schemaVersion' | 'assignmentId'
+		> & { assignmentId?: string | null },
 		passport: Passport,
 	) {
 		const record = new LearningRecord(props, passport);
@@ -93,6 +99,12 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		props.waiverReason = null;
 		props.activityProgress = [];
 		props.completionScreenshot = null;
+		record.addIntegrationEvent<LearningRecordCreatedProps, LearningRecordCreatedEvent>(LearningRecordCreatedEvent, {
+			learningRecordId: record.props.id,
+			organizationId: record.props.organizationId,
+			learnerId: record.props.learnerId,
+			courseId: record.props.courseId,
+		});
 		return record;
 	}
 
@@ -190,7 +202,8 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 		if (!this.props.requiredActivityKeys.includes(activityKey)) throw new Error(`Activity ${activityKey} is not part of this enrollment`);
 		if (timeSpentMinutes < 0 || timeSpentMinutes > 1440) throw new Error('Time spent must be between 0 and 1440 minutes');
 		if (assessmentScore !== undefined && (assessmentScore < 0 || assessmentScore > 100)) throw new Error('Assessment score must be between 0 and 100');
-		if (completionScreenshot !== undefined && (completionScreenshot.length < 20 || completionScreenshot.length > 8_000_000 || !completionScreenshot.startsWith('data:image/'))) throw new Error('Completion evidence must be a valid image smaller than 6 MB');
+		if (completionScreenshot !== undefined && (completionScreenshot.length < 20 || completionScreenshot.length > 8_000_000 || !completionScreenshot.startsWith('data:image/')))
+			throw new Error('Completion evidence must be a valid image smaller than 6 MB');
 		const currentProgress = this.props.activityProgress;
 		const existingIndex = currentProgress.findIndex((progress) => progress.activityKey === activityKey);
 		const existing = existingIndex >= 0 ? currentProgress[existingIndex] : undefined;
@@ -215,6 +228,12 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 			this.props.status = 'COMPLETED';
 			this.props.completedAt = new Date();
 			if (completionScreenshot) this.props.completionScreenshot = completionScreenshot;
+			this.addIntegrationEvent<LearningRecordCompletedProps, LearningRecordCompletedEvent>(LearningRecordCompletedEvent, {
+				learningRecordId: this.props.id,
+				organizationId: this.props.organizationId,
+				learnerId: this.props.learnerId,
+				courseId: this.props.courseId,
+			});
 		} else {
 			this.props.status = 'IN_PROGRESS';
 		}
@@ -242,8 +261,20 @@ export class LearningRecord<Props extends LearningRecordProps = LearningRecordPr
 	}
 
 	unassign(): void {
-		if (!this.visa.determineIf((permissions) => permissions.canAssignLearning)) throw new PermissionError('You do not have permission to unassign learning');
 		if (this.props.status === 'COMPLETED') throw new Error('Completed learning cannot be unassigned');
 		this.requestDelete();
+	}
+
+	public requestDelete(): void {
+		if (!this.isDeleted && !this.visa.determineIf((permissions) => permissions.canAssignLearning)) {
+			throw new PermissionError('You do not have permission to unassign learning');
+		}
+		super.isDeleted = true;
+		this.addIntegrationEvent<LearningRecordUnassignedProps, LearningRecordUnassignedEvent>(LearningRecordUnassignedEvent, {
+			learningRecordId: this.props.id,
+			organizationId: this.props.organizationId,
+			learnerId: this.props.learnerId,
+			courseId: this.props.courseId,
+		});
 	}
 }
