@@ -1,15 +1,15 @@
+import type { DeliveryPassport } from './contexts/delivery/delivery.passport.ts';
 import type { LearningRecordDomainPermissions } from './contexts/delivery/learning-record/learning-record.domain-permissions.ts';
 import type { LearningRecordEntityReference } from './contexts/delivery/learning-record/learning-record.ts';
-import type { LearningRecordVisa } from './contexts/delivery/learning-record/learning-record.visa.ts';
 import type { AssessmentDomainPermissions } from './contexts/learning/assessment/assessment.domain-permissions.ts';
 import type { AssessmentEntityReference } from './contexts/learning/assessment/assessment.ts';
-import type { AssessmentVisa } from './contexts/learning/assessment/assessment.visa.ts';
 import type { CourseDomainPermissions } from './contexts/learning/course/course.domain-permissions.ts';
 import type { CourseEntityReference } from './contexts/learning/course/course.ts';
 import type { CourseVisa } from './contexts/learning/course/course.visa.ts';
+import type { LearningPassport } from './contexts/learning/learning.passport.ts';
+import type { OperationsPassport } from './contexts/operations/operations.passport.ts';
 import type { TeamOperationDomainPermissions } from './contexts/operations/team-operation/team-operation.domain-permissions.ts';
 import type { TeamOperationEntityReference } from './contexts/operations/team-operation/team-operation.ts';
-import type { TeamOperationVisa } from './contexts/operations/team-operation/team-operation.visa.ts';
 import type { OrganizationDomainPermissions } from './contexts/organization/organization.domain-permissions.ts';
 import type { OrganizationPassport } from './contexts/organization/organization.passport.ts';
 import type { OrganizationEntityReference } from './contexts/organization/organization.ts';
@@ -33,17 +33,10 @@ export interface Passport {
 	readonly canManageTeams: boolean;
 	canAccessOrganization(organizationId: string): boolean;
 	readonly user: UserPassport;
-	readonly learning: {
-		forCourse(course: CourseEntityReference): CourseVisa;
-		forAssessment(assessment: AssessmentEntityReference): AssessmentVisa;
-	};
+	readonly learning: LearningPassport;
 	readonly organization: OrganizationPassport;
-	readonly delivery: {
-		forLearningRecord(record: LearningRecordEntityReference): LearningRecordVisa;
-	};
-	readonly operations: {
-		forTeamOperation(operation: TeamOperationEntityReference): TeamOperationVisa;
-	};
+	readonly delivery: DeliveryPassport;
+	readonly operations: OperationsPassport;
 }
 
 type ScopedPermissions<T, Root> = T | ((root: Root) => T);
@@ -103,7 +96,7 @@ const noContentPermissions: CourseDomainPermissions = {
 
 export const PassportFactory = {
 	/** An unauthenticated actor. See {@link GuestPassport}. */
-	forGuest: (): Passport => GuestPassport.create(),
+	forGuest: (): Passport => new GuestPassport(),
 	/** A learner resolved from a raw external id, before a LearnerUser aggregate has been loaded. See {@link MemberPassport}. */
 	forLearner: (learnerId: string, organizationId?: string): Passport => MemberPassport.forLearner(learnerId, organizationId),
 	forInstructor: (): Passport =>
@@ -123,7 +116,7 @@ export const PassportFactory = {
 	/** A learner resolved from its fully loaded LearnerUser aggregate. See {@link MemberPassport}. */
 	forLearnerUser: (learnerUser: LearnerUserEntityReference, organizationId?: string): Passport => MemberPassport.forLearnerUser(learnerUser, organizationId),
 	/** A staff user, permissioned by their assigned role. See {@link StaffUserPassport}. */
-	forStaffUser: (staffUser: StaffUserEntityReference, accessibleOrganizationIds?: readonly string[]): Passport => StaffUserPassport.create(staffUser, accessibleOrganizationIds),
+	forStaffUser: (staffUser: StaffUserEntityReference, accessibleOrganizationIds?: readonly string[]): Passport => new StaffUserPassport(staffUser, accessibleOrganizationIds),
 	/** The trusted system actor used by background/integration workflows. See {@link SystemPassport}. */
-	forSystem: (): Passport => SystemPassport.create(),
+	forSystem: (): Passport => new SystemPassport(),
 } as const;

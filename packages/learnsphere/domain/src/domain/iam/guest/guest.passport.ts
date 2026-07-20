@@ -1,37 +1,52 @@
+import type { DeliveryPassport } from '../../contexts/delivery/delivery.passport.ts';
+import type { LearningPassport } from '../../contexts/learning/learning.passport.ts';
+import type { OperationsPassport } from '../../contexts/operations/operations.passport.ts';
+import type { OrganizationPassport } from '../../contexts/organization/organization.passport.ts';
+import type { UserPassport } from '../../contexts/user/user.passport.ts';
 import type { Passport } from '../../passport-factory.ts';
-import { GuestAssessmentVisa } from './contexts/guest.assessment.visa.ts';
-import { GuestCourseVisa } from './contexts/guest.course.visa.ts';
-import { GuestLearningRecordVisa } from './contexts/guest.learning-record.visa.ts';
-import { GuestOrganizationVisa } from './contexts/guest.organization.visa.ts';
-import { GuestTeamOperationVisa } from './contexts/guest.team-operation.visa.ts';
-import { GuestUserVisa } from './contexts/guest.user.visa.ts';
+import { GuestDeliveryPassport } from './contexts/guest.delivery.passport.ts';
+import { GuestLearningPassport } from './contexts/guest.learning.passport.ts';
+import { GuestOperationsPassport } from './contexts/guest.operations.passport.ts';
+import { GuestOrganizationPassport } from './contexts/guest.organization.passport.ts';
+import { GuestUserPassport } from './contexts/guest.user.passport.ts';
 
 /** An unauthenticated actor. Holds no permissions anywhere in the system. */
-export const GuestPassport = {
-	create(): Passport {
-		return {
-			isGuest: true,
-			canViewTeamLearning: false,
-			canManageTeams: false,
-			canAccessOrganization: () => false,
-			user: {
-				forLearnerUser: () => new GuestUserVisa(),
-				forStaffUser: () => new GuestUserVisa(),
-				forStaffRole: () => new GuestUserVisa(),
-			},
-			learning: {
-				forCourse: () => new GuestCourseVisa(),
-				forAssessment: () => new GuestAssessmentVisa(),
-			},
-			organization: {
-				forOrganization: () => new GuestOrganizationVisa(),
-			},
-			delivery: {
-				forLearningRecord: () => new GuestLearningRecordVisa(),
-			},
-			operations: {
-				forTeamOperation: () => new GuestTeamOperationVisa(),
-			},
-		};
-	},
-};
+export class GuestPassport implements Passport {
+	readonly isGuest = true;
+	readonly canViewTeamLearning = false;
+	readonly canManageTeams = false;
+
+	canAccessOrganization(): boolean {
+		return false;
+	}
+
+	private _userPassport: UserPassport | undefined;
+	get user(): UserPassport {
+		this._userPassport ??= new GuestUserPassport();
+		return this._userPassport;
+	}
+
+	private _learningPassport: LearningPassport | undefined;
+	get learning(): LearningPassport {
+		this._learningPassport ??= new GuestLearningPassport();
+		return this._learningPassport;
+	}
+
+	private _organizationPassport: OrganizationPassport | undefined;
+	get organization(): OrganizationPassport {
+		this._organizationPassport ??= new GuestOrganizationPassport();
+		return this._organizationPassport;
+	}
+
+	private _deliveryPassport: DeliveryPassport | undefined;
+	get delivery(): DeliveryPassport {
+		this._deliveryPassport ??= new GuestDeliveryPassport();
+		return this._deliveryPassport;
+	}
+
+	private _operationsPassport: OperationsPassport | undefined;
+	get operations(): OperationsPassport {
+		this._operationsPassport ??= new GuestOperationsPassport();
+		return this._operationsPassport;
+	}
+}
