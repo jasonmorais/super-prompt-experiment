@@ -169,7 +169,15 @@ export class TeamOperationDomainAdapter extends MongooseSeedwork.MongooseDomainA
 		this.doc.comments = v;
 	}
 	get attachments(): Domain.Contexts.Operations.TeamOperation.TeamOperationAttachment[] {
-		return (this.doc.attachments ?? []).map((attachment, index) => ({ ...attachment, id: typeof attachment.id === 'string' && attachment.id.trim() ? attachment.id.trim() : `legacy-attachment-${String(this.doc._id)}-${index}` }));
+		return (this.doc.attachments ?? []).map((attachment, index) => ({
+			id: typeof attachment.id === 'string' && attachment.id.trim() ? attachment.id.trim() : `legacy-attachment-${String(this.doc._id)}-${index}`,
+			fileName: attachment.fileName,
+			contentType: attachment.contentType,
+			size: attachment.size,
+			blobName: attachment.blobName,
+			uploadedBy: attachment.uploadedBy,
+			uploadedAt: attachment.uploadedAt,
+		}));
 	}
 	set attachments(v) {
 		this.doc.attachments = v;

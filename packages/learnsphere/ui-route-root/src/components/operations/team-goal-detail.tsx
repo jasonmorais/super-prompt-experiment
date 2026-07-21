@@ -13,7 +13,7 @@ export interface TeamGoalDetailProps extends OperationActionProps {
 	onBack: () => void;
 }
 
-export const TeamGoalDetail = ({ operation, learnerId, submitting, commenting, attaching, onSubmit, onComment, onAttach, onBack }: TeamGoalDetailProps) => {
+export const TeamGoalDetail = ({ operation, learnerId, submitting, commenting, attaching, removingAttachment, onSubmit, onComment, onAttach, onRemoveAttachment, onBack }: TeamGoalDetailProps) => {
 	const [form] = Form.useForm<{ completionNote: string; completionEvidence?: string }>();
 	const [evidenceFile, setEvidenceFile] = useState<string>();
 	const [evidenceName, setEvidenceName] = useState<string>();
@@ -134,8 +134,10 @@ export const TeamGoalDetail = ({ operation, learnerId, submitting, commenting, a
 				operation={operation}
 				commenting={commenting}
 				attaching={attaching}
+				removingAttachment={removingAttachment}
 				onComment={onComment}
 				onAttach={onAttach}
+				onRemoveAttachment={onRemoveAttachment}
 			/>
 		</>
 	);

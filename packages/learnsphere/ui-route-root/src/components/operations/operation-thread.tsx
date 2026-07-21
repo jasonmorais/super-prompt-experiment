@@ -7,7 +7,7 @@ const { Text } = Typography;
 
 export interface OperationThreadProps extends OperationActionProps {}
 
-export const OperationThread = ({ operation, commenting, attaching, onComment, onAttach }: OperationThreadProps) => {
+export const OperationThread = ({ operation, commenting, attaching, removingAttachment, onComment, onAttach, onRemoveAttachment }: OperationThreadProps) => {
 	const [commentForm] = Form.useForm<{ body: string }>();
 	const activityCount = operation.thread.comments.length + operation.thread.attachments.length;
 	return (
@@ -59,6 +59,12 @@ export const OperationThread = ({ operation, commenting, attaching, onComment, o
 						key={attachment.id}
 						icon={<PaperClipOutlined />}
 						className={styles['attachment']}
+						closable
+						closeIcon={removingAttachment ? false : undefined}
+						onClose={(event) => {
+							event.preventDefault();
+							onRemoveAttachment(operation, attachment.id);
+						}}
 					>
 						{attachment.fileName} · {Math.ceil(attachment.size / 1024)} KB
 					</Tag>

@@ -12,6 +12,7 @@ extend type Mutation {
 	teamOperationUpdate(input: TeamOperationUpdateInput!): TeamOperationMutationResult!
 	teamOperationComment(input: TeamOperationCommentInput!): TeamOperationMutationResult!
 	teamOperationAttach(input: TeamOperationAttachInput!): TeamOperationMutationResult!
+	teamOperationRemoveAttachment(input: TeamOperationRemoveAttachmentInput!): TeamOperationMutationResult!
 }
 
 enum TeamOperationPriority {
@@ -134,6 +135,10 @@ input TeamOperationAttachInput {
 	fileName: String!
 	contentType: String!
 	contentBase64: String!
+}
+input TeamOperationRemoveAttachmentInput {
+	id: ObjectID!
+	attachmentId: String!
 }
 type TeamOperationMutationResult {
 	status: MutationStatus!

@@ -99,6 +99,16 @@ const teamOperation: Resolvers = {
 			requireUser(context);
 			return attachTeamOperation(args.input, context);
 		},
+		teamOperationRemoveAttachment: async (_parent, args, context) => {
+			requireUser(context);
+			try {
+				const { operation, removedAttachment } = await context.applicationServices.Operations.TeamOperation.removeAttachment({ id: args.input.id, attachmentId: args.input.attachmentId });
+				await context.blobStorageService.deleteBlob({ containerName: 'team-attachments', blobName: removedAttachment.blobName }).catch(() => undefined);
+				return { status: { success: true }, teamOperation: operation };
+			} catch (error) {
+				return { status: { success: false, errorMessage: error instanceof Error ? error.message : 'The request could not be completed' } };
+			}
+		},
 	},
 };
 

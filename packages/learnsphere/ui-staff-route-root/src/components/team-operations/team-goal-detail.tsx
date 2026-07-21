@@ -12,12 +12,14 @@ export interface StaffTeamGoalDetailProps {
 	operation: Operation;
 	commenting: boolean;
 	attaching: boolean;
+	removingAttachment: boolean;
 	onComment: (operation: Operation, body: string) => void;
 	onAttach: (operation: Operation, file: File) => void;
+	onRemoveAttachment: (operation: Operation, attachmentId: string) => void;
 	onBack: () => void;
 }
 
-export const StaffTeamGoalDetail = ({ operation, commenting, attaching, onComment, onAttach, onBack }: StaffTeamGoalDetailProps) => (
+export const StaffTeamGoalDetail = ({ operation, commenting, attaching, removingAttachment, onComment, onAttach, onRemoveAttachment, onBack }: StaffTeamGoalDetailProps) => (
 	<>
 		<Button
 			type="text"
@@ -77,8 +79,10 @@ export const StaffTeamGoalDetail = ({ operation, commenting, attaching, onCommen
 			operation={operation}
 			commenting={commenting}
 			attaching={attaching}
+			removingAttachment={removingAttachment}
 			onComment={onComment}
 			onAttach={onAttach}
+			onRemoveAttachment={onRemoveAttachment}
 		/>
 	</>
 );

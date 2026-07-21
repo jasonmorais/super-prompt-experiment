@@ -10,11 +10,13 @@ export interface OperationThreadProps {
 	operation: Operation;
 	commenting: boolean;
 	attaching: boolean;
+	removingAttachment: boolean;
 	onComment: (operation: Operation, body: string) => void;
 	onAttach: (operation: Operation, file: File) => void;
+	onRemoveAttachment: (operation: Operation, attachmentId: string) => void;
 }
 
-export const OperationThread = ({ operation, commenting, attaching, onComment, onAttach }: OperationThreadProps) => {
+export const OperationThread = ({ operation, commenting, attaching, removingAttachment, onComment, onAttach, onRemoveAttachment }: OperationThreadProps) => {
 	const [commentForm] = Form.useForm<{ body: string }>();
 	const updateCount = operation.thread.comments.length + operation.thread.attachments.length;
 	return (
@@ -65,7 +67,13 @@ export const OperationThread = ({ operation, commenting, attaching, onComment, o
 					<Tag
 						key={attachment.id}
 						icon={<PaperClipOutlined />}
-					className={styles['attachment']}
+						className={styles['attachment']}
+						closable
+						closeIcon={removingAttachment ? false : undefined}
+						onClose={(event) => {
+							event.preventDefault();
+							onRemoveAttachment(operation, attachment.id);
+						}}
 					>
 						{attachment.fileName} · {Math.ceil(attachment.size / 1024)} KB
 					</Tag>

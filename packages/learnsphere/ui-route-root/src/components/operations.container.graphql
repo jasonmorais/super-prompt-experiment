@@ -63,6 +63,13 @@ mutation LearnerOperationsContainerAttach($input: TeamOperationAttachInput!) {
 	}
 }
 
+mutation LearnerOperationsContainerRemoveAttachment($input: TeamOperationRemoveAttachmentInput!) {
+	teamOperationRemoveAttachment(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...LearnerOperationsContainerTeamOperationFields }
+	}
+}
+
 mutation LearnerOperationsContainerSubmit($input: TeamOperationSubmitInput!) {
 	teamOperationSubmit(input: $input) {
 		status { success errorMessage }

@@ -10,6 +10,7 @@ import {
 	StaffTeamOperationsContainerCommentTeamOperationDocument,
 	StaffTeamOperationsContainerConfirmTeamOperationDocument,
 	StaffTeamOperationsContainerDeleteTeamOperationDocument,
+	StaffTeamOperationsContainerRemoveAttachmentDocument,
 	StaffTeamOperationsContainerTeamOperationsDocument,
 	type StaffTeamOperationsContainerTeamOperationsQuery,
 } from '../generated.tsx';
@@ -32,6 +33,7 @@ export const TeamOperationsContainer = () => {
 	const [deleteOperation, deleting] = useMutation(StaffTeamOperationsContainerDeleteTeamOperationDocument);
 	const [commentOperation, commenting] = useMutation(StaffTeamOperationsContainerCommentTeamOperationDocument);
 	const [attachOperation, attaching] = useMutation(StaffTeamOperationsContainerAttachTeamOperationDocument);
+	const [removeAttachmentOperation, removingAttachment] = useMutation(StaffTeamOperationsContainerRemoveAttachmentDocument);
 	const confirm = async (operation: Operation, note?: string) => {
 		const result = await confirmOperation({ variables: { input: { id: operation.id, note } } });
 		const status = result.data?.teamOperationConfirm.status;
@@ -95,6 +97,16 @@ export const TeamOperationsContainer = () => {
 		message.success('File attached to the thread');
 		await refetch();
 	};
+	const removeAttachment = async (operation: Operation, attachmentId: string) => {
+		const result = await removeAttachmentOperation({ variables: { input: { id: operation.id, attachmentId } } });
+		const status = result.data?.teamOperationRemoveAttachment.status;
+		if (!status?.success) {
+			message.error(status?.errorMessage ?? 'The attachment could not be removed');
+			return;
+		}
+		message.success('Attachment removed.');
+		await refetch();
+	};
 	const operation = data?.teamOperations.find((candidate) => candidate.id === operationId);
 	const view = operationId ? (
 		operation ? (
@@ -102,8 +114,10 @@ export const TeamOperationsContainer = () => {
 				operation={operation}
 				commenting={commenting.loading}
 				attaching={attaching.loading}
+				removingAttachment={removingAttachment.loading}
 				onComment={(candidate, body) => void comment(candidate, body)}
 				onAttach={(candidate, file) => void attach(candidate, file)}
+				onRemoveAttachment={(candidate, attachmentId) => void removeAttachment(candidate, attachmentId)}
 				onBack={() => navigate('/staff/operations')}
 			/>
 		) : (

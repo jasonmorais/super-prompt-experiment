@@ -6,6 +6,8 @@ export interface OperationActionProps {
 	operation: Operation;
 	commenting: boolean;
 	attaching: boolean;
+	removingAttachment: boolean;
 	onComment: (operation: Operation, body: string) => void;
 	onAttach: (operation: Operation, file: File) => void;
+	onRemoveAttachment: (operation: Operation, attachmentId: string) => void;
 }

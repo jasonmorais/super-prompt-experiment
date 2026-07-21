@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { Alert, Button, Spin, message } from 'antd';
+import { ComponentQueryLoader } from '@cellix/ui-core';
+import { Alert, Button, message } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { StaffAssessmentAuthoringAttachDocument, StaffAssessmentAuthoringContextDocument, StaffAssessmentAuthoringCreateDocument, StaffAssessmentAuthoringPublishDocument, StaffAssessmentAuthoringUpdateDocument, StaffAssessmentCreationContextDocument } from '../generated.tsx';
 import { AssessmentAuthoring, type AssessmentAuthoringValues } from './assessment-authoring.tsx';
@@ -42,11 +43,20 @@ export const AssessmentAuthoringContainer = () => {
 	};
 	const loading = creationQuery.loading || editQuery.loading;
 	const error = creationQuery.error ?? editQuery.error;
-	if (loading) return <div className="grid min-h-96 place-items-center"><Spin size="large" /></div>;
-	if (error) return <Alert type="error" showIcon message="Assessment editor could not be loaded" description={error.message} />;
-	if (!course) return <Alert type="warning" showIcon message="Course not found" />;
-	if (!isNew && !assessment) return <Alert type="warning" showIcon message="Assessment not found" />;
-	if (isNew && course.modules.length === 0) return <Alert type="info" showIcon message="Add a module first" description="Return to the course editor, add and save a module, then create its assessment step." action={<Button onClick={back}>Return to course</Button>} />;
+	const ready = Boolean(course) && (isNew ? course && course.modules.length > 0 : Boolean(assessment));
 	const initialValues: AssessmentAuthoringValues = assessment ? { title: assessment.title, description: assessment.description, passingScore: assessment.passingScore, maxAttempts: assessment.maxAttempts, questions: assessment.questions.map((question) => ({ key: question.key, prompt: question.prompt, type: question.type, points: question.points, explanation: question.explanation, options: question.options.map((option) => ({ ...option })) })) } : emptyValues;
-	return <AssessmentAuthoring key={assessment?.id ?? 'new'} initialValues={initialValues} courseTitle={course.title} modules={course.modules.map((module) => ({ key: module.key, title: module.title }))} isNew={isNew} status={assessment?.status} loading={createState.loading || updateState.loading || publishState.loading || attachState.loading} onSave={(values) => void save(values)} onCancel={back} />;
+	const view = course ? <AssessmentAuthoring key={assessment?.id ?? 'new'} initialValues={initialValues} courseTitle={course.title} modules={course.modules.map((module) => ({ key: module.key, title: module.title }))} isNew={isNew} status={assessment?.status} loading={createState.loading || updateState.loading || publishState.loading || attachState.loading} onSave={(values) => void save(values)} onCancel={back} /> : undefined;
+	let noDataComponent = <Alert type="warning" showIcon message="Course not found" />;
+	if (course && !isNew && !assessment) noDataComponent = <Alert type="warning" showIcon message="Assessment not found" />;
+	else if (course && isNew && course.modules.length === 0) noDataComponent = <Alert type="info" showIcon message="Add a module first" description="Return to the course editor, add and save a module, then create its assessment step." action={<Button onClick={back}>Return to course</Button>} />;
+	return (
+		<ComponentQueryLoader
+			loading={loading}
+			error={error}
+			hasData={ready ? view : undefined}
+			hasDataComponent={view ?? noDataComponent}
+			noDataComponent={noDataComponent}
+			errorComponent={<Alert type="error" showIcon message="Assessment editor could not be loaded" description={error?.message} />}
+		/>
+	);
 };

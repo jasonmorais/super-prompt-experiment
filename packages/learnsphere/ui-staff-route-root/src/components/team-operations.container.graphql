@@ -63,3 +63,10 @@ mutation StaffTeamOperationsContainerAttachTeamOperation($input: TeamOperationAt
 		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
 	}
 }
+
+mutation StaffTeamOperationsContainerRemoveAttachment($input: TeamOperationRemoveAttachmentInput!) {
+	teamOperationRemoveAttachment(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
+}

@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
+import { ComponentQueryLoader } from '@cellix/ui-core';
 import { readLearnSphereIdentity } from '@learnsphere/ui-shared';
-import { Alert, Spin, message } from 'antd';
+import { Alert, message } from 'antd';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate, useParams } from 'react-router-dom';
 import { StaffTeamOperationEditorCreateDocument, StaffTeamOperationEditorDataDocument, StaffTeamOperationEditorUpdateDocument } from '../generated.tsx';
@@ -25,8 +26,15 @@ export const TeamOperationEditorContainer = () => {
 		message.success(operationId ? 'Team operation updated' : 'Team operation assigned');
 		navigate('/staff/operations');
 	};
-	if (query.loading) return <div className="grid min-h-96 place-items-center"><Spin size="large" /></div>;
-	if (query.error) return <Alert type="error" showIcon message="Team operation editor could not be loaded" description={query.error.message} />;
-	if (operationId && !operation) return <Alert type="warning" showIcon message="Team operation not found" />;
-	return <TeamOperationEditor operation={operation} teams={query.data?.teams ?? []} saving={createState.loading || updateState.loading} onSave={(values) => void save(values)} onCancel={() => navigate('/staff/operations')} />;
+	const view = <TeamOperationEditor operation={operation} teams={query.data?.teams ?? []} saving={createState.loading || updateState.loading} onSave={(values) => void save(values)} onCancel={() => navigate('/staff/operations')} />;
+	return (
+		<ComponentQueryLoader
+			loading={query.loading}
+			error={query.error}
+			hasData={operationId ? operation : (query.data ?? {})}
+			hasDataComponent={view}
+			noDataComponent={<Alert type="warning" showIcon message="Team operation not found" />}
+			errorComponent={<Alert type="error" showIcon message="Team operation editor could not be loaded" description={query.error?.message} />}
+		/>
+	);
 };

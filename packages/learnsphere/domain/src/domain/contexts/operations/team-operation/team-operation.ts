@@ -307,4 +307,14 @@ export class TeamOperation<Props extends TeamOperationProps = TeamOperationProps
 		if (input.size < 1 || input.size > 8_000_000) throw new Error('Attachments must be between 1 byte and 8 MB');
 		this.props.attachments = [...this.props.attachments, { ...input, fileName: input.fileName.trim() }];
 	}
+
+	removeAttachment(attachmentId: string, actorId: string): TeamOperationAttachment {
+		this.requireDiscussionAccess();
+		const attachment = this.props.attachments.find((candidate) => candidate.id === attachmentId);
+		if (!attachment) throw new Error('Attachment not found');
+		const canManage = this.visa.determineIf((permissions) => permissions.canManageTeamOperations);
+		if (attachment.uploadedBy !== actorId && !canManage) throw new PermissionError('You may only remove your own attachments');
+		this.props.attachments = this.props.attachments.filter((candidate) => candidate.id !== attachmentId);
+		return attachment;
+	}
 }
