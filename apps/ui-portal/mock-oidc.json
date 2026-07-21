@@ -1,0 +1,9 @@
+[
+	{
+		"name": "user",
+		"envVars": {
+			"clientId": "VITE_APP_UI_PORTAL_CLIENTID",
+			"redirectUri": "VITE_APP_UI_PORTAL_REDIRECT_URI"
+		}
+	}
+]

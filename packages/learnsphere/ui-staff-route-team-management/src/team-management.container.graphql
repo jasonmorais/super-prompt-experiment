@@ -1,0 +1,66 @@
+fragment StaffTeamManagementContainerTeamMemberFields on TeamMember {
+	learnerId
+	displayName
+	email
+}
+
+fragment StaffTeamManagementContainerTeamFields on Team {
+	id
+	schemaVersion
+	createdAt
+	updatedAt
+	organizationId
+	name
+	createdBy
+	teamLeadIds
+	members { ...StaffTeamManagementContainerTeamMemberFields }
+}
+
+fragment StaffTeamManagementContainerLearningRecordFields on LearningRecord {
+	learnerId
+	learnerDisplayName
+	learnerEmail
+	teamName
+	assignmentId
+	status
+}
+
+fragment StaffTeamManagementContainerCourseFields on Course {
+	id
+	title
+	category
+}
+
+query StaffTeamManagementContainerTeams($organizationId: String!) {
+	teams(organizationId: $organizationId) { ...StaffTeamManagementContainerTeamFields }
+	teamLearning(organizationId: $organizationId) { ...StaffTeamManagementContainerLearningRecordFields }
+	courses(organizationId: $organizationId, status: PUBLISHED, limit: 100) { ...StaffTeamManagementContainerCourseFields }
+}
+
+mutation StaffTeamManagementContainerCreateTeam($input: TeamCreateInput!) {
+	teamCreate(input: $input) { status { success errorMessage } team { ...StaffTeamManagementContainerTeamFields } }
+}
+
+mutation StaffTeamManagementContainerRenameTeam($input: TeamRenameInput!) {
+	teamRename(input: $input) { status { success errorMessage } team { ...StaffTeamManagementContainerTeamFields } }
+}
+
+mutation StaffTeamManagementContainerDeleteTeam($id: ObjectID!) {
+	teamDelete(id: $id) { status { success errorMessage } team { ...StaffTeamManagementContainerTeamFields } }
+}
+
+mutation StaffTeamManagementContainerSetTeamMembers($input: TeamSetMembersInput!) {
+	teamSetMembers(input: $input) { status { success errorMessage } team { ...StaffTeamManagementContainerTeamFields } }
+}
+
+mutation StaffTeamManagementContainerSetTeamLeads($input: TeamSetLeadsInput!) {
+	teamSetLeads(input: $input) { status { success errorMessage } team { ...StaffTeamManagementContainerTeamFields } }
+}
+
+mutation StaffTeamManagementContainerAssignTeamCourse($input: TeamAssignCourseInput!) {
+	teamAssignCourse(input: $input) { status { success errorMessage } assignmentId assignedCount completedCount }
+}
+
+mutation StaffTeamManagementContainerUnassignTeamCourse($input: TeamUnassignCourseInput!) {
+	teamUnassignCourse(input: $input) { status { success errorMessage } assignmentId assignedCount completedCount }
+}

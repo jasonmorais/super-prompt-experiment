@@ -1,0 +1,24 @@
+fragment LearnerDashboardContainerLearningRecordFields on LearningRecord {
+	id
+	courseId
+	courseTitle
+	courseCategory
+	source
+	assignedBy
+	status
+	isOverdue
+	progressPercent
+	completedActivityCount
+	assignedAt
+	dueAt
+	completedAt
+	activityProgress {
+		timeSpentMinutes
+	}
+}
+
+query LearnerDashboardContainerMyLearning($organizationId: String!) {
+	myLearning(organizationId: $organizationId) {
+		...LearnerDashboardContainerLearningRecordFields
+	}
+}

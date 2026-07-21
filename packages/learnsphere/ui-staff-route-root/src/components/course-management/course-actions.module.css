@@ -1,0 +1,30 @@
+.actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.secondary,
+.danger,
+.primary {
+	height: 40px;
+	padding-inline: 16px;
+	border-radius: 10px;
+	font-weight: 650;
+}
+
+.secondary {
+	border-color: #cfc5ff;
+	background: #f7f4ff;
+	color: #6d4aff;
+}
+
+.danger {
+	border-color: #ff6b6b;
+	background: #fff8f8;
+	color: #d64545;
+}
+
+.primary {
+	box-shadow: none;
+}

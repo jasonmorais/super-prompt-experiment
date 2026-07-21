@@ -1,0 +1,17 @@
+{
+    "resourceGroup": "rg",
+    "cdnProfile": "cdnp",
+    "cdnEndpoint": "cdne",
+    "frontDoorEndpoint": "fde",
+    "applicationInsights": "appi",
+    "appServicePlan": "asp",
+    "functionApp": "func",
+    "cosmosDbMongoAccount": "cosmon",
+    "cosmosDb": "cosmos",
+    "cognitiveSearch": "srch",
+    "storageAccount": "st",
+    "searchService": "srch",
+    "managedIdentity": "id",
+    "eventHubNamespace": "evhns",
+    "eventHub": "evh"
+}

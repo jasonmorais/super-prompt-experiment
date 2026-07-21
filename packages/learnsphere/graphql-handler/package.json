@@ -1,0 +1,41 @@
+{
+	"name": "@learnsphere/graphql-handler",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Azure Functions HTTP integration for GraphQL",
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsgo --build",
+		"watch": "tsgo --watch",
+		"clean": "rimraf dist",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@apollo/server": "catalog:",
+		"@apollo/utils.withrequired": "^3.0.0",
+		"@azure/functions": "catalog:",
+		"@learnsphere/application-services": "workspace:*",
+		"@learnsphere/graphql": "workspace:*",
+		"@learnsphere/service-apollo-server": "workspace:*",
+		"@learnsphere/service-blob-storage": "workspace:*",
+		"graphql": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"rimraf": "catalog:",
+		"typescript": "catalog:",
+		"undici-types": "^6.21.0"
+	}
+}

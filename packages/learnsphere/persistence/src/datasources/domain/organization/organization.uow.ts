@@ -1,0 +1,8 @@
+import { InProcEventBusInstance, NodeEventBusInstance } from '@cellix/event-bus-seedwork-node';
+import { MongooseSeedwork } from '@cellix/mongoose-seedwork';
+import type { OrganizationModelType } from '@learnsphere/data-sources-mongoose-models';
+import type { Domain } from '@learnsphere/domain';
+import { OrganizationConverter } from './organization.domain-adapter.ts';
+import { OrganizationRepository } from './organization.repository.ts';
+export const getOrganizationUnitOfWork = (model: OrganizationModelType, passport: Domain.Passport): Domain.Contexts.Organization.OrganizationUnitOfWork =>
+	MongooseSeedwork.getInitializedUnitOfWork(new MongooseSeedwork.MongoUnitOfWork(InProcEventBusInstance, NodeEventBusInstance, model, new OrganizationConverter(), OrganizationRepository), passport);

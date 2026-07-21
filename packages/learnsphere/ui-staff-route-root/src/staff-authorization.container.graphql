@@ -1,0 +1,23 @@
+query CurrentStaffUserAndCreateIfNotExists {
+	currentStaffUserAndCreateIfNotExists {
+		displayName
+		role {
+			roleName
+			enterpriseAppRole
+			permissions {
+				staffPortalPermissions {
+					canViewTeamLearning
+					canManageCourses
+					canPublishCourses
+					canDeleteCourses
+					canManageTeams
+					canManageTeamOperations
+					canConfirmTeamOperations
+					canManageAssessments
+					canViewOrganization
+					canManageOrganizationStructure
+				}
+			}
+		}
+	}
+}

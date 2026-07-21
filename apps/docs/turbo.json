@@ -1,0 +1,14 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"dev": {
+			"dependsOn": [],
+			"persistent": true,
+			"interruptible": false,
+			"inputs": ["package.json", "docusaurus.config.ts", "sidebars.ts", "tsconfig.json"]
+		},
+		"lint": {
+			"inputs": ["$TURBO_EXTENDS$", "!static/**", "!**/*.md"]
+		}
+	}
+}

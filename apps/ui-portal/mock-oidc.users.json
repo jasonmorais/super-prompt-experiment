@@ -1,0 +1,16 @@
+[
+	{
+		"username": "alex.morgan@example.com",
+		"sub": "00000000-0000-4000-8000-000000000001",
+		"password": "password",
+		"oidcConfigName": "user",
+		"claims": {
+			"email": "alex.morgan@example.com",
+			"given_name": "Alex",
+			"family_name": "Morgan",
+			"tid": "simnova",
+			"organization_name": "SimNova",
+			"roles": ["Learner"]
+		}
+	}
+]

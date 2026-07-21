@@ -1,0 +1,61 @@
+fragment StaffTeamDashboardContainerTeamMemberFields on TeamMember {
+	learnerId
+	displayName
+	email
+}
+
+fragment StaffTeamDashboardContainerTeamFields on Team {
+	id
+	name
+	members { ...StaffTeamDashboardContainerTeamMemberFields }
+}
+
+fragment StaffTeamDashboardContainerLearningRecordFields on LearningRecord {
+	id
+	learnerId
+	learnerDisplayName
+	learnerEmail
+	teamName
+	courseId
+	courseTitle
+	courseCategory
+	source
+	status
+	assignedAt
+	assignedBy
+	dueAt
+	completedAt
+	progressPercent
+	completedActivityCount
+	isOverdue
+	requiresCompletionScreenshot
+	completionScreenshot
+	activityProgress { timeSpentMinutes assessmentScore }
+}
+
+fragment StaffTeamDashboardContainerCourseFields on Course {
+	id
+	title
+	category
+	lessonCount
+}
+
+query StaffTeamDashboardContainerTeamOverview($organizationId: String!, $teamName: String) {
+	teams(organizationId: $organizationId) { ...StaffTeamDashboardContainerTeamFields }
+	teamLearning(organizationId: $organizationId, teamName: $teamName) { ...StaffTeamDashboardContainerLearningRecordFields }
+	courses(organizationId: $organizationId, status: PUBLISHED, limit: 100) { ...StaffTeamDashboardContainerCourseFields }
+}
+
+mutation StaffTeamDashboardContainerAssignLearning($input: AssignLearningInput!) {
+	assignLearning(input: $input) {
+		status { success errorMessage }
+		learningRecord { ...StaffTeamDashboardContainerLearningRecordFields }
+	}
+}
+
+mutation StaffTeamDashboardContainerUnassignLearning($id: ObjectID!) {
+	unassignLearning(id: $id) {
+		status { success errorMessage }
+		learningRecord { ...StaffTeamDashboardContainerLearningRecordFields }
+	}
+}

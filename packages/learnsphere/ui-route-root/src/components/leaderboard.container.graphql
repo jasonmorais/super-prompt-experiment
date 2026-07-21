@@ -1,0 +1,12 @@
+query LearnerLeaderboardContainerTrainingLeaderboard($organizationId: String!, $limit: Int) {
+	trainingLeaderboard(organizationId: $organizationId, limit: $limit) {
+		rank
+		learnerId
+		learnerDisplayName
+		teamName
+		completedTrainings
+		totalTrainings
+		totalLearningMinutes
+		lastCompletedAt
+	}
+}

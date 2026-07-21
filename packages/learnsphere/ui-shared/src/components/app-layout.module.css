@@ -1,0 +1,76 @@
+.sider {
+	position: sticky;
+	top: 0;
+	height: 100vh;
+	padding: 24px 12px;
+	background: #102f2a;
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	padding: 0 14px 30px;
+	color: white;
+}
+
+.brand-mark {
+	display: grid;
+	width: 35px;
+	height: 35px;
+	place-items: center;
+	border-radius: 11px;
+	background: #d3f36b;
+	color: #102f2a;
+	font-size: 18px;
+	font-weight: 900;
+}
+
+.brand-name {
+	font-size: 20px;
+	font-weight: 750;
+	letter-spacing: -0.4px;
+}
+
+.workspace-card {
+	position: absolute;
+	right: 20px;
+	bottom: 24px;
+	left: 20px;
+	padding: 14px;
+	border-radius: 14px;
+	background: #1c4039;
+	color: #d6e3df;
+	font-size: 12px;
+}
+
+.workspace-name {
+	margin-top: 7px;
+	color: white;
+	font-weight: 700;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 76px;
+	padding: 0 36px;
+	border-bottom: 1px solid #e6ebe7;
+	background: rgb(255 255 255 / 92%);
+}
+
+.identity {
+	line-height: 1.25;
+}
+
+.email {
+	color: #7a8682;
+}
+
+.content {
+	width: 100%;
+	max-width: 1500px;
+	margin: 0 auto;
+	padding: 34px clamp(20px, 4vw, 58px) 64px;
+}

@@ -1,0 +1,78 @@
+fragment LearnerCourseContainerCourseFields on Course {
+	id
+	title
+	summary
+	description
+	category
+	level
+	skills
+	discoverability
+	requiresCompletionScreenshot
+	lessonCount
+	estimatedMinutes
+	status
+	modules {
+		key
+		title
+		description
+		order
+		lessons {
+			key
+			title
+			type
+			content
+			videoUrl
+			estimatedMinutes
+			required
+			assessment {
+				id title description passingScore maxAttempts
+				questions { key prompt type points options { key text } }
+			}
+		}
+	}
+}
+
+fragment LearnerCourseContainerLearningRecordFields on LearningRecord {
+	id
+	courseId
+	status
+	isOverdue
+	dueAt
+	progressPercent
+	completedActivityCount
+	requiredActivityKeys
+	requiresCompletionScreenshot
+	completionScreenshot
+	activityProgress {
+		activityKey
+		completedAt
+		timeSpentMinutes
+		assessmentScore
+		attempts
+	}
+}
+
+query LearnerCourseContainerCourseExperience($courseId: ObjectID!, $organizationId: String!) {
+	courseById(id: $courseId) {
+		...LearnerCourseContainerCourseFields
+	}
+		myLearning(organizationId: $organizationId) {
+		...LearnerCourseContainerLearningRecordFields
+	}
+}
+
+mutation LearnerCourseContainerCompleteActivity($input: RecordActivityInput!) {
+	recordActivity(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		learningRecord {
+			...LearnerCourseContainerLearningRecordFields
+		}
+	}
+}
+
+mutation LearnerCourseContainerSubmitAssessment($input: AssessmentSubmitInput!) {
+	assessmentSubmit(input: $input) { status { success errorMessage } attempt { id score passed attemptNumber submittedAt } }
+}

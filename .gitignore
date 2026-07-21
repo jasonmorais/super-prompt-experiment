@@ -1,0 +1,31 @@
+node_modules
+.pnpm-store
+.DS_Store
+**/coverage
+lcov-report
+__*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Turborepo
+.turbo
+
+# Generated GraphQL files
+**/generated.ts
+**/generated.tsx
+**/graphql.schema.json
+
+# Bicep build output
+iac/build/
+
+# Local Azure Functions deployment bundle
+apps/api/deploy/
+
+# Rolldown-generated bundler manifests
+**/*.generated.ts
+
+# Local OIDC mock overrides (per developer)
+**/mock-oidc.local.json
+**/mock-oidc.users.local.json
+local.settings.json

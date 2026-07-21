@@ -1,0 +1,3 @@
+export { StaffPortalPermissions, StaffRole, StaffRolePermissions, StaffRoleRolePermissions, StaffRoleUserPermissions, emptyStaffRolePermissions, type StaffEnterpriseAppRole, type StaffPortalPermissionsEntityReference, type StaffPortalPermissionsProps, type StaffRoleEntityReference, type StaffRolePermissionsEntityReference, type StaffRolePermissionsProps, type StaffRoleProps, type StaffRoleRolePermissionsEntityReference, type StaffRoleRolePermissionsProps, type StaffRoleUserPermissionsEntityReference, type StaffRoleUserPermissionsProps } from './staff-role.ts';
+export type { StaffRoleRepository } from './staff-role.repository.ts';
+export type { StaffRoleUnitOfWork } from './staff-role.uow.ts';

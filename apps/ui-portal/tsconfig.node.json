@@ -1,0 +1,12 @@
+{
+	"extends": "@cellix/config-typescript/base",
+	"compilerOptions": {
+		"noEmit": true,
+		"composite": false,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"types": ["node"],
+		"skipLibCheck": true
+	},
+	"include": ["vite.config.ts"]
+}

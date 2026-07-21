@@ -1,0 +1,6 @@
+/dist
+/deploy
+/node_modules
+/coverage
+*.tsbuildinfo
+local.settings.json

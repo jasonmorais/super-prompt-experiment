@@ -1,0 +1,98 @@
+fragment StaffCourseManagementContainerTeamMemberFields on TeamMember {
+	learnerId
+	displayName
+	email
+}
+
+fragment StaffCourseManagementContainerTeamFields on Team {
+	id
+	name
+	members { ...StaffCourseManagementContainerTeamMemberFields }
+}
+
+fragment StaffCourseManagementContainerLearningRecordFields on LearningRecord {
+	id
+	learnerId
+	learnerDisplayName
+	learnerEmail
+	teamName
+	courseId
+	source
+	status
+	isOverdue
+	assignmentId
+}
+
+fragment StaffCourseManagementContainerCourseFields on Course {
+	id
+	title
+	summary
+	description
+	category
+	level
+	status
+	tags
+	skills
+	discoverability
+	requiresCompletionScreenshot
+	lessonCount
+	estimatedMinutes
+	updatedAt
+	modules {
+		key
+		title
+		description
+		order
+		lessons {
+			key
+			title
+			type
+			content
+			estimatedMinutes
+			required
+			assessment { id title status }
+		}
+	}
+}
+
+query StaffCourseManagementContainerCourseManagement($organizationId: String!) {
+	teams(organizationId: $organizationId) { ...StaffCourseManagementContainerTeamFields }
+	teamLearning(organizationId: $organizationId) { ...StaffCourseManagementContainerLearningRecordFields }
+	courses(organizationId: $organizationId, limit: 100) { ...StaffCourseManagementContainerCourseFields }
+}
+
+mutation StaffCourseManagementContainerSubmitCourse($id: ObjectID!) {
+	courseSubmitForReview(id: $id) {
+		status { success errorMessage }
+		course { ...StaffCourseManagementContainerCourseFields }
+	}
+}
+
+mutation StaffCourseManagementContainerPublishCourse($id: ObjectID!) {
+	coursePublish(id: $id) {
+		status { success errorMessage }
+		course { ...StaffCourseManagementContainerCourseFields }
+	}
+}
+
+
+mutation StaffCourseManagementContainerDeleteCourse($id: ObjectID!) {
+	courseDelete(id: $id) {
+		status { success errorMessage }
+		course { ...StaffCourseManagementContainerCourseFields }
+	}
+}
+
+mutation StaffCourseManagementContainerAssignCourseToLearner($input: AssignLearningInput!) {
+	assignLearning(input: $input) {
+		status { success errorMessage }
+		learningRecord { ...StaffCourseManagementContainerLearningRecordFields }
+	}
+}
+
+mutation StaffCourseManagementContainerUnassignLearning($id: ObjectID!) {
+	unassignLearning(id: $id) {
+		status { success errorMessage }
+		learningRecord { ...StaffCourseManagementContainerLearningRecordFields }
+	}
+}

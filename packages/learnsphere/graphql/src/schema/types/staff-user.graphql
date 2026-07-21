@@ -1,0 +1,44 @@
+type StaffUserActivityDetail {
+	activityType: String!
+	activityDescription: String!
+	activityByStaffUserId: String!
+	activityByStaffUserDisplayName: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+type StaffOrganizationScope {
+	organizationId: String!
+	includeDescendants: Boolean!
+}
+type StaffUser implements MongoBase {
+	externalId: String!
+	firstName: String!
+	lastName: String!
+	email: String!
+	displayName: String!
+	accessBlocked: Boolean!
+	tags: [String!]!
+	role: StaffRole
+	activityLog: [StaffUserActivityDetail!]!
+	organizationScopes: [StaffOrganizationScope!]!
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+extend type Query {
+	currentStaffUserAndCreateIfNotExists: StaffUser!
+	staffUsers: [StaffUser!]!
+	staffUserById(id: ObjectID!): StaffUser
+}
+
+extend type Mutation {
+	staffUserAssignRole(staffUserId: ObjectID!, roleId: ObjectID!): StaffUserMutationResult!
+}
+
+type StaffUserMutationResult {
+	status: MutationStatus!
+	staffUser: StaffUser
+}

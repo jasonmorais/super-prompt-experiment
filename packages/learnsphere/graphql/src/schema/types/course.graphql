@@ -1,0 +1,136 @@
+extend type Query {
+	courseById(id: ObjectID!): Course
+	courses(organizationId: String!, status: CourseStatus, search: String, limit: Int): [Course!]!
+}
+
+extend type Mutation {
+	courseCreate(input: CourseCreateInput!): CourseMutationResult!
+	courseAddModule(input: CourseAddModuleInput!): CourseMutationResult!
+	courseReplaceStructure(input: CourseReplaceStructureInput!): CourseMutationResult!
+	courseSubmitForReview(id: ObjectID!): CourseMutationResult!
+	coursePublish(id: ObjectID!): CourseMutationResult!
+	courseUpdate(input: CourseUpdateInput!): CourseMutationResult!
+	courseDelete(id: ObjectID!): CourseMutationResult!
+}
+
+enum CourseStatus {
+	DRAFT
+	IN_REVIEW
+	PUBLISHED
+	ARCHIVED
+}
+enum CourseLevel {
+	FOUNDATIONAL
+	INTERMEDIATE
+	ADVANCED
+}
+enum CourseDiscoverability {
+	CATALOG
+	ASSIGNED_ONLY
+}
+enum LessonType {
+	ARTICLE
+	VIDEO
+	QUIZ
+	PROJECT
+	RESOURCE
+	ASSESSMENT
+}
+
+type Course implements MongoBase {
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	organizationId: String!
+	title: String!
+	summary: String!
+	description: String!
+	status: CourseStatus!
+	level: CourseLevel!
+	category: String!
+	tags: [String!]!
+	skills: [String!]!
+	discoverability: CourseDiscoverability!
+	requiresCompletionScreenshot: Boolean!
+	modules: [CourseModule!]!
+	lessonCount: Int!
+	estimatedMinutes: Int!
+	createdBy: String!
+	publishedAt: DateTime
+}
+
+type CourseModule {
+	key: String!
+	title: String!
+	description: String!
+	order: Int!
+	lessons: [Lesson!]!
+}
+
+type Lesson {
+	key: String!
+	title: String!
+	type: LessonType!
+	content: String!
+	videoUrl: String
+	estimatedMinutes: Int!
+	required: Boolean!
+	assessment: Assessment
+}
+
+input CourseCreateInput {
+	organizationId: String!
+	title: String!
+	summary: String!
+	description: String!
+	level: CourseLevel!
+	category: String!
+	tags: [String!]
+	skills: [String!]
+	discoverability: CourseDiscoverability
+	requiresCompletionScreenshot: Boolean
+}
+
+input CourseUpdateInput {
+	id: ObjectID!
+	title: String!
+	summary: String!
+	description: String!
+	level: CourseLevel!
+	category: String!
+	tags: [String!]
+	skills: [String!]
+	discoverability: CourseDiscoverability!
+	requiresCompletionScreenshot: Boolean!
+}
+
+input CourseAddModuleInput {
+	courseId: ObjectID!
+	module: CourseModuleInput!
+}
+input CourseReplaceStructureInput {
+	courseId: ObjectID!
+	modules: [CourseModuleInput!]!
+}
+input CourseModuleInput {
+	key: String!
+	title: String!
+	description: String!
+	lessons: [LessonInput!]!
+}
+input LessonInput {
+	key: String!
+	title: String!
+	type: LessonType!
+	content: String!
+	videoUrl: String
+	estimatedMinutes: Int!
+	required: Boolean!
+	assessmentId: ObjectID
+}
+
+type CourseMutationResult {
+	status: MutationStatus!
+	course: Course
+}

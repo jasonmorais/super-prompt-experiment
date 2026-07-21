@@ -1,0 +1,30 @@
+[
+	{
+		"username": "maya.chen@example.com",
+		"sub": "10000000-0000-4000-8000-000000000001",
+		"password": "password",
+		"oidcConfigName": "user",
+		"claims": {
+			"email": "maya.chen@example.com",
+			"given_name": "Maya",
+			"family_name": "Chen",
+			"tid": "simnova",
+			"organization_name": "SimNova",
+			"roles": ["Manager"]
+		}
+	},
+	{
+		"username": "team.lead@example.com",
+		"sub": "10000000-0000-4000-8000-000000000002",
+		"password": "password",
+		"oidcConfigName": "user",
+		"claims": {
+			"email": "team.lead@example.com",
+			"given_name": "Taylor",
+			"family_name": "Lead",
+			"tid": "simnova",
+			"organization_name": "SimNova",
+			"roles": ["TeamLead"]
+		}
+	}
+]

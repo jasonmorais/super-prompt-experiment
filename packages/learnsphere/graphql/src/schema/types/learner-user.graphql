@@ -1,0 +1,16 @@
+type LearnerUser implements MongoBase {
+	externalId: String!
+	email: String!
+	displayName: String!
+	accessBlocked: Boolean!
+	tags: [String!]!
+	userType: String!
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+extend type Query {
+	currentLearnerUserAndCreateIfNotExists: LearnerUser!
+}

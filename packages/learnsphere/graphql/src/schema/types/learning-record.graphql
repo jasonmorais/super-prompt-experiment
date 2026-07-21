@@ -1,0 +1,99 @@
+extend type Query {
+	myLearning(organizationId: String!): [LearningRecord!]!
+	teamLearning(organizationId: String!, teamName: String): [LearningRecord!]!
+	trainingLeaderboard(organizationId: String!, limit: Int): [TrainingLeaderboardEntry!]!
+}
+extend type Mutation {
+	selfEnroll(input: SelfEnrollInput!): LearningRecordMutationResult!
+	assignLearning(input: AssignLearningInput!): LearningRecordMutationResult!
+	recordActivity(input: RecordActivityInput!): LearningRecordMutationResult!
+	waiveLearning(input: WaiveLearningInput!): LearningRecordMutationResult!
+	unassignLearning(id: ObjectID!): LearningRecordMutationResult!
+}
+enum EnrollmentSource {
+	SELF_ENROLLED
+	MANAGER_ASSIGNED
+	PROGRAM_ASSIGNED
+	COMPLIANCE_ASSIGNED
+}
+enum LearningRecordStatus {
+	NOT_STARTED
+	IN_PROGRESS
+	COMPLETED
+	OVERDUE
+	WAIVED
+}
+type ActivityProgress {
+	activityKey: String!
+	completedAt: DateTime!
+	timeSpentMinutes: Int!
+	assessmentScore: Float
+	attempts: Int!
+}
+type TrainingLeaderboardEntry {
+	rank: Int!
+	learnerId: String!
+	learnerDisplayName: String!
+	teamName: String!
+	completedTrainings: Int!
+	totalTrainings: Int!
+	totalLearningMinutes: Int!
+	lastCompletedAt: DateTime
+}
+type LearningRecord implements MongoBase {
+	id: ObjectID!
+	schemaVersion: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	organizationId: String!
+	learnerId: String!
+	learnerDisplayName: String!
+	learnerEmail: String!
+	teamName: String!
+	courseId: String!
+	courseTitle: String!
+	courseCategory: String!
+	requiredActivityKeys: [String!]!
+	requiresCompletionScreenshot: Boolean!
+	source: EnrollmentSource!
+	status: LearningRecordStatus!
+	assignedBy: String
+	assignmentId: String
+	assignedAt: DateTime!
+	dueAt: DateTime
+	startedAt: DateTime
+	completedAt: DateTime
+	activityProgress: [ActivityProgress!]!
+	completionScreenshot: String
+	progressPercent: Int!
+	completedActivityCount: Int!
+	isOverdue: Boolean!
+}
+input SelfEnrollInput {
+	organizationId: String!
+	courseId: ObjectID!
+}
+input AssignLearningInput {
+	organizationId: String!
+	learnerId: String!
+	learnerDisplayName: String!
+	learnerEmail: String!
+	teamName: String!
+	courseId: ObjectID!
+	dueAt: DateTime
+	source: EnrollmentSource!
+}
+input RecordActivityInput {
+	id: ObjectID!
+	activityKey: String!
+	timeSpentMinutes: Int!
+	completionScreenshot: String
+}
+input WaiveLearningInput {
+	id: ObjectID!
+	reason: String!
+}
+type LearningRecordMutationResult {
+	status: MutationStatus!
+	learningRecord: LearningRecord
+}

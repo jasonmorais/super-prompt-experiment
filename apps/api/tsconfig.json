@@ -1,0 +1,63 @@
+{
+	"extends": "@cellix/config-typescript/node",
+	"compilerOptions": {
+		"outDir": "dist",
+		"types": [
+			"node"
+		],
+		"rootDir": "src",
+		"tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+		"exactOptionalPropertyTypes": false
+	},
+	"include": [
+		"src",
+		"globals.d.ts"
+	],
+	"references": [
+		{
+			"path": "../../packages/cellix/api-services-spec"
+		},
+		{
+			"path": "../../packages/cellix/mongoose-seedwork"
+		},
+		{
+			"path": "../../packages/learnsphere/application-services"
+		},
+		{
+			"path": "../../packages/learnsphere/context-spec"
+		},
+		{
+			"path": "../../packages/learnsphere/event-handler"
+		},
+		{
+			"path": "../../packages/learnsphere/graphql"
+		},
+		{
+			"path": "../../packages/learnsphere/graphql-handler"
+		},
+		{
+			"path": "../../packages/learnsphere/persistence"
+		},
+		{
+			"path": "../../packages/learnsphere/rest"
+		},
+		{
+			"path": "../../packages/learnsphere/service-apollo-server"
+		},
+		{
+			"path": "../../packages/learnsphere/service-blob-storage"
+		},
+		{
+			"path": "../../packages/learnsphere/service-queue-storage"
+		},
+		{
+			"path": "../../packages/learnsphere/service-mongoose"
+		},
+		{
+			"path": "../../packages/learnsphere/service-otel"
+		},
+		{
+			"path": "../../packages/learnsphere/service-token-validation"
+		}
+	]
+}

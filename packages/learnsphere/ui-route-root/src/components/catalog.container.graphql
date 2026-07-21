@@ -1,0 +1,41 @@
+fragment LearnerCatalogContainerCourseFields on Course {
+	id
+	title
+	summary
+	category
+	level
+	skills
+	tags
+	discoverability
+	lessonCount
+	estimatedMinutes
+}
+
+fragment LearnerCatalogContainerLearningRecordFields on LearningRecord {
+	id
+	courseId
+	status
+	isOverdue
+	assignedBy
+}
+
+query LearnerCatalogContainerCatalog($organizationId: String!) {
+	courses(organizationId: $organizationId, status: PUBLISHED, limit: 30) {
+		...LearnerCatalogContainerCourseFields
+	}
+	myLearning(organizationId: $organizationId) {
+		...LearnerCatalogContainerLearningRecordFields
+	}
+}
+
+mutation LearnerCatalogContainerSelfEnroll($input: SelfEnrollInput!) {
+	selfEnroll(input: $input) {
+		status {
+			success
+			errorMessage
+		}
+		learningRecord {
+			...LearnerCatalogContainerLearningRecordFields
+		}
+	}
+}

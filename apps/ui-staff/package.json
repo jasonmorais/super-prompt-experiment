@@ -1,0 +1,41 @@
+{
+	"name": "@apps/ui-staff",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "tsgo -p tsconfig.json && vite build",
+		"dev": "pnpm exec portless staff.learnsphere.localhost --force vite",
+		"dev:worktree": "pnpm exec portless staff.learnsphere.${WORKTREE_NAME}.localhost --force node start-dev.ts",
+		"start": "vite preview --port 3002",
+		"lint": "biome lint",
+		"format": "biome format --write",
+		"format:check": "biome format .",
+		"prebuild": "pnpm run lint"
+	},
+	"dependencies": {
+		"@apollo/client": "^3.13.9",
+		"@cellix/ui-core": "workspace:*",
+		"@learnsphere/ui-shared": "workspace:*",
+		"@learnsphere/ui-staff-route-team-management": "workspace:*",
+		"@learnsphere/ui-staff-route-root": "workspace:*",
+		"antd": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
+		"react-oidc-context": "^3.3.0",
+		"react-router-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@cellix/config-typescript": "workspace:*",
+		"@cellix/local-dev": "workspace:*",
+		"@learnsphere/local-dev-config": "workspace:*",
+		"@types/react": "^19.1.8",
+		"@types/react-dom": "^19.1.6",
+		"@vitejs/plugin-react": "^6.0.1",
+		"autoprefixer": "^10.4.20",
+		"postcss": "^8.5.10",
+		"tailwindcss": "^3.4.17",
+		"typescript": "catalog:",
+		"vite": "catalog:"
+	}
+}

@@ -1,0 +1,78 @@
+fragment LearnerOperationsContainerTeamOperationFields on TeamOperation {
+	id
+	title
+	description
+	category
+	priority
+	status
+	assigneeId
+	assigneeDisplayName
+	teamName
+	createdBy
+	assignedAt
+	dueAt
+	submittedAt
+	completionNote
+	completionEvidence
+	confirmedAt
+	confirmedBy
+	isOverdue
+	statusHistory {
+		status
+		changedAt
+		changedBy
+		note
+	}
+	thread {
+		comments {
+			id
+			body
+			authorId
+			authorName
+			createdAt
+		}
+		attachments {
+			id
+			fileName
+			contentType
+			size
+			blobName
+			uploadedBy
+			uploadedAt
+		}
+	}
+}
+
+query LearnerOperationsContainerMyTeamOperations($organizationId: String!) {
+	myTeamOperations(organizationId: $organizationId) {
+		...LearnerOperationsContainerTeamOperationFields
+	}
+}
+
+mutation LearnerOperationsContainerComment($input: TeamOperationCommentInput!) {
+	teamOperationComment(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...LearnerOperationsContainerTeamOperationFields }
+	}
+}
+
+mutation LearnerOperationsContainerAttach($input: TeamOperationAttachInput!) {
+	teamOperationAttach(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...LearnerOperationsContainerTeamOperationFields }
+	}
+}
+
+mutation LearnerOperationsContainerRemoveAttachment($input: TeamOperationRemoveAttachmentInput!) {
+	teamOperationRemoveAttachment(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...LearnerOperationsContainerTeamOperationFields }
+	}
+}
+
+mutation LearnerOperationsContainerSubmit($input: TeamOperationSubmitInput!) {
+	teamOperationSubmit(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...LearnerOperationsContainerTeamOperationFields }
+	}
+}

@@ -1,0 +1,72 @@
+fragment StaffTeamOperationsContainerTeamOperationFields on TeamOperation {
+	id
+	title
+	description
+	category
+	priority
+	status
+	assigneeId
+	assigneeDisplayName
+	assigneeEmail
+	teamName
+	createdBy
+	assignedAt
+	dueAt
+	submittedAt
+	submittedBy
+	completionNote
+	completionEvidence
+	confirmedAt
+	confirmedBy
+	isOverdue
+	statusHistory { status changedAt changedBy note }
+	thread {
+		comments { id body authorId authorName createdAt }
+		attachments { id fileName contentType size blobName uploadedBy uploadedAt }
+	}
+}
+
+query StaffTeamOperationsContainerTeamOperations($organizationId: String!, $teamName: String) {
+	teamOperations(organizationId: $organizationId, teamName: $teamName) { ...StaffTeamOperationsContainerTeamOperationFields }
+}
+
+mutation StaffTeamOperationsContainerConfirmTeamOperation($input: TeamOperationConfirmInput!) {
+	teamOperationConfirm(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
+}
+
+mutation StaffTeamOperationsContainerCancelTeamOperation($input: TeamOperationCancelInput!) {
+	teamOperationCancel(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
+}
+
+mutation StaffTeamOperationsContainerDeleteTeamOperation($id: ObjectID!) {
+	teamOperationDelete(id: $id) {
+		status { success errorMessage }
+	}
+}
+
+mutation StaffTeamOperationsContainerCommentTeamOperation($input: TeamOperationCommentInput!) {
+	teamOperationComment(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
+}
+
+mutation StaffTeamOperationsContainerAttachTeamOperation($input: TeamOperationAttachInput!) {
+	teamOperationAttach(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
+}
+
+mutation StaffTeamOperationsContainerRemoveAttachment($input: TeamOperationRemoveAttachmentInput!) {
+	teamOperationRemoveAttachment(input: $input) {
+		status { success errorMessage }
+		teamOperation { ...StaffTeamOperationsContainerTeamOperationFields }
+	}
+}
